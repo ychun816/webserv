@@ -1,7 +1,9 @@
-#include "webserv.hpp"
+#include "../includes/webserv.hpp"
+#include "../includes/server/Server.hpp"
 
 int main(int argc, char const *argv[])
 {
-    ft_printf("%d", ft_strlen("sdsds"));
+    (void)argc;
+    (void)argv;
     return 0;
 }
