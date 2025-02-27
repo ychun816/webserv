@@ -6,7 +6,8 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 MAIN = webserv
 
-SRC = ${addsuffix .cpp, ${MAIN}}
+SRC = ${addsuffix .cpp, ${MAIN}} \
+      server/Server.cpp
 
 SRC_DIR = srcs
 

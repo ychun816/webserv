@@ -1,24 +1,30 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#pragma once
 
-# include <iostream>
-# include <string>
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 class Server
 {
 	public:
 		// Constructors
 		Server();
-		Server(const Server &copy);
-		
+		Server(const std::string & configFile);
+
 		// Destructor
 		~Server();
 		
 		// Operators
 		Server & operator=(const Server &assign);
-		
-	private:
-		
-};
 
-#endif
+		// Methods
+		void	init(std::string &configFile);
+		void	createSocket();
+		void	configSocket();
+	private:
+		std::string 		_configFile;
+		int					_socketFd;
+		struct sockaddr_in 	address;
+};
