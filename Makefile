@@ -11,9 +11,6 @@ SRC = ${addsuffix .cpp, ${MAIN}} \
 
 SRC_DIR = srcs
 
-LIBFT = libft/libft.a
-
-# Chemin complet vers les fichiers sources
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
 OBJS = $(SRCS:.cpp=.o)
@@ -33,7 +30,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "$(GREEN)$(BOLD)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 	@echo "$(GREEN)$(BOLD)✓ $(NAME) compilé avec succès!$(RESET)"
 
 %.o: %.cpp
@@ -45,13 +42,11 @@ $(NAME): $(OBJS)
 clean:
 	@echo "$(RED)$(BOLD)Nettoyage des fichiers objets...$(RESET)"
 	@rm -f $(OBJS)
-	@make --no-print-directory -C libft/ clean
 	@echo "$(GREEN)$(BOLD)✓ Nettoyage terminé!$(RESET)"
 
 fclean: clean
 	@echo "$(RED)$(BOLD)Suppression de $(NAME)...$(RESET)"
 	@rm -f $(NAME)
-	@make --no-print-directory -C libft/ fclean
 	@echo "$(GREEN)$(BOLD)✓ Suppression terminée!$(RESET)"
 
 re: fclean all

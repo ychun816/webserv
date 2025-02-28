@@ -9,6 +9,10 @@
 #include <deque>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/epoll.h>
+
+#define PORT 8080
+#define MAX_EVENTS 1000
 
 class Server
 {
@@ -28,6 +32,7 @@ class Server
 		void	createSocket();
 		void	configSocket();
 		void	runServer();
+		void	setNonBlocking();
 	private:
 		std::string 		_configFile;
 		std::deque<int>		_connexions;
