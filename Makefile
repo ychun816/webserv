@@ -31,15 +31,10 @@ CURRENT_FILE = 0
 
 all: $(NAME)
 
-$(NAME): $(LIBFT) $(OBJS)
+$(NAME): $(OBJS)
 	@echo "$(GREEN)$(BOLD)Linking $(NAME)...$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
 	@echo "$(GREEN)$(BOLD)✓ $(NAME) compilé avec succès!$(RESET)"
-
-$(LIBFT):
-	@echo "$(BLUE)$(BOLD)Compilation de la libft...$(RESET)"
-	@make --no-print-directory -C libft/
-	@echo "$(GREEN)$(BOLD)✓ libft compilée avec succès!$(RESET)"
 
 %.o: %.cpp
 	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
