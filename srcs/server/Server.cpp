@@ -2,11 +2,7 @@
 // #include "Server.hpp"
 
 // Constructors
-Server::Server() : _configFile(""), _socketFd(-1) {}
-
-Server::Server(const std::string & configFile) : _configFile(configFile), _socketFd(-1) {
-	
-}
+Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods("") {}
 
 // Destructor
 Server::~Server() { std::cout << this->_configFile << std::endl; }
@@ -14,33 +10,34 @@ Server::~Server() { std::cout << this->_configFile << std::endl; }
 void	Server::createSocket() {
     if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Creation de la socket, retourne son FD
 		throw std::runtime_error("Erreur lors de la création du socket");
+	// Sert a pouvoir reutiliser le port (ici 8080) et evite donc l'erreur d'adderss already in use
+	const int enable = 1;
+	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+		std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
+
 	setNonBlocking(); // Passage en mode non-Bloquant
-	std::memset(&this->address, 0, sizeof(this->address));
+	std::memset(&this->_address, 0, sizeof(this->_address));
 	// PORT
-	this->address.sin_port = htons(PORT);
+	this->_address.sin_port = htons(PORT);
 	// IPV4 INTERNET PROTOCOL
-	this->address.sin_family = AF_INET;
-	// ADDRESS IP DE LA SOCKET (INADDR _ANY = l'os se debrouille)
-	this->address.sin_addr.s_addr = htonl(INADDR_ANY);
+	this->_address.sin_family = AF_INET;
+	// _adress IP DE LA SOCKET (INADDR _ANY = l'os se debrouille)
+	this->_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	 // Bind la socket a l'interface reseau, la relie. On peut donc s'y connecter en  utilisant le bon port et recevoir des connexions entrantes. En gros c'est son adresse
-	if (bind(this->_socketFd, (struct sockaddr *)&this->address, sizeof(this->address)) < 0)
+	if (bind(this->_socketFd, (struct sockaddr *)&this->_address, sizeof(this->_address)) < 0)
 	{
-		throw std::runtime_error("Bind failed");
+		close(this->_socketFd);
+		throw Server::configError("Bind failed");
 	}
 	else
 		std::cout << "Bind Succes" << std::endl;
 }
 
 void	Server::configSocket() {
-	// Sert a pouvoir reutiliser le port (ici 8080) et evite donc l'erreur d'adderss already in use
-	const int enable = 1;
-	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-		std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
-	
 	// Pour un serveur web, une file d'attente de 10 à 128 connexions est généralement recommandée
 	// SOMAXCONN est la valeur maximale recommandée par le système (généralement 128)
 	if (listen(this->_socketFd, SOMAXCONN) < 0)
-		throw std::runtime_error("Échec de l'écoute sur le socket");
+		throw Server::configError("Échec de l'écoute sur le socket");
 
 }
 
@@ -53,28 +50,28 @@ void	Server::runServer() {
 
 	// Creer l'instance epoll. le parametre est obsolete donc mettre ce qu'on veut. Preferer Epoll_create1() mais interdit dan sle projet 42 webserv
 	if ((epoll_fd = epoll_create(1)) < 0)
-		throw std::runtime_error("Epoll Error");
+		throw Server::configError("Epoll Error");
 	else
 	{
 		std::cout << "Epoll crée avec succes with fd: " << epoll_fd << std::endl;
 		event.events = EPOLLIN;
 		event.data.fd = this->_socketFd;
  		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
-			throw std::runtime_error("Fail to add Socket to epoll (epoll_ctl)");
+			throw Server::configError("Fail to add Socket to epoll (epoll_ctl)");
 	}
 	std::cout << "En attente de connexions sur le port " << PORT << std::endl;
     while (true) {
         int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
         if (event_count == -1) {
-            throw std::runtime_error("epoll_wait");
+            throw Server::configError("epoll_wait");
             break;
         }
 		for (int i = 0; i < event_count; i++)
 		{
 			if (events[i].data.fd == this->_socketFd) { // Nouvelle connexion
-				struct sockaddr_in client_address;
-				socklen_t client_addrlen = sizeof(client_address);
-				client_fd = accept(this->_socketFd, (struct sockaddr *)&client_address, &client_addrlen);
+				struct sockaddr_in client__adress;
+				socklen_t client_addrlen = sizeof(client__adress);
+				client_fd = accept(this->_socketFd, (struct sockaddr *)&client__adress, &client_addrlen);
 				if (client_fd < 0) {
 					std::cerr << "Accept echoué" << std::endl;
 					continue;
@@ -92,7 +89,8 @@ void	Server::runServer() {
 				int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
 				if (bytes_read > 0)
 				{
-					std::cout << "Bytes read: " << buffer << std::endl;
+					std::string request(buffer, bytes_read);
+					std::cout << "Bytes read:\n" << request << std::endl;
 					send(events[i].data.fd, buffer, bytes_read, 0);
 
 				} else {
@@ -134,7 +132,22 @@ void Server::init(std::string &configFile)
 // Operators
 Server & Server::operator=(const Server &assign)
 {
-	(void) assign;
-	return *this;
+    if (this != &assign) {
+        _configFile = assign._configFile;
+        _socketFd = assign._socketFd;
+        _port = assign._port;
+        _host = assign._host;
+        _root = assign._root;
+        _index = assign._index;
+        _errorPage = assign._errorPage;
+        _cgi = assign._cgi;
+        _upload = assign._upload;
+        _clientMaxBodySize = assign._clientMaxBodySize;
+        _allowMethods = assign._allowMethods;
+        _connexions = assign._connexions;
+        _address = assign._address;
+		_locations = assign._locations;
+    }
+    return *this;
 }
 
