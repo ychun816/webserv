@@ -93,6 +93,7 @@ curl http://localhost:8080
 - [RFC 2616 (HTTP/1.1)](https://tools.ietf.org/html/rfc2616)
 - [Documentation NGINX](https://nginx.org/en/docs/)
 - [CGI Specification](https://datatracker.ietf.org/doc/html/rfc3875)
+- [NGINX Begginner Guide](https://nginx.org/en/docs/beginners_guide.html)
 
 ## ⚠️ Notes Importantes
 - Le serveur doit rester disponible sous forte charge
@@ -103,7 +104,7 @@ curl http://localhost:8080
 ## 🤝 Contribution
 Ce projet est développé par:
 - [agilibert](https://github.com/Canybardeloton)
-
+- [crystalsith](https://github.com/CrystxlSith)
 
 ## 📄 Licence
 42
