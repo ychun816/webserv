@@ -21,6 +21,7 @@ Server Config::fillServer(std::vector<std::string>& lines)
     Server server;
     for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
     {
+        std::cout << "Checking line: [" << *it << "]" << std::endl;
         if ((*it).find("listen") != std::string::npos)
         {
             size_t pos = (*it).find("listen") + 6;
@@ -49,13 +50,6 @@ Server Config::fillServer(std::vector<std::string>& lines)
             value = trim(value, " \t;");
             server.setIndex(value);
         }
-        else if ((*it).find("cgi") != std::string::npos)
-        {
-            size_t pos = (*it).find("cgi") + 4;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setCgi(value);
-        }
         else if ((*it).find("client_max_body_size") != std::string::npos)
         {
             size_t pos = (*it).find("client_max_body_size") + 20;
@@ -65,11 +59,22 @@ Server Config::fillServer(std::vector<std::string>& lines)
         }
         else if ((*it).find("location") != std::string::npos)
         {
+            std::cout << "Found location in line: [" << *it << "]" << std::endl;
             size_t pos = (*it).find("location") + 8;
             std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
+            value = trim(value, " \t;{");
             std::cout << "Location: " << value << std::endl;
-            addLocation(value, server, lines, it);
+            
+            // Maintenant parseLocation avance l'itérateur jusqu'à la fin du bloc
+            Location loc = parseLocation(value, lines, it);
+            server.pushLocation(loc);
+        }
+        else if ((*it).find("cgi") != std::string::npos)
+        {
+            size_t pos = (*it).find("cgi") + 4;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            server.setCgi(value);
         }
     }
     // DEBUG
@@ -92,6 +97,7 @@ void Config::parseServer(std::vector<std::string>& lines)
         {
             if ((*it)[0] == '}')
             {
+                std::cout << *it << std::endl;
                 std::cout << GREEN << "Server closed by '}'" << RESET << std::endl;
                 server = fillServer(serverLines);
                 std::cout << GREEN << "Server filled" << RESET << std::endl;
@@ -118,15 +124,35 @@ void Config::parseServer(std::vector<std::string>& lines)
         throw ConfigException("No server found");
 }
 
-void Config::addLocation(const std::string& location, Server& server, std::vector<std::string>& lines, std::vector<std::string>::iterator& it)
+Location Config::parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it)
 {
-    (void)location;
-    (void)server;
-    (void)lines;
-    (void)it;
+    std::string path = trim(location, " }");
+    std::cout << "Path: " << path << std::endl;
     Location NewLocation;
-    // location.setPath(location);
-    // server.addLocation(location);
+    NewLocation.setPath(path);
+    
+    // Avancer jusqu'à la fin du bloc de location
+    int braceCount = 1; // On commence après l'accolade ouvrante
+    it++; // Passer à la ligne suivante après "location xxx {"
+    
+    while (it != lines.end() && braceCount > 0)
+    {
+        std::cout << "Line: " << *it << std::endl;
+        if ((*it).find("{") != std::string::npos)
+            braceCount++;
+        if ((*it).find("}") != std::string::npos)
+            braceCount--;
+        
+        if (braceCount == 0)
+            break; // On a trouvé l'accolade fermante correspondante
+        
+        // Traiter les paramètres de la location ici
+        // (code pour parser les paramètres comme methods, index, etc.)
+        
+        it++;
+    }
+    
+    return (NewLocation);
 }
 
 void Config::initParsing(std::ifstream& file)

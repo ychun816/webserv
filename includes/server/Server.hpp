@@ -32,7 +32,7 @@ class Server
 		void	configSocket();
 		void	runServer();
 		void	setNonBlocking();
-
+		void	pushLocation(const Location& location);
 		// Getters
 		const std::string& getConfigFile() const { return _configFile; }
 		const std::deque<int>& getConnexions() const { return _connexions; }

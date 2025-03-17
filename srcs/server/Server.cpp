@@ -129,6 +129,11 @@ void Server::init(std::string &configFile)
 	runServer();
 }
 
+void Server::pushLocation(const Location& location)
+{
+	this->_locations.push_back(location);
+}
+
 // Operators
 Server & Server::operator=(const Server &assign)
 {
