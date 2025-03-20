@@ -15,9 +15,13 @@ private:
     void initParsing(std::ifstream& file);
     void parseServer(std::vector<std::string>& lines);
     Server fillServer(std::vector<std::string>& lines);
+    void findParameters(std::vector<std::string>::iterator& it, Server& server, std::vector<std::string>& lines);
 public:
     Config(const std::string& filename);
     ~Config();
+    
+    // Méthode pour démarrer les serveurs
+    void runServers();
 
     // Getters
     const std::vector<Server>& getServers() const { return _servers; }
@@ -29,6 +33,7 @@ public:
     void addServer(const Server& server) { _servers.push_back(server); }
     void removeServer(size_t index) { _servers.erase(_servers.begin() + index); }
     bool hasServer(size_t index) const { return index < _servers.size(); }
+    
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
 
 		class ConfigException : public std::exception

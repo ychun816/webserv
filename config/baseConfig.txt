@@ -39,7 +39,7 @@ server {
 }
 
 server {
-    listen 8081;
+    listen 3000;
     server_name example.com;
     root /var/www/example;
     

@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <list>
+#include "Request.hpp"
 #define PORT 8080
 #define MAX_EVENTS 1000
 
@@ -20,6 +21,7 @@ class Server
 	public:
 		// Constructors
 		Server();
+		Server(const Server& other); // Constructeur de copie
 		// Destructor
 		~Server();
 		
@@ -45,8 +47,9 @@ class Server
 		const std::string& getCgi() const { return _cgi; }
 		const std::string& getUpload() const { return _upload; }
 		const std::string& getClientMaxBodySize() const { return _clientMaxBodySize; }
-		const std::string& getAllowMethods() const { return _allowMethods; }
+		const std::list<std::string>& getAllowMethods() const { return _allowMethods; }
 		const std::vector<std::string>& getErrorPages() const { return _errorPages; }
+		const std::list<Location>& getLocations() const { return _locations; }
 		// Setters
 		void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 		void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }
@@ -59,8 +62,8 @@ class Server
 		void setCgi(const std::string& cgi) { _cgi = cgi; }
 		void setUpload(const std::string& upload) { _upload = upload; }
 		void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }
-		void setAllowMethods(const std::string& allowMethods) { _allowMethods = allowMethods; }
-		
+		void setAllowMethods(const std::list<std::string>& allowMethods) { _allowMethods = allowMethods; }
+		void setLocations(const std::list<Location>& locations) { _locations = locations; }
 	private:
 		std::string 		_configFile;
 		std::deque<int>		_connexions;
@@ -73,7 +76,7 @@ class Server
 		std::string			_cgi;
 		std::string			_upload;
 		std::string			_clientMaxBodySize;
-		std::string			_allowMethods;
+		std::list<std::string>	_allowMethods;
 		struct sockaddr_in 	_address;
 		std::vector<std::string>	_errorPages;
 		std::list<Location>	_locations;
@@ -101,7 +104,13 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
 	os << "  CGI: " << server.getCgi() << std::endl;
 	os << "  Upload: " << server.getUpload() << std::endl;
 	os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;
-	os << "  Allow Methods: " << server.getAllowMethods() << std::endl;
+	os << "  Allow Methods: ";
+	for (std::list<std::string>::const_iterator it = server.getAllowMethods().begin(); it != server.getAllowMethods().end(); ++it) {
+		os << *it << " ";
+	}
+	std::cout << std::endl;
+	std::cout << "  Locations: " << server.getLocations().size() << std::endl;
+	os << std::endl;
 	return os;
 }
 

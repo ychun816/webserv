@@ -2,7 +2,29 @@
 // #include "Server.hpp"
 
 // Constructors
-Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods("") {}
+Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
+	// Ne pas appeler ces méthodes automatiquement, elles seront appelées explicitement
+
+}
+
+// Constructeur de copie
+Server::Server(const Server& other) {
+    _configFile = other._configFile;
+    _socketFd = other._socketFd;
+    _port = other._port;
+    _host = other._host;
+    _root = other._root;
+    _index = other._index;
+    _errorPage = other._errorPage;
+    _cgi = other._cgi;
+    _upload = other._upload;
+    _clientMaxBodySize = other._clientMaxBodySize;
+    _allowMethods = other._allowMethods;
+    _connexions = other._connexions;
+    _address = other._address;
+    _errorPages = other._errorPages;
+    _locations = other._locations;
+}
 
 // Destructor
 Server::~Server() { std::cout << this->_configFile << std::endl; }
@@ -14,11 +36,15 @@ void	Server::createSocket() {
 	const int enable = 1;
 	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 		std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
+	
+    // Permet à plusieurs processus de se lier au même port
+	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0)
+		std::cerr << "setsockopt(SO_REUSEPORT) failed" << std::endl;
 
 	setNonBlocking(); // Passage en mode non-Bloquant
 	std::memset(&this->_address, 0, sizeof(this->_address));
 	// PORT
-	this->_address.sin_port = htons(PORT);
+	this->_address.sin_port = htons(this->_port);
 	// IPV4 INTERNET PROTOCOL
 	this->_address.sin_family = AF_INET;
 	// _adress IP DE LA SOCKET (INADDR _ANY = l'os se debrouille)
@@ -59,7 +85,7 @@ void	Server::runServer() {
  		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
 			throw Server::configError("Fail to add Socket to epoll (epoll_ctl)");
 	}
-	std::cout << "En attente de connexions sur le port " << PORT << std::endl;
+	std::cout << "En attente de connexions sur le port " << this->_port << std::endl;
     while (true) {
         int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
         if (event_count == -1) {
@@ -90,7 +116,8 @@ void	Server::runServer() {
 				if (bytes_read > 0)
 				{
 					std::string request(buffer, bytes_read);
-					std::cout << "Bytes read:\n" << request << std::endl;
+					// std::cout << "Bytes read:\n" << request << std::endl;
+					Request req(request);
 					send(events[i].data.fd, buffer, bytes_read, 0);
 
 				} else {
