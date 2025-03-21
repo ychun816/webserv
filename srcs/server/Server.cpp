@@ -116,9 +116,9 @@ void	Server::runServer() {
 				if (bytes_read > 0)
 				{
 					std::string request(buffer, bytes_read);
-					// std::cout << "Bytes read:\n" << request << std::endl;
+					std::cout << "Bytes read:\n" << request << std::endl;
 					Request req(request);
-					send(events[i].data.fd, buffer, bytes_read, 0);
+					send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
 
 				} else {
 					// deconnexion client

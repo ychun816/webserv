@@ -1,5 +1,7 @@
 #include "../../includes/server/Response.hpp"
 #include "../../includes/server/Request.hpp"
+#include <iostream>
+#include <sstream>
 
 Response::Response() : 
     _statusCode(0),
@@ -18,7 +20,7 @@ Response::Response(const Request& request) :
     _headers(),
     _httpVersion("HTTP/1.1")
 {
-    (void)request;  // Pour éviter l'avertissement de paramètre non utilisé
+    (void)request;
 }
 
 Response::~Response()
@@ -47,4 +49,14 @@ void Response::setStatus(int code)
         case 505: _statusMessage = "HTTP Version Not Supported"; break;
         default: _statusMessage = "Unknown Status"; break;
     }
+}
+
+std::string Response::formatResponse() const {
+    std::stringstream ss;
+    ss << _httpVersion << " " << _statusCode << " " << _statusMessage << "\r\n";
+    for (const std::pair<std::string, std::string>& header : _headers) {
+        ss << header.first << ": " << header.second << "\r\n";
+    }
+    ss << "\r\n" << _body;
+    return ss.str();
 }

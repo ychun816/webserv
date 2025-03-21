@@ -21,7 +21,8 @@ SRC = ${addsuffix .cpp, ${MAIN}} \
 	  utils/Utils.cpp \
 	  parsing/Locations.cpp \
 	  server/Request.cpp \
-	  server/Response.cpp
+	  server/Response.cpp \
+	  parsing/Files.cpp
 			
 SRC_DIR = srcs
 
@@ -95,6 +96,12 @@ $(OBJ_DIR)/%_Response.o: $(SRC_DIR)/server/Response.cpp
 	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
 	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Response.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_Files.o: $(SRC_DIR)/parsing/Files.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Files.d -c $< -o $@ -I$(INC_DIR)
 	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
 
 clean:
