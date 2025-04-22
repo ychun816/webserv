@@ -55,9 +55,9 @@ server {
 
 ### 1. Base du Serveur
 - [x] Création du Makefile
-- [ ] Configuration de base du serveur
-- [ ] Implémentation du socket non-bloquant
-- [ ] Gestion basique des connexions
+- [x] Configuration de base du serveur
+- [x] Implémentation du socket non-bloquant
+- [x] Gestion basique des connexions
 
 ### 2. Parsing HTTP
 - [ ] Parser de requêtes HTTP
@@ -104,7 +104,8 @@ curl http://localhost:8080
 ## 🤝 Contribution
 Ce projet est développé par:
 - [agilibert](https://github.com/Canybardeloton)
-- [crystalsith](https://github.com/CrystxlSith)
+- [clarily](https://github.com/CrystxlSith)\
+- []
 
 ## 📄 Licence
 42

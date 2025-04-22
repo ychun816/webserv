@@ -53,10 +53,28 @@ void Response::setStatus(int code)
 
 std::string Response::formatResponse() const {
     std::stringstream ss;
+    
+    // Ligne de statut
     ss << _httpVersion << " " << _statusCode << " " << _statusMessage << "\r\n";
-    for (const std::pair<std::string, std::string>& header : _headers) {
+    
+    // En-têtes existants
+    std::map<std::string, std::string> finalHeaders = _headers;
+    
+    // Ajouter Content-Type s'il n'existe pas déjà
+    if (finalHeaders.find("Content-Type") == finalHeaders.end()) {
+        finalHeaders["Content-Type"] = "text/html";
+    }
+    
+    // Ajouter Content-Length s'il n'existe pas déjà
+    if (finalHeaders.find("Content-Length") == finalHeaders.end()) {
+        finalHeaders["Content-Length"] = std::to_string(_body.length());
+    }
+    
+    // Écrire tous les en-têtes
+    for (const std::pair<const std::string, std::string>& header : finalHeaders) {
         ss << header.first << ": " << header.second << "\r\n";
     }
+    
     ss << "\r\n" << _body;
     return ss.str();
 }
