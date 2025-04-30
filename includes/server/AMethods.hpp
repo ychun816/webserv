@@ -1,0 +1,69 @@
+#pragma once
+
+#include "Request.hpp"
+#include "Response.hpp"
+#include <sys/stat.h>
+#include <cstdlib>
+#include <vector>
+#include <exception>
+
+#ifdef _WIN32
+	#include <windows.h>
+	#include <direct.h>
+	#define PATH_SEPARATOR '\\'
+	#define getcwd _getcwd
+	#define MAX_PATH_LENGTH MAX_PATH
+#else
+	#include <unistd.h>
+	#include <limits.h>
+	#include <stdlib.h>
+	#include <errno.h>
+	#include <string.h>
+	#define PATH_SEPARATOR '/'
+	#define MAX_PATH_LENGTH PATH_MAX
+#endif
+
+class AMethods
+{
+	public :
+		AMethods();
+		AMethods(const AMethods& copy);
+		AMethods&	operator=(const AMethods& copy);
+		virtual ~AMethods();
+
+		virtual void execute(Request& request, Response& response) = 0;
+
+		// Template Method pattern pour le flux commun
+		void process(Request& request, Response& response)
+		{
+			if (!isMethodAllowed(request)) {
+				handleMethodNotAllowed(response);
+				return;
+			}
+			try {
+				execute(request, response);
+			} catch (const std::exception& e) {
+				handleError(e, response);
+			}
+		}
+
+		class executeError : public std::exception
+		{
+			public:
+				executeError(const std::string &message) : _message(message) {}
+				virtual ~executeError() throw() {}
+				virtual const char *what() const throw() { return _message.c_str(); }
+			private:
+				std::string _message;
+		};
+
+	protected :
+		bool checkPath(const std::string& path);
+
+	private :
+		virtual bool isMethodAllowed(const Request& request);
+		void handleMethodNotAllowed(Response& response);
+		void handleError(const std::exception& e, Response& response);
+
+
+};
