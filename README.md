@@ -60,9 +60,9 @@ server {
 - [x] Gestion basique des connexions
 
 ### 2. Parsing HTTP
-- [ ] Parser de requêtes HTTP
-- [ ] Générateur de réponses HTTP
-- [ ] Gestion des headers
+- [x] Parser de requêtes HTTP
+- [x] Générateur de réponses HTTP
+- [x] Gestion des headers
 
 ### 3. Fonctionnalités Core
 - [ ] Gestion des méthodes HTTP (GET, POST, DELETE)
