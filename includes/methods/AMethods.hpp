@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Request.hpp"
-#include "Response.hpp"
+#include "../server/Request.hpp"
+#include "../server/Response.hpp"
 #include <sys/stat.h>
 #include <cstdlib>
 #include <vector>
 #include <exception>
+#include <dirent.h>
 
 #ifdef _WIN32
 	#include <windows.h>
@@ -22,6 +23,14 @@
 	#define PATH_SEPARATOR '/'
 	#define MAX_PATH_LENGTH PATH_MAX
 #endif
+
+enum FileType {
+	TYPE_REGULAR_FILE,
+	TYPE_DIRECTORY,
+	TYPE_OTHER,
+	TYPE_NOT_FOUND,
+	TYPE_NO_PERMISSION
+};
 
 class AMethods
 {
@@ -59,11 +68,10 @@ class AMethods
 
 	protected :
 		bool checkPath(const std::string& path);
+		FileType getFileType(const std::string& path);
 
 	private :
 		virtual bool isMethodAllowed(const Request& request);
 		void handleMethodNotAllowed(Response& response);
 		void handleError(const std::exception& e, Response& response);
-
-
 };

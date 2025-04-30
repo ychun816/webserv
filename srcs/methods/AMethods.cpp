@@ -1,4 +1,4 @@
-#include "../../includes/server/AMethods.hpp"
+#include "../../includes/methods/AMethods.hpp"
 
 AMethods::AMethods() {}
 
@@ -145,4 +145,38 @@ void AMethods::handleError(const std::exception& e, Response& response)
 {
 	throw (executeError(response.getStatusMessage()));
 	response.formatResponse();
+}
+
+FileType AMethods::getFileType(const std::string& path)
+{
+	struct stat file_info;
+
+	// Vérification de l'existence et récupération des infos
+	if (stat(path.c_str(), &file_info) != 0) {
+		// Analyse de l'erreur
+		if (errno == ENOENT) {
+			return TYPE_NOT_FOUND;      // Fichier non trouvé
+		} else if (errno == EACCES) {
+			return TYPE_NO_PERMISSION;  // Pas de permission
+		} else {
+			return TYPE_OTHER;          // Autre erreur
+		}
+	}
+	// Analyse du type
+	if (S_ISDIR(file_info.st_mode))
+	{
+		// Vérification supplémentaire: peut-on l'ouvrir?
+		DIR* dir = opendir(path.c_str());
+		if (dir) {
+			closedir(dir);
+			return TYPE_DIRECTORY;
+		} else {
+			return TYPE_NO_PERMISSION;  // Existe mais inaccessible
+		}
+	}
+	else if (S_ISREG(file_info.st_mode))
+		return TYPE_REGULAR_FILE;
+	else {
+		return TYPE_OTHER;              // Lien symbolique, socket, etc.
+	}
 }
