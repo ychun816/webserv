@@ -29,6 +29,8 @@ public:
 	std::string getHttpVersion() const { return _httpVersion; }
 	std::map<std::string, std::string> getHeaders() const { return _headers; }
 	std::string getBody() const { return _body; }
+	std::string getQueryString() const;
+	std::string getHeader(const std::string& name) const;
 
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }

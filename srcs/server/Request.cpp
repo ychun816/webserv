@@ -107,3 +107,19 @@ void Request::parseHeader(const std::string& line)
 		_headers[key] = value;
 	}
 }
+
+std::string	Request::getQueryString()
+{
+	size_t qPos = _uri.find('?');
+	if (qPos != std::string::npos)
+		return _uri.substr(qPos + 1);
+	return ("");
+}
+
+std::string	Request::getHeader(const std::string& name)
+{
+	std::map<std::string, std::string>::iterator it = _headers.find(name);
+	if (it != _headers.end())
+		return it->second;
+	return ("");
+}

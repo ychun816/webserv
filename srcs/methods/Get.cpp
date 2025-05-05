@@ -1,4 +1,5 @@
 #include "../../includes/methods/Get.hpp"
+#include "../../includes/methods/CGIhandler.hpp"
 
 Get::Get() : AMethods::AMethods() {}
 
@@ -49,11 +50,6 @@ bool	checkIfCgi(std::string filepath)
 	return (false);
 }
 
-void	executeCgi(std::string filepath)
-{
-
-}
-
 void	serveFile(std::string uri, Response& response)
 {
 	std::ifstream file(uri);
@@ -63,7 +59,7 @@ void	serveFile(std::string uri, Response& response)
 		response.setStatus(404);
 	}
 	if (checkIfCgi(uri))
-		executeCgi();
+		//executeCgi();
 	response.setStatus(202);
 }
 
