@@ -5,11 +5,11 @@
 Config::Config(const std::string& filename) {
     if (filename.empty())
         throw std::runtime_error("Empty config filename");
-        
+
     std::ifstream file(filename.c_str());
     if (!file.is_open())
         throw std::runtime_error("Cannot open config file: " + filename);
-        
+
     timestamp("Parsing configuration file: " + filename, YELLOW);
     initParsing(file);
 }
@@ -22,11 +22,11 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
     // std::string path = trim(location, " }");
     std::cout << "Path: " << location << std::endl;
     Location NewLocation;
-    NewLocation.setPath(location);    
+    NewLocation.setPath(location);
     // Avancer jusqu'à la fin du bloc de location
     int braceCount = 1; // On commence après l'accolade ouvrante
     it++; // Passer à la ligne suivante après "location xxx {"
-    
+
     while (it != lines.end() && braceCount > 0)
     {
         std::cout << "Line: " << *it << std::endl;
@@ -34,10 +34,10 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             braceCount++;
         if ((*it).find("}") != std::string::npos)
             braceCount--;
-        
+
         if (braceCount == 0)
             break; // On a trouvé l'accolade fermante correspondante
-        
+
         // Traiter les paramètres de la location
         if ((*it).find("methods") != std::string::npos)
         {
@@ -96,7 +96,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
         }
         it++;
     }
-    
+
     return (NewLocation);
 }
 
@@ -158,7 +158,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;{");
             std::cout << "Location: " << value << std::endl;
-            
+
             // parseLocation avance l'itérateur jusqu'à la fin du bloc puis on push la location dans le server
             Location loc = parseLocation(value, lines, it);
             server.pushLocation(loc);
@@ -189,7 +189,7 @@ void Config::parseServer(std::vector<std::string>& lines)
 {
     if (lines.empty())
         throw ConfigException("No server found");
-    
+
     // Vérifier si la première ligne est un début de bloc serveur
     if (lines[0] == "server {")
     {
@@ -197,14 +197,14 @@ void Config::parseServer(std::vector<std::string>& lines)
         Server server;
         std::vector<std::string> serverLines;
         int braceCount = 1; // Compteur d'accolades pour gérer les blocs imbriqués
-        
+
         std::vector<std::string>::iterator it = lines.begin() + 1;
         for (; it != lines.end(); ++it)
         {
             // Compter les accolades pour s'assurer de trouver la fin du bloc serveur actuel
             if ((*it).find("{") != std::string::npos) braceCount++;
             if ((*it).find("}") != std::string::npos) braceCount--;
-            
+
             // Si on trouve la fin du bloc serveur actuel
             if (braceCount == 0)
             {
@@ -214,26 +214,26 @@ void Config::parseServer(std::vector<std::string>& lines)
                 std::cout << server << std::endl;
                 addServer(server);
                 std::cout << GREEN << "Server added" << RESET << std::endl;
-                
+
                 // Créer un nouveau vecteur avec les lignes restantes
                 std::vector<std::string> remainingLines(it + 1, lines.end());
                 // Nettoyer les lignes vides au début du vecteur
                 while (!remainingLines.empty() && trim(remainingLines[0], WHITESPACES_WITH_SPACE).empty())
                     remainingLines.erase(remainingLines.begin());
-                
+
                 // S'il reste des lignes, continuer le parsing pour trouver d'autres serveurs
                 if (!remainingLines.empty()) {
                     parseServer(remainingLines);
                 }
                 return;
             }
-            
+
             // Ajouter la ligne au serveur actuel
             std::string trimmedLine = trim(*it);
             if (!trimmedLine.empty())
                 serverLines.push_back(trimmedLine);
         }
-        
+
         // Si on arrive ici, c'est qu'on n'a pas trouvé la fin du bloc serveur
         if (braceCount > 0)
             throw ConfigException("Unclosed server block");
@@ -255,7 +255,7 @@ void Config::runServers()
     for (size_t i = 0; i < _servers.size(); i++)
     {
         pid_t pid = fork();
-        
+
         if (pid == 0) {
             // Processus enfant
             std::cout << "Démarrage du serveur " << i << " sur le port " << _servers[i].getPort() << " (processus " << getpid() << ")" << std::endl;

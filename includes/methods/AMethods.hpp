@@ -7,6 +7,8 @@
 #include <vector>
 #include <exception>
 #include <dirent.h>
+#include <iostream>
+#include <fstream>
 
 #ifdef _WIN32
 	#include <windows.h>
@@ -45,13 +47,17 @@ class AMethods
 		// Template Method pattern pour le flux commun
 		void process(Request& request, Response& response)
 		{
-			if (!isMethodAllowed(request)) {
-				handleMethodNotAllowed(response);
-				return;
+			if (!checkPath(request))
+			{
+				std::cerr << "Path error" << std::endl;
+				return ;
 			}
-			try {
+			try
+			{
 				execute(request, response);
-			} catch (const std::exception& e) {
+			}
+			catch (const std::exception& e)
+			{
 				handleError(e, response);
 			}
 		}
@@ -67,11 +73,9 @@ class AMethods
 		};
 
 	protected :
-		bool checkPath(const std::string& path);
+		bool checkPath(Request& request);
 		FileType getFileType(const std::string& path);
 
 	private :
-		virtual bool isMethodAllowed(const Request& request);
-		void handleMethodNotAllowed(Response& response);
 		void handleError(const std::exception& e, Response& response);
 };

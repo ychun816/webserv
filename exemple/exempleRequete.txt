@@ -1,4 +1,4 @@
-GET /api/users/123 HTTP/1.1
+GET  /api/users/123HTTP/1.1
 Host: exemple.com
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/98.0
 Accept: application/json

@@ -10,7 +10,7 @@ class Post : public AMethods
 		Post&	operator=(const Post& copy);
 		virtual ~Post();
 
-		virtual void execute(Request& request, Response& response) = 0;
+		virtual void execute(Request& request, Response& response);
 
 	private:
 };
