@@ -35,10 +35,10 @@ std::string	normalizePath(const std::string& path)
 }
 
 // Verifie si le path existe
-bool	pathExist(const std::string& path)
+bool	pathExist(Request& request)
 {
 	struct stat buffer;
-	return (stat(path.c_str(), &buffer) == 0);
+	return (stat(request.getUri().c_str(), &buffer) == 0);
 }
 
 // Rempli le vecteur des path sensibles
@@ -93,7 +93,7 @@ bool	isPathSafe(const std::string& path)
 }
 
 // Recupere le path absolue
-std::string get_absolute_path(const std::string& path)
+std::string get_absolute_path(Request& request)
 {
 	char absolute_path[MAX_PATH_LENGTH];
 
@@ -103,42 +103,24 @@ std::string get_absolute_path(const std::string& path)
 			return "";
 		}
 	#else
-		if (realpath(path.c_str(), absolute_path) == NULL) {
+		if (realpath(request.getUri().c_str(), absolute_path) == NULL) {
 			return "";
 		}
 	#endif
+	{
+		request.setAbspath(std::string(absolute_path));
 		return std::string(absolute_path);
+	}
 }
 
 // Verifie si l'on a bien acces au path et si il n'y a pas d'enjeux de securite.
-bool AMethods::checkPath(const std::string& path)
+bool AMethods::checkPath(Request& request)
 {
-	try
-	{
-		pathExist(path);
-		get_absolute_path(path);
-		isPathSafe(path);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "Invalid path" << std::endl;
+	if (!pathExist(request))
 		return (false);
-	}
+	if (!isPathSafe(get_absolute_path(request)))
+		return (false);
 	return (true);
-}
-
-bool AMethods::isMethodAllowed(const Request& request)
-{
-	if (request.getMethod() == "GET" || request.getMethod() == "POST" || request.getMethod() == "DELETE")
-		return (true);
-	return (false);
-}
-
-void AMethods::handleMethodNotAllowed(Response& response)
-{
-	response.setStatus(405);
-	response.formatResponse();
-	//Ajouter la page d'erreur personnalisee
 }
 
 void AMethods::handleError(const std::exception& e, Response& response)
