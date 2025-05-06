@@ -32,7 +32,6 @@ class CGIhandler
 		Request* _request;
 		Server* _server;
 
-
 		void setupEnvironment();
 		std::string findInterpreter();
 		void handleRedirection(int inputPipe[2], int outputPipe[2]);

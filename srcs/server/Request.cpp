@@ -84,6 +84,7 @@ void	Request::executeMethods(Request& request, Response& response, Server& serve
 		return;
 	}
 	method->process(request, response, server);
+	delete method;
 }
 
 void Request::parseRequestLine(const std::string& line)
