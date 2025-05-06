@@ -14,4 +14,6 @@ class Get : public AMethods
 
 	private:
 		void	serveFile(Request& request, Response& response, Server& server);
+		void	serveDirectory(Request& request, Response& response, Server& server);
+		bool	checkIfCgi(std::string filepath);
 };

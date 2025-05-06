@@ -132,7 +132,7 @@ std::string CGIhandler::execute()
 	//ADD POST TREATMENT
 }
 
-void handleRedirection(int inputPipe[2], int outputPipe[2])
+void CGIhandler::handleRedirection(int inputPipe[2], int outputPipe[2])
 {
 	close(inputPipe[1]);
 	if (dup2(inputPipe[0], STDIN_FILENO) < 0)

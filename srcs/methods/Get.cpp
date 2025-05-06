@@ -18,7 +18,9 @@ void Get::execute(Request& request, Response& response, Server& server)
 		case (TYPE_REGULAR_FILE) :
 			serveFile(request, response, server);
 			break;
-		case (TYPE_DIRECTORY) : break;
+		case (TYPE_DIRECTORY) :
+			serveDirectory(request, response, server);
+			break;
 		case (TYPE_NOT_FOUND) :
 			response.setStatus(404);
 			response.setBody("<html><body><h1>404 Not Found</h1></body></html>");
@@ -34,7 +36,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 	}
 }
 
-bool	checkIfCgi(std::string filepath)
+bool	Get::checkIfCgi(std::string filepath)
 {
 	std::vector<std::string>	cgiExt{".php", ".py", ".rb", ".pl"};
 
@@ -70,9 +72,16 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		delete requestPtr;
 		delete serverPtr;
 	}
+	else
+	{
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		response.setBody(buffer.str());
+		response.setStatus(200);
+	}
 }
 
-void	serveDirectory(std::string uri, Response& response)
+void	Get::serveDirectory(Request& request, Response& response, Server& server)
 {
 	response.setStatus(202);
 }
