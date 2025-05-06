@@ -2,6 +2,7 @@
 
 #include "../server/Request.hpp"
 #include "../server/Response.hpp"
+#include "../server/Server.hpp"
 #include <sys/stat.h>
 #include <cstdlib>
 #include <vector>
@@ -42,10 +43,10 @@ class AMethods
 		AMethods&	operator=(const AMethods& copy);
 		virtual ~AMethods();
 
-		virtual void execute(Request& request, Response& response) = 0;
+		virtual void execute(Request& request, Response& response, Server& server) = 0;
 
 		// Template Method pattern pour le flux commun
-		void process(Request& request, Response& response)
+		void process(Request& request, Response& response, Server& server)
 		{
 			if (!checkPath(request))
 			{
@@ -54,7 +55,7 @@ class AMethods
 			}
 			try
 			{
-				execute(request, response);
+				execute(request, response, server);
 			}
 			catch (const std::exception& e)
 			{

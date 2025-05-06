@@ -56,6 +56,9 @@
 		"thread": "cpp",
 		"optional": "cpp",
 		"ranges": "cpp",
-		"span": "cpp"
+		"span": "cpp",
+		"chrono": "cpp",
+		"codecvt": "cpp",
+		"iomanip": "cpp"
 	}
 }

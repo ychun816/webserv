@@ -68,7 +68,7 @@ void Request::parseRequest()
 	handleResponse();
 }
 
-void	Request::executeMethods(Request& request, Response& response)
+void	Request::executeMethods(Request& request, Response& response, Server& server)
 {
 	AMethods*	method = NULL;
 	if (request.getMethod() == "GET")
@@ -83,7 +83,7 @@ void	Request::executeMethods(Request& request, Response& response)
 		response.formatResponse();
 		return;
 	}
-	method->process(request, response);
+	method->process(request, response, server);
 }
 
 void Request::parseRequestLine(const std::string& line)
@@ -108,7 +108,7 @@ void Request::parseHeader(const std::string& line)
 	}
 }
 
-std::string	Request::getQueryString()
+std::string	Request::getQueryString() const
 {
 	size_t qPos = _uri.find('?');
 	if (qPos != std::string::npos)
@@ -116,9 +116,9 @@ std::string	Request::getQueryString()
 	return ("");
 }
 
-std::string	Request::getHeader(const std::string& name)
+std::string	Request::getHeader(const std::string& name) const
 {
-	std::map<std::string, std::string>::iterator it = _headers.find(name);
+	std::map<std::string, std::string>::const_iterator it = _headers.find(name);
 	if (it != _headers.end())
 		return it->second;
 	return ("");

@@ -9,14 +9,14 @@ Get&	Get::operator=(const Get& copy) {return *this;}
 
 Get::~Get() {}
 
-void Get::execute(Request& request, Response& response)
+void Get::execute(Request& request, Response& response, Server& server)
 {
 	std::string uri = request.getUri();
 	FileType file_type = getFileType(uri);
 	switch (file_type)
 	{
 		case (TYPE_REGULAR_FILE) :
-			serveFile(uri, response);
+			serveFile(request, response, server);
 			break;
 		case (TYPE_DIRECTORY) : break;
 		case (TYPE_NOT_FOUND) :
@@ -36,7 +36,7 @@ void Get::execute(Request& request, Response& response)
 
 bool	checkIfCgi(std::string filepath)
 {
-	std::vector<std::string>	cgiExt{".php", ".py", ".cgi", ".pl"};
+	std::vector<std::string>	cgiExt{".php", ".py", ".rb", ".pl"};
 
 	size_t lastDot = filepath.find_last_of('.');
 	if (lastDot == std::string::npos)
@@ -50,17 +50,26 @@ bool	checkIfCgi(std::string filepath)
 	return (false);
 }
 
-void	serveFile(std::string uri, Response& response)
+void	Get::serveFile(Request& request, Response& response, Server& server)
 {
-	std::ifstream file(uri);
+	std::ifstream file(request.getUri());
 	if (!file.is_open())
 	{
 		std::cerr << "Error opening file" << std::endl;
 		response.setStatus(404);
+		return ;
 	}
-	if (checkIfCgi(uri))
-		//executeCgi();
-	response.setStatus(202);
+	if (checkIfCgi(request.getUri()))
+	{
+		Request* requestPtr = new Request(request);
+		Server* serverPtr = new Server(server);
+		CGIhandler	execCgi(requestPtr, serverPtr);
+		std::string CGIoutput = execCgi.execute();
+		response.setBody(CGIoutput);
+		response.setStatus(200);
+		delete requestPtr;
+		delete serverPtr;
+	}
 }
 
 void	serveDirectory(std::string uri, Response& response)

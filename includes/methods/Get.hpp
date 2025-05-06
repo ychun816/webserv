@@ -10,7 +10,8 @@ class Get : public AMethods
 		Get&	operator=(const Get& copy);
 		virtual ~Get();
 
-		virtual void execute(Request& request, Response& response);
+		virtual void execute(Request& request, Response& response, Server& server);
 
 	private:
+		void	serveFile(Request& request, Response& response, Server& server);
 };
