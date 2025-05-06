@@ -10,7 +10,7 @@ class Delete : public AMethods
 		Delete&	operator=(const Delete& copy);
 		virtual ~Delete();
 
-		virtual void execute(Request& request, Response& response);
+		virtual void execute(Request& request, Response& response, Server& server);
 
 	private:
 };

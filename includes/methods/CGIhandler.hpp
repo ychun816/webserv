@@ -9,14 +9,19 @@
 #include <unistd.h>
 #include <cctype>
 #include <cstring>
+#include <filesystem>
+#include <iostream>
 
-class CGIHandler
+class CGIhandler
 {
 	public:
-		CGIHandler(const Request& request, const Server& config);
-		~CGIHandler();
+		CGIhandler(Request* request, Server* config);
+		CGIhandler(const CGIhandler& copy);
+		CGIhandler&	operator=(const CGIhandler& copy);
+		~CGIhandler();
 
 		std::string execute();
+		std::string	getScriptPath() {return _scriptPath;}
 
 	private:
 		std::string _scriptPath;
@@ -24,13 +29,12 @@ class CGIHandler
 		std::vector<std::string> _envVars;
 		std::string _queryString;
 		std::string _postData;
-		const Request& _request;
-		const Server& _config;
+		Request* _request;
+		Server* _server;
+
 
 		void setupEnvironment();
 		std::string findInterpreter();
 		void handleRedirection(int inputPipe[2], int outputPipe[2]);
-
 		std::string resolveScriptPath(const std::string& uri);
-		std::string toString(int value);
 };

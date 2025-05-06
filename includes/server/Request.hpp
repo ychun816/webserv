@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "Response.hpp"
+#include "Server.hpp"
 
 class Request
 {
@@ -37,7 +38,7 @@ public:
 	void setAbspath(const std::string& abspath) { _abspath = abspath; }
 
 	// Methods
-	void executeMethods(Request& request, Response& response);
+	void executeMethods(Request& request, Response& response, Server& server);
 	void parseRequest();
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);
