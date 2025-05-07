@@ -50,38 +50,38 @@ bool	pathExist(Request& request)
 // Rempli le vecteur des path sensibles
 std::vector<std::string>& getDangerousPath()
 {
-    static std::vector<std::string>* dangerous_path = new std::vector<std::string>();
-    
-    if (dangerous_path->empty()) {
-        #ifdef _WIN32
-        // Chemins Windows sensibles
-        dangerous_path->push_back("c:\\windows");
-        dangerous_path->push_back("c:\\windows\\system32");
-        dangerous_path->push_back("c:\\boot");
-        dangerous_path->push_back("c:\\program files");
-        dangerous_path->push_back("c:\\program files (x86)");
-        dangerous_path->push_back("c:\\pagefile.sys");
-        dangerous_path->push_back("c:\\hiberfil.sys");
-        dangerous_path->push_back("c:\\boot.ini");
-        dangerous_path->push_back("\\\\");  // Partages réseau UNC
-        #else
-        // Chemins Unix/Linux sensibles
-        dangerous_path->push_back("/etc");
-        dangerous_path->push_back("/var");
-        dangerous_path->push_back("/bin");
-        dangerous_path->push_back("/sbin");
-        dangerous_path->push_back("/boot");
-        dangerous_path->push_back("/dev");
-        dangerous_path->push_back("/lib");
-        dangerous_path->push_back("/proc");
-        dangerous_path->push_back("/sys");
-        dangerous_path->push_back("/root");
-        dangerous_path->push_back("/usr");
-        dangerous_path->push_back("/opt");
-        #endif
-    }
-    
-    return *dangerous_path;
+	static std::vector<std::string>* dangerous_path = new std::vector<std::string>();
+
+	if (dangerous_path->empty()) {
+		#ifdef _WIN32
+		// Chemins Windows sensibles
+		dangerous_path->push_back("c:\\windows");
+		dangerous_path->push_back("c:\\windows\\system32");
+		dangerous_path->push_back("c:\\boot");
+		dangerous_path->push_back("c:\\program files");
+		dangerous_path->push_back("c:\\program files (x86)");
+		dangerous_path->push_back("c:\\pagefile.sys");
+		dangerous_path->push_back("c:\\hiberfil.sys");
+		dangerous_path->push_back("c:\\boot.ini");
+		dangerous_path->push_back("\\\\");  // Partages réseau UNC
+		#else
+		// Chemins Unix/Linux sensibles
+		dangerous_path->push_back("/etc");
+		dangerous_path->push_back("/var");
+		dangerous_path->push_back("/bin");
+		dangerous_path->push_back("/sbin");
+		dangerous_path->push_back("/boot");
+		dangerous_path->push_back("/dev");
+		dangerous_path->push_back("/lib");
+		dangerous_path->push_back("/proc");
+		dangerous_path->push_back("/sys");
+		dangerous_path->push_back("/root");
+		dangerous_path->push_back("/usr");
+		dangerous_path->push_back("/opt");
+		#endif
+	}
+
+	return *dangerous_path;
 }
 
 // Verifie si la requete ne tente pas d'acceder a un dossier securise.
@@ -177,20 +177,20 @@ FileType AMethods::getFileType(const std::string& path)
 
 bool	AMethods::checkIfCgi(std::string filepath)
 {
-    std::vector<std::string> cgiExt;
-    cgiExt.push_back(".php");
-    cgiExt.push_back(".py");
-    cgiExt.push_back(".rb");
-    cgiExt.push_back(".pl");
+	std::vector<std::string> cgiExt;
+	cgiExt.push_back(".php");
+	cgiExt.push_back(".py");
+	cgiExt.push_back(".rb");
+	cgiExt.push_back(".pl");
 
-    size_t lastDot = filepath.find_last_of('.');
-    if (lastDot == std::string::npos)
-        return (false);
-    std::string	extension = filepath.substr(lastDot);
-    for (size_t i = 0; i < cgiExt.size(); i++)
-    {
-        if (extension == cgiExt[i])
-            return (true);
-    }
-    return (false);
+	size_t lastDot = filepath.find_last_of('.');
+	if (lastDot == std::string::npos)
+		return (false);
+	std::string	extension = filepath.substr(lastDot);
+	for (size_t i = 0; i < cgiExt.size(); i++)
+	{
+		if (extension == cgiExt[i])
+			return (true);
+	}
+	return (false);
 }

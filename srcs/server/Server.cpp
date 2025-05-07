@@ -35,7 +35,7 @@ void	Server::createSocket() {
 	const int enable = 1;
 	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 		std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
-	
+
     // Permet à plusieurs processus de se lier au même port
 	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0)
 		std::cerr << "setsockopt(SO_REUSEPORT) failed" << std::endl;
@@ -117,7 +117,10 @@ void	Server::runServer() {
 					std::string request(buffer, bytes_read);
 					std::cout << "Bytes read:\n" << request << std::endl;
 					Request req(request);
-					send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+					Response resp(req);
+					req.executeMethods(req, resp, *this);
+					std::string response = resp.formatResponse();
+					send(events[i].data.fd, response.c_str(), response.size(), 0);
 
 				} else {
 					// deconnexion client
@@ -127,7 +130,7 @@ void	Server::runServer() {
 
 				}
 			}
-			
+
 		}
 	}
 	close(this->_socketFd);
@@ -181,4 +184,3 @@ Server & Server::operator=(const Server &assign)
     }
     return *this;
 }
-

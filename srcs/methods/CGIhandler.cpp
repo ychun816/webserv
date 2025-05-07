@@ -14,7 +14,6 @@ std::string intToString(int value) {
 CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _server(server)
 {
 	_scriptPath = resolveScriptPath(request->getUri());
-	_queryString = _request->getQueryString();
 	_interpreter = findInterpreter();
 	_postData = "";
 	setupEnvironment();
