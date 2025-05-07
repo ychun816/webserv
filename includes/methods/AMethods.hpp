@@ -77,6 +77,7 @@ class AMethods
 	protected :
 		bool checkPath(Request& request);
 		FileType getFileType(const std::string& path);
+		bool checkIfCgi(std::string filepath);
 
 	private :
 		void handleError(const std::exception& e, Response& response);
