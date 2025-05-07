@@ -24,7 +24,7 @@ class Server
 		Server(const Server& other); // Constructeur de copie
 		// Destructor
 		~Server();
-		
+
 		// Operators
 		Server & operator=(const Server &assign);
 
@@ -85,12 +85,12 @@ class Server
 		{
 			public:
 				configError(const std::string &message) : _message(message) {}
-				virtual ~configError() throw() {} 
+				virtual ~configError() throw() {}
 				virtual const char *what() const throw() { return _message.c_str(); }
 			private:
 				std::string _message;
 		};
-		
+
 };
 
 // Surcharge de l'opérateur << pour afficher les informations du serveur
@@ -113,4 +113,3 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
 	os << std::endl;
 	return os;
 }
-
