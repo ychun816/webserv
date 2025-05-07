@@ -15,7 +15,9 @@ Request::Request(std::string request) :
 	_uri(""),
 	_httpVersion(""),
 	_headers(),
-	_body("")
+	_body(""),
+	_path(""),
+	_queryString("")
 {
 	parseRequest();
 }
@@ -109,12 +111,17 @@ void Request::parseHeader(const std::string& line)
 	}
 }
 
-std::string	Request::getQueryString() const
+void	Request::setPathQueryString()
 {
 	size_t qPos = _uri.find('?');
 	if (qPos != std::string::npos)
-		return _uri.substr(qPos + 1);
-	return ("");
+	{
+		_path = _uri.substr(0, qPos);
+		_queryString = _uri.substr(qPos + 1);
+		return ;
+	}
+	_path = _uri;
+	_queryString = "";
 }
 
 std::string	Request::getHeader(const std::string& name) const

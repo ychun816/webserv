@@ -38,7 +38,7 @@ std::string	normalizePath(const std::string& path)
 bool	pathExist(Request& request)
 {
 	struct stat buffer;
-	return (stat(request.getUri().c_str(), &buffer) == 0);
+	return (stat(request.getPath().c_str(), &buffer) == 0);
 }
 
 // Rempli le vecteur des path sensibles
@@ -103,7 +103,7 @@ std::string get_absolute_path(Request& request)
 			return "";
 		}
 	#else
-		if (realpath(request.getUri().c_str(), absolute_path) == NULL) {
+		if (realpath(request.getPath().c_str(), absolute_path) == NULL) {
 			return "";
 		}
 	#endif
@@ -161,4 +161,20 @@ FileType AMethods::getFileType(const std::string& path)
 	else {
 		return TYPE_OTHER;              // Lien symbolique, socket, etc.
 	}
+}
+
+bool	AMethods::checkIfCgi(std::string filepath)
+{
+	std::vector<std::string>	cgiExt{".php", ".py", ".rb", ".pl"};
+
+	size_t lastDot = filepath.find_last_of('.');
+	if (lastDot == std::string::npos)
+		return (false);
+	std::string	extension = filepath.substr(lastDot);
+	for (size_t i = 0; i < cgiExt.size(); i++)
+	{
+		if (extension == cgiExt[i])
+			return (true);
+	}
+	return (false);
 }

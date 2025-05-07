@@ -58,6 +58,7 @@ void CGIhandler::setupEnvironment()
 	_envVars.push_back("HTTP_USER_AGENT=" + _request->getHeader("User-Agent"));
 	_envVars.push_back("HTTP_COOKIE=" + _request->getHeader("Cookie"));
 	_envVars.push_back("HTTP_ACCEPT=" + _request->getHeader("Accept"));
+	_envVars.push_back("HTTP_ACCEPT_LANGUAGE=" + _request->getHeader("Accept-Language"));
 
 	//Informations sur le serveur
 	_envVars.push_back("SERVER_NAME=" + _server->getHost());

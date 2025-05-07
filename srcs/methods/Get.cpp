@@ -9,10 +9,15 @@ Get&	Get::operator=(const Get& copy) {return *this;}
 
 Get::~Get() {}
 
+//GET : les données sont envoyées dans l'URL
+//Integrer verification des types de donnees (sert aussi au POST)
+//ADD AUTO INDEX ON CONDITION + LOCATION CHECK
+//Check parsing URI
+
 void Get::execute(Request& request, Response& response, Server& server)
 {
-	std::string uri = request.getUri();
-	FileType file_type = getFileType(uri);
+	std::string path = request.getPath();
+	FileType file_type = getFileType(path);
 	switch (file_type)
 	{
 		case (TYPE_REGULAR_FILE) :
@@ -36,32 +41,16 @@ void Get::execute(Request& request, Response& response, Server& server)
 	}
 }
 
-bool	Get::checkIfCgi(std::string filepath)
-{
-	std::vector<std::string>	cgiExt{".php", ".py", ".rb", ".pl"};
-
-	size_t lastDot = filepath.find_last_of('.');
-	if (lastDot == std::string::npos)
-		return (false);
-	std::string	extension = filepath.substr(lastDot);
-	for (size_t i = 0; i < cgiExt.size(); i++)
-	{
-		if (extension == cgiExt[i])
-			return (true);
-	}
-	return (false);
-}
-
 void	Get::serveFile(Request& request, Response& response, Server& server)
 {
-	std::ifstream file(request.getUri());
+	std::ifstream file(request.getPath());
 	if (!file.is_open())
 	{
 		std::cerr << "Error opening file" << std::endl;
 		response.setStatus(404);
 		return ;
 	}
-	if (checkIfCgi(request.getUri()))
+	if (checkIfCgi(request.getPath()))
 	{
 		Request* requestPtr = new Request(request);
 		Server* serverPtr = new Server(server);
@@ -81,16 +70,11 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	}
 }
 
-// bool	Get::isAutoIndex(Server& server)
-// {
-// 	std::list<
-// }
-
 std::vector<std::string>	Get::serveDirectory(Request& request, Response& response, Server& server)
 {
 	struct stat buffer;
 	std::vector<std::string> output;
-	std::string indexFile = request.getUri() + "index.html";
+	std::string indexFile = request.getPath() + "index.html";
 	if (stat(indexFile.c_str(), &buffer) == 0) //Is index.html in the directory ?
 	{
 		std::ifstream file(indexFile);

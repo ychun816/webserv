@@ -14,8 +14,11 @@ private:
 	std::string _uri;
 	std::string	_abspath;
 	std::string _httpVersion;
+	std::string _path;
+	std::string	_queryString;
 	std::map<std::string, std::string> _headers;
 	std::string _body;
+	std::map<std::string, std::string> _queryParams;
 	// std::string _response;
 public:
 	Request(std:: string request);
@@ -30,12 +33,14 @@ public:
 	std::string getHttpVersion() const { return _httpVersion; }
 	std::map<std::string, std::string> getHeaders() const { return _headers; }
 	std::string getBody() const { return _body; }
-	std::string getQueryString() const;
+	std::string getQueryString() const { return _queryString; };
 	std::string getHeader(const std::string& name) const;
+	std::string getPath() const { return _path; };
 
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }
 	void setAbspath(const std::string& abspath) { _abspath = abspath; }
+	void setPathQueryString();
 
 	// Methods
 	void executeMethods(Request& request, Response& response, Server& server);
