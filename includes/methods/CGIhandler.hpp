@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Request.hpp"
-#include "Server.hpp"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -12,6 +10,8 @@
 #include <filesystem>
 #include <iostream>
 
+class Request;
+class Server;
 class CGIhandler
 {
 	public:

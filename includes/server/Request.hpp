@@ -3,7 +3,8 @@
 #include <string>
 #include <map>
 #include "Response.hpp"
-#include "Server.hpp"
+
+class Server;
 
 class Request
 {

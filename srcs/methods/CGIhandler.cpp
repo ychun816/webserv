@@ -1,4 +1,15 @@
-#include "../includes/methods/CGIhandler.hpp"
+#include "../../includes/methods/CGIhandler.hpp"
+#include "../../includes/server/Request.hpp"
+#include "../../includes/server/Server.hpp"
+#include <stdlib.h>  // Pour exit()
+#include <sstream>   // Pour std::ostringstream (conversion int -> string)
+
+// Fonction utilitaire pour remplacer std::to_string
+std::string intToString(int value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
 
 CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _server(server)
 {
@@ -63,7 +74,7 @@ void CGIhandler::setupEnvironment()
 	//Informations sur le serveur
 	_envVars.push_back("SERVER_NAME=" + _server->getHost());
 	_envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	_envVars.push_back("SERVER_PORT=" + std::to_string(_server->getPort()));
+	_envVars.push_back("SERVER_PORT=" + intToString(_server->getPort()));
 	_envVars.push_back("DOCUMENT_ROOT=" + _server->getRoot());
 
 	//Informations sur le script

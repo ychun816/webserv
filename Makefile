@@ -11,7 +11,7 @@ $(shell mkdir -p $(OBJ_DIR) $(DEP_DIR))
 
 CC = c++ 
 
-CFLAGS = -Wall -Wextra -Werror -std=c++11
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 MAIN = webserv
 
@@ -22,8 +22,13 @@ SRC = ${addsuffix .cpp, ${MAIN}} \
 	  parsing/Locations.cpp \
 	  server/Request.cpp \
 	  server/Response.cpp \
-	  parsing/Files.cpp
-			
+	  parsing/Files.cpp \
+	  methods/AMethods.cpp \
+	  methods/Get.cpp \
+	  methods/Post.cpp \
+	  methods/Delete.cpp \
+	  methods/CGIhandler.cpp \
+
 SRC_DIR = srcs
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
@@ -49,7 +54,11 @@ BOLD = \033[1m
 TOTAL_FILES := $(words $(SRCS))
 CURRENT_FILE = 0
 
-all: $(NAME)
+all: create_dirs $(NAME)
+
+# Création des dossiers nécessaires (maintenant une cible plutôt qu'une directive shell)
+create_dirs:
+	@mkdir -p $(OBJ_DIR) $(DEP_DIR)
 
 $(NAME): $(OBJS)
 	@echo "$(GREEN)$(BOLD)Linking $(NAME)...$(RESET)"
@@ -102,6 +111,36 @@ $(OBJ_DIR)/%_Files.o: $(SRC_DIR)/parsing/Files.cpp
 	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
 	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Files.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_AMethods.o: $(SRC_DIR)/methods/AMethods.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_AMethods.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_Get.o: $(SRC_DIR)/methods/Get.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Get.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_Post.o: $(SRC_DIR)/methods/Post.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Post.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_Delete.o: $(SRC_DIR)/methods/Delete.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Delete.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+$(OBJ_DIR)/%_CGIhandler.o: $(SRC_DIR)/methods/CGIhandler.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_CGIhandler.d -c $< -o $@ -I$(INC_DIR)
 	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
 
 clean:

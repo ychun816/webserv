@@ -40,8 +40,8 @@ class AMethods
 {
 	public :
 		AMethods();
-		AMethods(const AMethods& copy);
-		AMethods&	operator=(const AMethods& copy);
+		// AMethods(const AMethods& copy);
+		// AMethods&	operator=(const AMethods& copy);
 		virtual ~AMethods();
 
 		virtual void execute(Request& request, Response& response, Server& server) = 0;
@@ -60,7 +60,7 @@ class AMethods
 			}
 			catch (const std::exception& e)
 			{
-				handleError(e, response);
+				handleError(response);
 			}
 		}
 
@@ -80,5 +80,5 @@ class AMethods
 		bool checkIfCgi(std::string filepath);
 
 	private :
-		void handleError(const std::exception& e, Response& response);
+		void handleError(Response& response);
 };

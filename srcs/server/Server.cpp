@@ -1,5 +1,4 @@
 #include "../../includes/server/Server.hpp"
-// #include "Server.hpp"
 
 // Constructors
 Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
