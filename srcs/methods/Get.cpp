@@ -81,7 +81,51 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	}
 }
 
-void	Get::serveDirectory(Request& request, Response& response, Server& server)
+// bool	Get::isAutoIndex(Server& server)
+// {
+// 	std::list<
+// }
+
+std::vector<std::string>	Get::serveDirectory(Request& request, Response& response, Server& server)
 {
-	response.setStatus(202);
+	struct stat buffer;
+	std::vector<std::string> output;
+	std::string indexFile = request.getUri() + "index.html";
+	if (stat(indexFile.c_str(), &buffer) == 0) //Is index.html in the directory ?
+	{
+		std::ifstream file(indexFile);
+		if (!file.is_open())
+		{
+			std::cerr << "Error opening file" << std::endl;
+			response.setStatus(404);
+			return ;
+		}
+		std::string line;
+		while (std::getline(file, line))
+		{
+			output.push_back(line);
+		}
+		file.close();
+		response.setStatus(200);
+	}
+	else //ADD AUTO INDEX ON CONDITION + LOCATION CHECK
+	{
+		DIR* current = opendir(request.getUri().c_str());
+		struct dirent *ent;
+		if (!current)
+		{
+			std::cerr << "Error opening the directory" << std::endl;
+			response.setStatus(404);
+			return ;
+		}
+		std::vector<std::string> output;
+		while ((ent = readdir(current)) != NULL)
+		{
+			output.push_back(ent->d_name);
+		}
+		closedir(current);
+
+	}
+	//ADD AUTO INDEX OFF CONDITION
+	return (output);
 }

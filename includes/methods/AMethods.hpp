@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <iostream>
 #include <fstream>
+#include <dirent.h>
 
 #ifdef _WIN32
 	#include <windows.h>
