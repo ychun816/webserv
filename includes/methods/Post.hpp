@@ -2,7 +2,8 @@
 
 #include "AMethods.hpp"
 
-/* GOAL:
+/* 
+GOAL:
 - Accepts data from clients (e.g., form submissions, file uploads)
 - Typically store data server-side
 */
