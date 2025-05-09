@@ -95,7 +95,6 @@ std::string Request::getHeader(const std::string& name) const
     return "";
 }
 
-
 //get filename (added for POST)
 //filename="....."
 std::string Request::getFilename() const
