@@ -1,6 +1,10 @@
 #pragma once
 #include "../parsing/Locations.hpp"
 
+#include "../../includes/methods/Get.hpp" //added to exec methods
+#include "../../includes/methods/Post.hpp" //added to exec methods
+#include "../../includes/methods/Delete.hpp" //added to exec methods
+
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -64,6 +68,11 @@ class Server
 		void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }
 		void setAllowMethods(const std::list<std::string>& allowMethods) { _allowMethods = allowMethods; }
 		void setLocations(const std::list<Location>& locations) { _locations = locations; }
+
+		//added to exec methods
+		void executeMethods(Request& request, Response& response, Server& server);//change to server class?
+
+
 	private:
 		std::string 		_configFile;
 		std::deque<int>		_connexions;

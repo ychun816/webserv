@@ -45,7 +45,7 @@ public:
 	void setPathQueryString();
 
 	// Methods
-	void executeMethods(Request& request, Response& response, Server& server);
+	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?
 	void parseRequest();
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);
