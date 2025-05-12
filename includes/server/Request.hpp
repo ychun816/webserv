@@ -37,6 +37,7 @@ public:
 	std::string getQueryString() const { return _queryString; };
 	std::string getHeader(const std::string& name) const;
 	std::string getPath() const { return _path; };
+	std::string getFilename() const; //added for POST
 
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }
@@ -44,7 +45,7 @@ public:
 	void setPathQueryString();
 
 	// Methods
-	void executeMethods(Request& request, Response& response, Server& server);
+	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?
 	void parseRequest();
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);

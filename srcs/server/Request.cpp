@@ -210,3 +210,21 @@ bool Request::isValidEmail(const std::string& value)
 
 	return true;
 }
+
+//get filename (added for POST)
+//filename="....."
+std::string Request::getFilename() const
+{
+    std::string filename;
+    size_t pos = _body.find("filename=\""); //std::string::size_type pos
+
+    if (pos != std::string::npos)
+    {
+        //found 
+        pos += 10; //skip filename="
+        size_t endPos = _body.find("\"", pos);//start find frm pos        
+        if (endPos != std::string::npos)
+            filename = _body.substr(endPos - pos);  
+    }
+    return filename;
+}

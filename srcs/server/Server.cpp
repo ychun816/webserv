@@ -200,3 +200,26 @@ Server & Server::operator=(const Server &assign)
     }
     return *this;
 }
+
+
+//ADDED
+/**
+ * @note cannot use switch case (use int) /  getMethod() return string X ! 
+ * @note Get(). / Post(). / Delete(). -> temp create an object first to run exec()
+ * @note *this -> current instance of that class (currently inside server class ) => passing the current Server instance by reference?? //TO CHECK!
+ */
+
+void Server::executeMethods(Request& request, Response& response, Server& server)
+{
+	std::sting method = request.getMethod();
+
+	if (method == "GET")
+		Get().execute(request, response, *this);
+	else if (method == "POST")
+		Post().execute(request, response, *this);
+	else if (method == "DELETE")
+		Delete().execute(request, response, *this);
+	else
+		response.setStatus(405); //method not allowed
+
+}
