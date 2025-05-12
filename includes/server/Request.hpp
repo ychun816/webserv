@@ -50,7 +50,6 @@ public:
 	void parseHeader(const std::string& line);
 	void handleResponse();
 	void parseQuery();
-	void setPathQueryString();
 	bool validateQueryParams();
 	bool isValidInt(const std::string& value);
 	bool isValidBool(const std::string& value);
