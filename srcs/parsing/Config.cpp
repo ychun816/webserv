@@ -1,6 +1,7 @@
 #include "../../includes/parsing/Config.hpp"
 #include <sstream>
-#include <sys/wait.h> // Pour waitpid
+#include <sys/wait.h> // For waitpid
+#include <sys/select.h> // For select
 
 Config::Config(const std::string& filename) {
     if (filename.empty())
@@ -23,9 +24,9 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
     std::cout << "Path: " << location << std::endl;
     Location NewLocation;
     NewLocation.setPath(location);
-    // Avancer jusqu'à la fin du bloc de location
-    int braceCount = 1; // On commence après l'accolade ouvrante
-    it++; // Passer à la ligne suivante après "location xxx {"
+    // Move to the end of the location block
+    int braceCount = 1; // We start after the opening brace
+    it++; // Move to the next line after "location xxx {"
 
     while (it != lines.end() && braceCount > 0)
     {
@@ -36,9 +37,9 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             braceCount--;
 
         if (braceCount == 0)
-            break; // On a trouvé l'accolade fermante correspondante
+            break; // We found the corresponding closing brace
 
-        // Traiter les paramètres de la location
+        // Process location parameters
         if ((*it).find("methods") != std::string::npos)
         {
             size_t pos = (*it).find("methods") + 7;
@@ -159,7 +160,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             value = trim(value, " \t;{");
             std::cout << "Location: " << value << std::endl;
 
-            // parseLocation avance l'itérateur jusqu'à la fin du bloc puis on push la location dans le server
+            // parseLocation advances the iterator to the end of the block then we push the location into the server
             Location loc = parseLocation(value, lines, it);
             server.pushLocation(loc);
         }
@@ -190,22 +191,22 @@ void Config::parseServer(std::vector<std::string>& lines)
     if (lines.empty())
         throw ConfigException("No server found");
 
-    // Vérifier si la première ligne est un début de bloc serveur
+    // Check if the first line is the beginning of a server block
     if (lines[0] == "server {")
     {
         std::cout << GREEN << "Server found" << RESET << std::endl;
         Server server;
         std::vector<std::string> serverLines;
-        int braceCount = 1; // Compteur d'accolades pour gérer les blocs imbriqués
+        int braceCount = 1; // Brace counter to handle nested blocks
 
         std::vector<std::string>::iterator it = lines.begin() + 1;
         for (; it != lines.end(); ++it)
         {
-            // Compter les accolades pour s'assurer de trouver la fin du bloc serveur actuel
+            // Count braces to ensure finding the end of the current server block
             if ((*it).find("{") != std::string::npos) braceCount++;
             if ((*it).find("}") != std::string::npos) braceCount--;
 
-            // Si on trouve la fin du bloc serveur actuel
+            // If we find the end of the current server block
             if (braceCount == 0)
             {
                 std::cout << GREEN << "Server closed by '}'" << RESET << std::endl;
@@ -215,26 +216,26 @@ void Config::parseServer(std::vector<std::string>& lines)
                 addServer(server);
                 std::cout << GREEN << "Server added" << RESET << std::endl;
 
-                // Créer un nouveau vecteur avec les lignes restantes
+                // Create a new vector with the remaining lines
                 std::vector<std::string> remainingLines(it + 1, lines.end());
-                // Nettoyer les lignes vides au début du vecteur
+                // Clean empty lines at the beginning of the vector
                 while (!remainingLines.empty() && trim(remainingLines[0], WHITESPACES_WITH_SPACE).empty())
                     remainingLines.erase(remainingLines.begin());
 
-                // S'il reste des lignes, continuer le parsing pour trouver d'autres serveurs
+                // If there are remaining lines, continue parsing to find other servers
                 if (!remainingLines.empty()) {
                     parseServer(remainingLines);
                 }
                 return;
             }
 
-            // Ajouter la ligne au serveur actuel
+            // Add the line to the current server
             std::string trimmedLine = trim(*it);
             if (!trimmedLine.empty())
                 serverLines.push_back(trimmedLine);
         }
 
-        // Si on arrive ici, c'est qu'on n'a pas trouvé la fin du bloc serveur
+        // If we get here, it means we didn't find the end of the server block
         if (braceCount > 0)
             throw ConfigException("Unclosed server block");
     }
@@ -245,39 +246,47 @@ void Config::parseServer(std::vector<std::string>& lines)
 void Config::runServers()
 {
     if (_servers.empty()) {
-        std::cerr << "Aucun serveur à démarrer" << std::endl;
+        std::cerr << "No servers to start" << std::endl;
         return;
     }
 
-    std::cout << "Démarrage de " << _servers.size() << " serveurs..." << std::endl;
+    std::cout << "Starting " << _servers.size() << " servers..." << std::endl;
 
-    // Pour lancer tous les serveurs, on utilise fork() pour créer des processus séparés
-    for (size_t i = 0; i < _servers.size(); i++)
-    {
-        pid_t pid = fork();
-
-        if (pid == 0) {
-            // Processus enfant
-            std::cout << "Démarrage du serveur " << i << " sur le port " << _servers[i].getPort() << " (processus " << getpid() << ")" << std::endl;
-            _servers[i].createSocket();
-            _servers[i].configSocket();
-            _servers[i].runServer();
-            exit(0); // Terminer le processus enfant après la fin du serveur
-        }
-        else if (pid < 0) {
-            // Erreur de fork
-            std::cerr << "Erreur lors de la création du processus pour le serveur " << i << std::endl;
-        }
-        else {
-            // Processus parent
-            std::cout << "Serveur " << i << " lancé dans le processus " << pid << std::endl;
-        }
+    // Initialize all servers
+    for (size_t i = 0; i < _servers.size(); i++) {
+        std::cout << "Configuring server " << i << " on port " << _servers[i].getPort() << std::endl;
+        _servers[i].createSocket();
+        _servers[i].configSocket();
     }
 
-    // En mode multi-processus, le processus parent attend que tous les enfants se terminent
-    // Ce qui n'arrivera jamais sauf en cas d'erreur ou de signal
-    int status;
-    waitpid(-1, &status, 0); // Attendre n'importe quel enfant
+    // Main loop with select
+    fd_set read_fds;
+    int max_fd = 0;
+
+    while (true) {
+        FD_ZERO(&read_fds);
+        
+        // Add all server sockets to the set
+        for (size_t i = 0; i < _servers.size(); i++) {
+            int server_fd = _servers[i].getSocketFd();
+            FD_SET(server_fd, &read_fds);
+            if (server_fd > max_fd)
+                max_fd = server_fd;
+        }
+
+        // Wait for activity on any socket
+        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
+            std::cerr << "Select error" << std::endl;
+            continue;
+        }
+
+        // Check each server for new connections
+        for (size_t i = 0; i < _servers.size(); i++) {
+            if (FD_ISSET(_servers[i].getSocketFd(), &read_fds)) {
+                _servers[i].handleNewConnection();
+            }
+        }
+    }
 }
 
 
@@ -306,7 +315,7 @@ void Config::initParsing(std::ifstream& file)
     std::cout << CYAN << "----------after parsing----------" << RESET << std::endl;
     parseServer(lines);
     std::cout << GREEN << "/**********END OF PARSING**********/" << RESET << std::endl;
-    // Ne pas démarrer automatiquement les serveurs à la fin du parsing
+    // Don't automatically start servers at the end of parsing
     // runServers();
     // timestamp("Parsing configuration file: " + filename);
 }

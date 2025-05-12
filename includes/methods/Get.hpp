@@ -6,8 +6,6 @@ class Get : public AMethods
 {
 	public:
 		Get();
-		// Get(const Get& copy);
-		// Get&	operator=(const Get& copy);
 		virtual ~Get();
 
 		virtual void execute(Request& request, Response& response, Server& server);
@@ -15,4 +13,5 @@ class Get : public AMethods
 	private:
 		void	serveFile(Request& request, Response& response, Server& server);
 		std::vector<std::string>	serveDirectory(Request& request, Response& response, Server& server);
+		std::string getMimeType(const std::string& path);
 };

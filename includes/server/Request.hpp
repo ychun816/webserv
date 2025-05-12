@@ -50,4 +50,9 @@ public:
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);
 	void handleResponse();
+	void parseQuery();
+	bool validateQueryParams();
+	bool isValidInt(const std::string& value);
+	bool isValidBool(const std::string& value);
+	bool isValidEmail(const std::string& value);
 };

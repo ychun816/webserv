@@ -60,6 +60,7 @@
 		"chrono": "cpp",
 		"codecvt": "cpp",
 		"iomanip": "cpp",
+		"filesystem": "cpp"
 		"__bit_reference": "cpp",
 		"__config": "cpp",
 		"__hash_table": "cpp",
