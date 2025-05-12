@@ -16,7 +16,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 		response.setBody("<html><body><h1>400 Bad Request: Invalid Query Parameters</h1></body></html>");
 		return;
 	}
-	std::string path = request.getPath();
+	std::string path = request.getAbspath();
 	FileType file_type = getFileType(path);
 	switch (file_type)
 	{
@@ -44,7 +44,8 @@ void Get::execute(Request& request, Response& response, Server& server)
 void	Get::serveFile(Request& request, Response& response, Server& server)
 {
 	// Utilisez .c_str() pour convertir std::string en const char*
-	std::ifstream file(request.getPath().c_str());
+	std::ifstream file(request.getAbspath().c_str());
+	std::cout << request.getAbspath().c_str() << std::endl;
 	if (!file.is_open())
 	{
 		std::cerr << "Error opening file" << std::endl;
@@ -82,7 +83,8 @@ std::vector<std::string>	Get::serveDirectory(Request& request, Response& respons
 	(void)server;
 	struct stat buffer;
 	std::vector<std::string> output;
-	std::string indexFile = request.getPath() + "index.html";
+	std::string indexFile = request.getAbspath() + "index.html";
+	std::cout << "indexFile : " << indexFile << std::endl;
 	std::list<Location>::const_iterator it;
 	std::string autoindex = "off";
 	for (it = server.getLocations().begin(); it != server.getLocations().end(); ++it) {

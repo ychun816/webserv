@@ -1,9 +1,10 @@
 #pragma once
 #include "../parsing/Locations.hpp"
 
-#include "../../includes/methods/Get.hpp" //added to exec methods
-#include "../../includes/methods/Post.hpp" //added to exec methods
-#include "../../includes/methods/Delete.hpp" //added to exec methods
+// #include "../../includes/methods/Get.hpp" //added to exec methods
+// #include "../../includes/methods/Post.hpp" //added to exec methods
+// #include "../../includes/methods/Delete.hpp" //added to exec methods
+#include "../../includes/methods/AMethods.hpp" //added to exec methods
 
 #include <iostream>
 #include <string>
@@ -71,7 +72,7 @@ class Server
                 void setLocations(const std::list<Location>& locations) { _locations = locations; }
   
                 //added to exec methods
-	              void executeMethods(Request& request, Response& response, Server& server);//change to server class?
+	              void executeMethods(Request& request, Response& response);//change to server class?
   
         private:
                 std::string             _configFile;

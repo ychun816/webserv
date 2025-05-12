@@ -1,7 +1,8 @@
 #include "../../includes/server/Request.hpp"
 #include "../../includes/server/Response.hpp"
-#include "../../includes/methods/AMethods.hpp"
-#include "../../includes/methods/Get.hpp"
+#include "../../includes/server/Server.hpp"
+// #include "../../includes/methods/AMethods.hpp"
+//#include "../../includes/methods/Get.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -41,27 +42,8 @@ void Request::handleResponse()
 	// std::cout << response.formatResponse() << std::endl;
 	// _response = response;
 
-	executeMethods(*this, response, server);
+	server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
-}
-
-void	Request::executeMethods(Request& request, Response& response, Server& server)
-{
-	AMethods*	method = NULL;
-	if (request.getMethod() == "GET")
-		method = new Get();
-	// else if (request.getMethod() == "POST")
-	// 	method = new Post();
-	// else if (request.getMethod() == "DELETE")
-	// 	method = new Delete();
-	else
-	{
-		response.setStatus(405);
-		response.formatResponse();
-		return;
-	}
-	method->process(request, response, server);
-	delete method;
 }
 
 void Request::parseRequest()

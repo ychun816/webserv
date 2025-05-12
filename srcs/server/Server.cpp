@@ -1,4 +1,7 @@
 #include "../../includes/server/Server.hpp"
+#include "../../includes/methods/Get.hpp" //added to exec methods
+#include "../../includes/methods/Post.hpp" //added to exec methods
+#include "../../includes/methods/Delete.hpp" //added to exec methods
 
 // Constructors
 Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
@@ -209,17 +212,18 @@ Server & Server::operator=(const Server &assign)
  * @note *this -> current instance of that class (currently inside server class ) => passing the current Server instance by reference?? //TO CHECK!
  */
 
-void Server::executeMethods(Request& request, Response& response, Server& server)
+void Server::executeMethods(Request& request, Response& response)
 {
-	std::sting method = request.getMethod();
+	std::string method = request.getMethod();
 
+        AMethods*       exec = NULL;
 	if (method == "GET")
-		Get().execute(request, response, *this);
+		exec = new Get();
 	else if (method == "POST")
-		Post().execute(request, response, *this);
+		exec = new Post();
 	else if (method == "DELETE")
-		Delete().execute(request, response, *this);
+		exec = new Delete();
 	else
 		response.setStatus(405); //method not allowed
-
+        exec->process(request, response, *this);
 }

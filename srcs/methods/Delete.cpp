@@ -17,12 +17,13 @@ Delete::~Delete() {}
  */
 void Delete::execute(Request& request, Response& response, Server& server)
 {
+    (void)server;
+    std::string path = request.getPath();
 	FileType type = getFileType(path);
-	std::string path = request.getPath();
     
     if (type != TYPE_REGULAR_FILE)
     {
-        setStatus(403);
+        response.setStatus(403);
         //return;  //maybe no need?
     }
 
@@ -31,11 +32,11 @@ void Delete::execute(Request& request, Response& response, Server& server)
     
     if (!std::remove(path.c_str())) 
     {
-        setStatus(500);
+        response.setStatus(500);
         // return ; //maybe no need return?
     }
     else
-        setStatus(200);
+        response.setStatus(200);
 
 }
 
