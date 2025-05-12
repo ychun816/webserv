@@ -158,3 +158,55 @@ void	Request::setPathQueryString()
 	_path = _uri;
 	_queryString = "";
 }
+
+bool Request::validateQueryParams()
+{
+	for (std::map<std::string, std::string>::const_iterator it = _queryParams.begin(); it != _queryParams.end(); ++it)
+	{
+		const std::string& key = it->first;
+		const std::string& value = it->second;
+
+		// Exemple de validation pour certains paramètres courants
+		if (key == "id" && !isValidInt(value))
+			return false;
+		else if (key == "page" && !isValidInt(value))
+			return false;
+		else if (key == "limit" && !isValidInt(value))
+			return false;
+		else if (key == "email" && !isValidEmail(value))
+			return false;
+		else if (key == "active" && !isValidBool(value))
+			return false;
+	}
+	return true;
+}
+
+bool Request::isValidInt(const std::string& value)
+{
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		if (!isdigit(value[i]))
+			return false;
+	}
+	return !value.empty();
+}
+
+bool Request::isValidBool(const std::string& value)
+{
+	return (value == "true" || value == "false" ||
+			value == "1" || value == "0" ||
+			value == "yes" || value == "no");
+}
+
+bool Request::isValidEmail(const std::string& value)
+{
+	size_t atPos = value.find('@');
+	if (atPos == std::string::npos || atPos == 0)
+		return false;
+
+	size_t dotPos = value.find('.', atPos);
+	if (dotPos == std::string::npos || dotPos == value.length() - 1)
+		return false;
+
+	return true;
+}

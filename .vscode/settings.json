@@ -59,6 +59,7 @@
 		"span": "cpp",
 		"chrono": "cpp",
 		"codecvt": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"filesystem": "cpp"
 	}
 }
