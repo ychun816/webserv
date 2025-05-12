@@ -49,4 +49,5 @@ public:
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);
 	void handleResponse();
+	void parseQuery();
 };
