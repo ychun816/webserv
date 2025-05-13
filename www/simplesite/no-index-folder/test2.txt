@@ -1,0 +1,12 @@
+This is test file 2.
+It is used for testing autoindex in the absence of an index.html file.
+
+
+
+
+
+############
+To Test:
+Make a GET request to http://localhost/no-index-folder/ and see if the server generates a list of files in the folder (test1.txt and test2.txt).
+Ensure that your server is configured to support autoindexing (i.e., it should show the list of files when no index.html is present).
+############
