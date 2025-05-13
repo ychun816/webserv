@@ -1,5 +1,6 @@
 #include "../../includes/methods/Get.hpp"
 #include "../../includes/methods/CGIhandler.hpp"
+#include "../../includes/utils/Utils.hpp"
 
 Get::Get() : AMethods::AMethods() {}
 
@@ -10,35 +11,49 @@ Get::~Get() {}
 
 void Get::execute(Request& request, Response& response, Server& server)
 {
+	std::cout << "\n=== DEBUG execute ===" << std::endl;
+	std::cout << "Méthode: " << request.getMethod() << std::endl;
+	std::cout << "URI: " << request.getUri() << std::endl;
+	std::cout << "Chemin absolu: " << request.getAbspath() << std::endl;
+
 	if (!request.validateQueryParams())
 	{
+		std::cout << "Paramètres de requête invalides" << std::endl;
 		response.setStatus(400);
 		response.setBody("<html><body><h1>400 Bad Request: Invalid Query Parameters</h1></body></html>");
 		return;
 	}
 	std::string path = request.getAbspath();
 	FileType file_type = getFileType(path);
+	std::cout << "Type de fichier détecté: " << file_type << std::endl;
+
 	switch (file_type)
 	{
 		case (TYPE_REGULAR_FILE) :
+			std::cout << GREEN << "Traitement comme fichier régulier" << RESET << std::endl;
 			serveFile(request, response, server);
 			break;
 		case (TYPE_DIRECTORY) :
+			std::cout << GREEN << "Traitement comme répertoire" << RESET << std::endl;
 			serveDirectory(request, response, server);
 			break;
 		case (TYPE_NOT_FOUND) :
+			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
 			response.setStatus(404);
 			response.setBody("<html><body><h1>404 Not Found</h1></body></html>");
 			break;
 		case (TYPE_NO_PERMISSION) :
+			std::cout << RED << "Permission refusée" << RESET << std::endl;
 			response.setStatus(403);
 			response.setBody("<html><body><h1>403 Forbidden</h1></body></html>");
 			break;
 		default:
+			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
 			response.setStatus(400);
 			response.setBody("<html><body><h1>400 Bad Request</h1></body></html>");
 			break;
 	}
+	std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
 }
 
 void	Get::serveFile(Request& request, Response& response, Server& server)
@@ -94,6 +109,7 @@ std::vector<std::string>	Get::serveDirectory(Request& request, Response& respons
 	if (stat(indexFile.c_str(), &buffer) == 0) //Is index.html in the directory ?
 	{
 		// Utilisez .c_str() pour convertir std::string en const char*
+		std::cout << GREEN << "Index file found" << RESET << std::endl;
 		std::ifstream file(indexFile.c_str());
 		if (!file.is_open())
 		{
@@ -111,6 +127,7 @@ std::vector<std::string>	Get::serveDirectory(Request& request, Response& respons
 	else if (autoindex == "on")
 	{
 		// Corriger également cet appel si nécessaire
+		std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
 		DIR* current = opendir(request.getUri().c_str());
 		struct dirent *ent;
 		if (!current)
@@ -144,6 +161,7 @@ std::vector<std::string>	Get::serveDirectory(Request& request, Response& respons
 	}
 	else
 	{
+		std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
 		response.setStatus(403);
 		response.setBody("<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
 	}

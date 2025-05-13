@@ -9,6 +9,7 @@ class Server;
 class Request
 {
 private:
+	Server& _server;
 	Response _response;
 	std::string _request;
 	std::string _method;
@@ -22,7 +23,7 @@ private:
 	std::map<std::string, std::string> _queryParams;
 	// std::string _response;
 public:
-	Request(std:: string request);
+	Request(std::string request, Server& server);
 	~Request();
 
 	// Getters

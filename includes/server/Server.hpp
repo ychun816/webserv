@@ -41,6 +41,7 @@ class Server
                 void    setNonBlocking();
                 void    pushLocation(const Location& location);
                 void    handleNewConnection();
+                void    setEpollFd(int epoll_fd);
                 // Getters
                 const std::string& getConfigFile() const { return _configFile; }
                 const std::deque<int>& getConnexions() const { return _connexions; }
@@ -75,6 +76,7 @@ class Server
 	              void executeMethods(Request& request, Response& response);//change to server class?
   
         private:
+                int                                     _epoll_fd;
                 std::string             _configFile;
                 std::deque<int>         _connexions;
                 int                                     _socketFd;

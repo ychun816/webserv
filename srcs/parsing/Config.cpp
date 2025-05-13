@@ -2,6 +2,7 @@
 #include <sstream>
 #include <sys/wait.h> // For waitpid
 #include <sys/select.h> // For select
+#include <sys/epoll.h> // For epoll
 
 Config::Config(const std::string& filename) {
     if (filename.empty())
@@ -259,34 +260,61 @@ void Config::runServers()
         _servers[i].configSocket();
     }
 
-    // Main loop with select
-    fd_set read_fds;
-    int max_fd = 0;
+    // Create a single epoll instance for all servers
+    int epoll_fd = epoll_create(1);
+    if (epoll_fd < 0) {
+        std::cerr << "Epoll Error" << std::endl;
+        return;
+    }
 
-    while (true) {
-        FD_ZERO(&read_fds);
-        
-        // Add all server sockets to the set
-        for (size_t i = 0; i < _servers.size(); i++) {
-            int server_fd = _servers[i].getSocketFd();
-            FD_SET(server_fd, &read_fds);
-            if (server_fd > max_fd)
-                max_fd = server_fd;
+    // Add all server sockets to epoll
+    for (size_t i = 0; i < _servers.size(); i++) {
+        struct epoll_event event;
+        event.events = EPOLLIN;
+        event.data.fd = _servers[i].getSocketFd();
+        _servers[i].setEpollFd(epoll_fd);  // Set epoll_fd for each server
+        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event) == -1) {
+            std::cerr << "Fail to add Socket to epoll" << std::endl;
+            continue;
         }
+    }
 
-        // Wait for activity on any socket
-        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
-            std::cerr << "Select error" << std::endl;
+    // Main loop with epoll
+    struct epoll_event events[MAX_EVENTS];
+    while (true) {
+        int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+        if (event_count == -1) {
+            std::cerr << "epoll_wait error" << std::endl;
             continue;
         }
 
-        // Check each server for new connections
-        for (size_t i = 0; i < _servers.size(); i++) {
-            if (FD_ISSET(_servers[i].getSocketFd(), &read_fds)) {
-                _servers[i].handleNewConnection();
+        for (int i = 0; i < event_count; i++) {
+            // Trouver le serveur correspondant
+            for (size_t j = 0; j < _servers.size(); j++) {
+                if (events[i].data.fd == _servers[j].getSocketFd()) {
+                    // Nouvelle connexion
+                    _servers[j].handleNewConnection();
+                } else {
+                    // Connexion client existante
+                    char buffer[1024] = {0};
+                    int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
+                    if (bytes_read > 0) {
+                        std::string request(buffer, bytes_read);
+                        Request req(request, _servers[j]);
+                        req.handleResponse();
+                        send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+                    } else {
+                        // Client déconnecté
+                        close(events[i].data.fd);
+                        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+                    }
+                }
             }
         }
     }
+
+    // Cleanup
+    close(epoll_fd);
 }
 
 

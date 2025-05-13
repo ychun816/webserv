@@ -6,7 +6,8 @@
 #include <sstream>
 #include <iostream>
 
-Request::Request(std::string request) :
+Request::Request(std::string request, Server& server) :
+	_server(server),
 	_response(),
 	_request(request),
 	_method(""),
@@ -30,19 +31,7 @@ Request::~Request()
 void Request::handleResponse()
 {
 	Response response(*this);
-	Server server;
-
-	// response.setStatus(404);
-	// response.setResponse("NO");
-	// response.setStatusMessage("OK");
-	// response.setBody("<html><head><style>body{font-family:Arial,sans-serif;background-color:#f0f0f0;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}h1{color:#333;text-align:center;padding:20px;background-color:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1)}</style></head><body><h1>404 ERROR</h1></body></html>");
-	// response.setHeaders(this->getHeaders());
-	// response.setHttpVersion(this->getHttpVersion());
-	// // _response = response.formatResponse();
-	// std::cout << response.formatResponse() << std::endl;
-	// _response = response;
-
-	server.executeMethods(*this, response);
+	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
 }
 
@@ -62,11 +51,11 @@ void Request::parseRequest()
 	// Parse les en-têtes
 	while (std::getline(ss, line) && !line.empty() && line != "\r") {
 		if (!line.empty() && line[line.length() - 1] == '\r')
-			line = line.substr(0, line.length() - 1); // Enlever le CR si présent
+			line = line.substr(0, line.length() - 1); // Remove CR if present
 		parseHeader(line);
 	}
 
-	// Le reste est le corps de la requête
+	// The rest is the request body
 	std::string body;
 	while (std::getline(ss, line)) {
 		body += line + "\n";
@@ -80,7 +69,7 @@ void Request::parseRequestLine(const std::string& line)
 {
 	std::istringstream iss(line);
 	iss >> _method >> _uri >> _httpVersion;
-	// Supprimer le "\r" si présent dans la version HTTP
+	// Remove "\r" if present in the HTTP version
 	if (!_httpVersion.empty() && _httpVersion[_httpVersion.length() - 1] == '\r')
 		_httpVersion = _httpVersion.substr(0, _httpVersion.length() - 1);
 }
@@ -91,7 +80,7 @@ void Request::parseHeader(const std::string& line)
 	if (colonPos != std::string::npos) {
 		std::string key = line.substr(0, colonPos);
 		std::string value = line.substr(colonPos + 1);
-		// Supprimer les espaces en début de valeur
+		// Remove spaces at the beginning of the value
 		while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
 			value.erase(0, 1);
 		_headers[key] = value;
@@ -148,7 +137,7 @@ bool Request::validateQueryParams()
 		const std::string& key = it->first;
 		const std::string& value = it->second;
 
-		// Exemple de validation pour certains paramètres courants
+		// Example of validation for common parameters
 		if (key == "id" && !isValidInt(value))
 			return false;
 		else if (key == "page" && !isValidInt(value))

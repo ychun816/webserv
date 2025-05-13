@@ -51,6 +51,7 @@ class AMethods
 		{
 			if (!checkPath(request))
 			{
+				std::cout << "uri : " << request.getUri() << std::endl;
 				std::cerr << "Path error" << std::endl;
 				return ;
 			}

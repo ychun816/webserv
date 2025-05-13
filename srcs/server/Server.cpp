@@ -4,7 +4,7 @@
 #include "../../includes/methods/Delete.hpp" //added to exec methods
 
 // Constructors
-Server::Server() : _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
+Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
         // Ne pas appeler ces méthodes automatiquement, elles seront appelées explicitement
 
 }
@@ -74,56 +74,55 @@ void    Server::runServer() {
         // specifique a cette connexion et return son FD
 
         struct  epoll_event event, events[MAX_EVENTS];
-        int             epoll_fd;
 
         // Creer l'instance epoll. le parametre est obsolete donc mettre ce qu'on veut. Preferer Epoll_create1() mais interdit dan sle projet 42 webserv
-        if ((epoll_fd = epoll_create(1)) < 0)
+        if ((this->_epoll_fd = epoll_create(1)) < 0)
                 throw Server::configError("Epoll Error");
         else
         {
-                std::cout << "Epoll crée avec succes with fd: " << epoll_fd << std::endl;
+                std::cout << "Epoll crée avec succes with fd: " << this->_epoll_fd << std::endl;
                 event.events = EPOLLIN;
                 event.data.fd = this->_socketFd;
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
+                if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
                         throw Server::configError("Fail to add Socket to epoll (epoll_ctl)");
         }
         std::cout << "En attente de connexions sur le port " << this->_port << std::endl;
     while (true) {
-        int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+        int event_count = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
         if (event_count == -1) {
             throw Server::configError("epoll_wait");
             break;
         }
-                for (int i = 0; i < event_count; i++)
-                {
-                        if (events[i].data.fd == this->_socketFd) { // Nouvelle connexion
-                                handleNewConnection();
-                        }
-                        else
-                        {
-                                // Lecture client
-                                char buffer[1024] = {0};
-                                int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
-                                if (bytes_read > 0)
-                                {
-                                        std::string request(buffer, bytes_read);
-                                        std::cout << "Bytes read:\n" << request << std::endl;
-                                        Request req(request);
-                                        send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-
-                                } else {
-                                        // deconnexion client
-                                        std::cout << "client deconnecté: " << events[i].data.fd << std::endl;
-                                        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-                                        close(events[i].data.fd);
-
-                                }
-                        }
-
+        for (int i = 0; i < event_count; i++) {
+            if (events[i].data.fd == this->_socketFd) {
+                handleNewConnection();
+            } else {
+                // Gestion des connexions clients existantes
+                char buffer[1024] = {0};
+                int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
+                if (bytes_read > 0) {
+                    std::string request(buffer, bytes_read);
+                    Request req(request, *this);
+                    req.handleResponse();
+                    send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+                    
+                    // Vérifier si la connexion doit être maintenue (keep-alive)
+                    if (req.getHeader("Connection") != "keep-alive") {
+                        close(events[i].data.fd);
+                        epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+                        this->_connexions.pop_back();
+                    }
+                } else {
+                    // Client déconnecté
+                    close(events[i].data.fd);
+                    epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+                    this->_connexions.pop_back();
                 }
+            }
         }
-        close(this->_socketFd);
-        close(epoll_fd);
+    }
+    close(this->_socketFd);
+    close(this->_epoll_fd);
 }
 
 void Server::setNonBlocking()
@@ -152,6 +151,11 @@ void Server::pushLocation(const Location& location)
         this->_locations.push_back(location);
 }
 
+void Server::setEpollFd(int epoll_fd)
+{
+    this->_epoll_fd = epoll_fd;
+}
+
 void Server::handleNewConnection()
 {
     struct sockaddr_in client_addr;
@@ -166,20 +170,16 @@ void Server::handleNewConnection()
     std::cout << "Nouvelle connexion client acceptée: " << client_fd << std::endl;
     this->_connexions.push_back(client_fd);
 
-    // Lire la requête du client
-    char buffer[1024] = {0};
-    int bytes_read = read(client_fd, buffer, sizeof(buffer));
-    
-    if (bytes_read > 0) {
-        std::string request(buffer, bytes_read);
-        std::cout << "Bytes read:\n" << request << std::endl;
-        Request req(request);
-        send(client_fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+    // Ajouter le socket client à epoll
+    struct epoll_event event;
+    event.events = EPOLLIN;
+    event.data.fd = client_fd;
+    if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
+        std::cerr << "Erreur lors de l'ajout du client à epoll" << std::endl;
+        close(client_fd);
+        this->_connexions.pop_back();
+        return;
     }
-
-    // Fermer la connexion après avoir traité la requête
-    close(client_fd);
-    this->_connexions.pop_back();
 }
 
 // Operators

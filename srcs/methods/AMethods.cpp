@@ -44,6 +44,7 @@ std::string	normalizePath(const std::string& path)
 bool	pathExist(Request& request)
 {
 	struct stat buffer;
+	std::cout << "path : " << request.getPath() << std::endl;
 	return (stat(request.getPath().c_str(), &buffer) == 0);
 }
 
@@ -128,9 +129,15 @@ std::string get_absolute_path(Request& request)
 bool AMethods::checkPath(Request& request)
 {
 	if (!pathExist(request))
+	{
+		std::cout << "path not found" << std::endl;
 		return (false);
+	}
 	if (!isPathSafe(get_absolute_path(request)))
+	{
+		std::cout << "path not safe" << std::endl;
 		return (false);
+	}
 	return (true);
 }
 
