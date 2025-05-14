@@ -64,7 +64,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	if (!file.is_open())
 	{
 		std::cerr << "Error opening file" << std::endl;
-		response.setStatus(404);
+		request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
 		return ;
 	}
 	if (checkIfCgi(request.getPath()))
@@ -73,8 +73,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		Server* serverPtr = new Server(server);
 		CGIhandler	execCgi(requestPtr, serverPtr);
 		std::string CGIoutput = execCgi.execute();
-		response.setBody(CGIoutput);
-		response.setStatus(200);
+		request.fillResponse(response, 200, CGIoutput);
 		delete requestPtr;
 		delete serverPtr;
 	}
@@ -85,7 +84,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		request.fillResponse(response, 200, buffer.str());
 
 		// Définir le type MIME correct
-		std::string contentType = getMimeType(request.getPath());
+		std::string contentType = getMimeType(request.getAbspath());
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = contentType;
 		response.setHeaders(headers);
