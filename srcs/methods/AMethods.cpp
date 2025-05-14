@@ -44,7 +44,7 @@ std::string	normalizePath(const std::string& path)
 bool	pathExist(Request& request)
 {
 	struct stat buffer;
-	std::cout << "path : " << request.getPath() << std::endl;
+	std::cout << "Exist path : " << request.getPath() << std::endl;
 	return (stat(request.getPath().c_str(), &buffer) == 0);
 }
 

@@ -12,6 +12,6 @@ class Get : public AMethods
 
 	private:
 		void	serveFile(Request& request, Response& response, Server& server);
-		std::vector<std::string>	serveDirectory(Request& request, Response& response, Server& server);
+		void	serveDirectory(Request& request, Response& response, Server& server);
 		std::string getMimeType(const std::string& path);
 };
