@@ -33,6 +33,7 @@ void Request::handleResponse()
 	Response response(*this);
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
+	std::cout << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << std::endl;
 }
 
 void Request::parseRequest()
@@ -61,6 +62,7 @@ void Request::parseRequest()
 		body += line + "\n";
 	}
 	_body = body;
+	std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
 	//handleResponse();
 
 }
@@ -137,7 +139,6 @@ bool Request::validateQueryParams()
 		const std::string& key = it->first;
 		const std::string& value = it->second;
 
-		// Example of validation for common parameters
 		if (key == "id" && !isValidInt(value))
 			return false;
 		else if (key == "page" && !isValidInt(value))
@@ -191,11 +192,11 @@ std::string Request::getFilename() const
 
     if (pos != std::string::npos)
     {
-        //found 
+        //found
         pos += 10; //skip filename="
-        size_t endPos = _body.find("\"", pos);//start find frm pos        
+        size_t endPos = _body.find("\"", pos);//start find frm pos
         if (endPos != std::string::npos)
-            filename = _body.substr(endPos - pos);  
+            filename = _body.substr(endPos - pos);
     }
     return filename;
 }

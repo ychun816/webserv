@@ -100,9 +100,9 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	std::cout << "indexFile : " << indexFile << std::endl;
 
 	// Déterminer si l'autoindex est activé
-	std::list<Location>::const_iterator it;
+	std::list<Location>::const_iterator it = server.getLocations().begin();
 	std::string autoindex = "off";
-	for (it = server.getLocations().begin(); it != server.getLocations().end(); ++it) {
+	for (; it != server.getLocations().end(); ++it) {
 		if (it->getPath() == "/") {
 			autoindex = it->getAutoindex();
 			break;
@@ -110,6 +110,9 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	}
 
 	// Vérifier si un fichier index.html existe
+	std::cout << "server : " << server.getHost() << std::endl;
+	std::cout << "stat(indexFile.c_str(), &buffer) : " << stat(indexFile.c_str(), &buffer) << std::endl;
+	std::cout << "autoindex : " << autoindex << std::endl;
 	if (stat(indexFile.c_str(), &buffer) == 0)
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
