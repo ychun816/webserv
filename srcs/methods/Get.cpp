@@ -82,8 +82,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	{
 		std::stringstream buffer;
 		buffer << file.rdbuf();
-		response.setBody(buffer.str());
-		response.setStatus(200);
+		request.fillResponse(response, 200, buffer.str());
 
 		// Définir le type MIME correct
 		std::string contentType = getMimeType(request.getPath());
@@ -96,7 +95,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 void Get::serveDirectory(Request& request, Response& response, Server& server)
 {
 	struct stat buffer;
-	std::string indexFile = "." + server.getRoot() + request.getAbspath() + "index.html";
+	std::string indexFile = request.getAbspath();
 	std::cout << "indexFile : " << indexFile << std::endl;
 
 	// Déterminer si l'autoindex est activé
@@ -113,14 +112,14 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	std::cout << "server : " << server.getHost() << std::endl;
 	std::cout << "stat(indexFile.c_str(), &buffer) : " << stat(indexFile.c_str(), &buffer) << std::endl;
 	std::cout << "autoindex : " << autoindex << std::endl;
-	if (stat(indexFile.c_str(), &buffer) == 0)
+	if (stat((indexFile + "index.html").c_str(), &buffer) == 0)
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
-		std::ifstream file(indexFile.c_str());
+		std::ifstream file((indexFile + "index.html").c_str());
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;
-			response.setStatus(404);
+			request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
 			return;
 		}
 
@@ -131,8 +130,6 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 
 		// Définir le corps de la réponse avec le contenu du fichier
 		request.fillResponse(response, 200, buffer.str());
-		response.setBody(buffer.str());
-		response.setStatus(200);
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = "text/html";
 		response.setHeaders(headers);
@@ -147,7 +144,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		if (!current)
 		{
 			std::cerr << "Error opening the directory" << std::endl;
-			response.setStatus(404);
+			request.fillResponse(response, 404, "<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
 			return;
 		}
 
@@ -174,8 +171,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		}
 
 		directoryListing += "</ul></body></html>";
-		response.setBody(directoryListing);
-		response.setStatus(200);
+		request.fillResponse(response, 200, directoryListing);
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = "text/html";
 		response.setHeaders(headers);
@@ -183,8 +179,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	else
 	{
 		std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
-		response.setStatus(403);
-		response.setBody("<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
+		request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = "text/html";
 		response.setHeaders(headers);
