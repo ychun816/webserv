@@ -105,7 +105,7 @@ void    Server::runServer() {
                     Request req(request, *this);
                     req.handleResponse();
                     send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-                    
+
                     // Vérifier si la connexion doit être maintenue (keep-alive)
                     if (req.getHeader("Connection") != "keep-alive") {
                         close(events[i].data.fd);
@@ -161,7 +161,7 @@ void Server::handleNewConnection()
     struct sockaddr_in client_addr;
     socklen_t client_addrlen = sizeof(client_addr);
     int client_fd = accept(this->_socketFd, (struct sockaddr *)&client_addr, &client_addrlen);
-    
+
     if (client_fd < 0) {
         std::cerr << "Accept echoué" << std::endl;
         return;
@@ -207,7 +207,7 @@ Server & Server::operator=(const Server &assign)
 
 //ADDED
 /**
- * @note cannot use switch case (use int) /  getMethod() return string X ! 
+ * @note cannot use switch case (use int) /  getMethod() return string X !
  * @note Get(). / Post(). / Delete(). -> temp create an object first to run exec()
  * @note *this -> current instance of that class (currently inside server class ) => passing the current Server instance by reference?? //TO CHECK!
  */
@@ -225,5 +225,5 @@ void Server::executeMethods(Request& request, Response& response)
 		exec = new Delete();
 	else
 		response.setStatus(405); //method not allowed
-        exec->process(request, response, *this);
+    exec->process(request, response, *this);
 }

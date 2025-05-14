@@ -93,79 +93,98 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	}
 }
 
-std::vector<std::string>	Get::serveDirectory(Request& request, Response& response, Server& server)
+void Get::serveDirectory(Request& request, Response& response, Server& server)
 {
-	(void)server;
 	struct stat buffer;
-	std::vector<std::string> output;
-	std::string indexFile = request.getAbspath() + "index.html";
+	std::string indexFile = "." + server.getRoot() + request.getAbspath() + "index.html";
 	std::cout << "indexFile : " << indexFile << std::endl;
+
+	// Déterminer si l'autoindex est activé
 	std::list<Location>::const_iterator it;
 	std::string autoindex = "off";
 	for (it = server.getLocations().begin(); it != server.getLocations().end(); ++it) {
-		if (it->getPath() == "/")
+		if (it->getPath() == "/") {
 			autoindex = it->getAutoindex();
+			break;
+		}
 	}
-	if (stat(indexFile.c_str(), &buffer) == 0) //Is index.html in the directory ?
+
+	// Vérifier si un fichier index.html existe
+	if (stat(indexFile.c_str(), &buffer) == 0)
 	{
-		// Utilisez .c_str() pour convertir std::string en const char*
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
 		std::ifstream file(indexFile.c_str());
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;
 			response.setStatus(404);
-			return output;
+			return;
 		}
-		std::string line;
-		while (std::getline(file, line))
-		{
-			output.push_back(line);
-		}
+
+		// Lire le contenu du fichier dans une chaîne
+		std::stringstream buffer;
+		buffer << file.rdbuf();
 		file.close();
+
+		// Définir le corps de la réponse avec le contenu du fichier
+		response.setBody(buffer.str());
+		response.setStatus(200);
+		std::map<std::string, std::string> headers;
+		headers["Content-Type"] = "text/html";
+		response.setHeaders(headers);
 	}
 	else if (autoindex == "on")
 	{
-		// Corriger également cet appel si nécessaire
 		std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
-		DIR* current = opendir(request.getUri().c_str());
+		std::string dirPath = "." + server.getRoot() + request.getAbspath();
+		DIR* current = opendir(dirPath.c_str());
 		struct dirent *ent;
+
 		if (!current)
 		{
 			std::cerr << "Error opening the directory" << std::endl;
 			response.setStatus(404);
-			return output;
+			return;
 		}
-		std::vector<std::string> output;
+
+		// Générer la liste des fichiers dans le répertoire
+		std::vector<std::string> dirFiles;
 		while ((ent = readdir(current)) != NULL)
 		{
-			output.push_back(ent->d_name);
+			dirFiles.push_back(ent->d_name);
 		}
 		closedir(current);
+
+		// Créer une page HTML pour afficher le contenu du répertoire
 		std::string directoryListing = "<html><head><title>Directory Listing</title>";
 		directoryListing += "<style>body{font-family:Arial,sans-serif;margin:20px;}h1{color:#333;}";
 		directoryListing += "ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}";
 		directoryListing += "a{text-decoration:none;color:#0066cc;}</style></head>";
 		directoryListing += "<body><h1>Directory listing for " + request.getUri() + "</h1><ul>";
 
-		for (size_t i = 0; i < output.size(); i++) {
+		for (size_t i = 0; i < dirFiles.size(); i++) {
 			directoryListing += "<li><a href=\"" + request.getUri();
 			if (request.getUri()[request.getUri().length() - 1] != '/')
 				directoryListing += "/";
-			directoryListing += output[i] + "\">" + output[i] + "</a></li>";
+			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>";
 		}
 
 		directoryListing += "</ul></body></html>";
 		response.setBody(directoryListing);
 		response.setStatus(200);
+		std::map<std::string, std::string> headers;
+		headers["Content-Type"] = "text/html";
+		response.setHeaders(headers);
 	}
 	else
 	{
 		std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
 		response.setStatus(403);
 		response.setBody("<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
+		std::map<std::string, std::string> headers;
+		headers["Content-Type"] = "text/html";
+		response.setHeaders(headers);
 	}
-	return (output);
 }
 
 std::string Get::getMimeType(const std::string& path)
