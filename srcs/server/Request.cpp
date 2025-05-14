@@ -30,11 +30,13 @@ Request::~Request()
 
 void Request::handleResponse()
 {
+
 	Response response(*this);
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
 	std::cout << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << std::endl;
 }
+
 
 void Request::parseRequest()
 {
@@ -183,8 +185,20 @@ bool Request::isValidEmail(const std::string& value)
 	return true;
 }
 
-//get filename (added for POST)
-//filename="....."
+void Request::fillResponse(Response& response, int statusCode, const std::string& body)
+{
+	(void)_server;
+	response.setStatus(statusCode);
+	response.setResponse(response.formatResponse());
+	//response.setStatusMessage(statusMessage);
+	response.setBody(body);
+	response.setHeaders(this->getHeaders());
+	response.setHttpVersion(this->getHttpVersion());
+	// _response = response.formatResponse();
+	_response = response;
+}
+
+// filename="....."
 std::string Request::getFilename() const
 {
     std::string filename;

@@ -28,7 +28,7 @@ server {
 server {
     listen 8081;
     server_name example.com;
-    root /www/jojo;
+    root /www/simplesite;
 
     location / {
         methods GET;
