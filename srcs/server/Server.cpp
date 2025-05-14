@@ -1,15 +1,16 @@
 #include "../../includes/server/Server.hpp"
-#include "../../includes/methods/Get.hpp" //added to exec methods
-#include "../../includes/methods/Post.hpp" //added to exec methods
-#include "../../includes/methods/Delete.hpp" //added to exec methods
+#include "../../includes/methods/Get.hpp" // added to execute methods
+#include "../../includes/methods/Post.hpp" // added to execute methods
+#include "../../includes/methods/Delete.hpp" // added to execute methods
+#include <algorithm> // std::find
 
 // Constructors
 Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
-		// Ne pas appeler ces méthodes automatiquement, elles seront appelées explicitement
+		
 
 }
 
-// Constructeur de copie
+// Copy constructor
 Server::Server(const Server& other) {
 	_configFile = other._configFile;
 	_socketFd = other._socketFd;
@@ -32,61 +33,61 @@ Server::Server(const Server& other) {
 Server::~Server() { std::cout << this->_configFile << std::endl; }
 
 void    Server::createSocket() {
-	if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Creation de la socket, retourne son FD
-				throw std::runtime_error("Erreur lors de la création du socket");
-		// Sert a pouvoir reutiliser le port (ici 8080) et evite donc l'erreur d'adderss already in use
+	if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Socket creation, returns its FD
+				throw std::runtime_error("Error while creating the socket");
+		// Used to reuse the port (here 8080) and thus avoid the "address already in use" error
 		const int enable = 1;
 		if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 				std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
 
-	// Permet à plusieurs processus de se lier au même port
+	// Allows multiple processes to bind to the same port
 		if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0)
 				std::cerr << "setsockopt(SO_REUSEPORT) failed" << std::endl;
 
-		setNonBlocking(); // Passage en mode non-Bloquant
+		setNonBlocking(); // Switch to non-blocking mode
 		std::memset(&this->_address, 0, sizeof(this->_address));
 		// PORT
 		this->_address.sin_port = htons(this->_port);
 		// IPV4 INTERNET PROTOCOL
 		this->_address.sin_family = AF_INET;
-		// _adress IP DE LA SOCKET (INADDR _ANY = l'os se debrouille)
+		// _address IP OF THE SOCKET (INADDR_ANY = the OS handles it)
 		this->_address.sin_addr.s_addr = htonl(INADDR_ANY);
-		 // Bind la socket a l'interface reseau, la relie. On peut donc s'y connecter en  utilisant le bon port et recevoir des connexions entrantes. En gros c'est son adresse
+		 // Bind the socket to the network interface, links it. It can then be connected to using the correct port and receive incoming connections. Essentially, it's its address
 		if (bind(this->_socketFd, (struct sockaddr *)&this->_address, sizeof(this->_address)) < 0)
 		{
 				close(this->_socketFd);
 				throw Server::configError("Bind failed");
 		}
 		else
-				std::cout << "Bind Succes" << std::endl;
+				std::cout << "Bind Success" << std::endl;
 }
 
 void    Server::configSocket() {
-		// Pour un serveur web, une file d'attente de 10 à 128 connexions est généralement recommandée
-		// SOMAXCONN est la valeur maximale recommandée par le système (généralement 128)
+		// For a web server, a queue of 10 to 128 connections is generally recommended
+		// SOMAXCONN is the maximum value recommended by the system (usually 128)
 		if (listen(this->_socketFd, SOMAXCONN) < 0)
-				throw Server::configError("Échec de l'écoute sur le socket");
+				throw Server::configError("Failed to listen on the socket");
 
 }
 
 void    Server::runServer() {
-		// On va attendre une nouvelle connexion entrante avec accept(). acept cree un nouveau socket
-		// specifique a cette connexion et return son FD
+		// We will wait for a new incoming connection with accept(). Accept creates a new socket
+		// specific to this connection and returns its FD
 
 		struct  epoll_event event, events[MAX_EVENTS];
 
-		// Creer l'instance epoll. le parametre est obsolete donc mettre ce qu'on veut. Preferer Epoll_create1() mais interdit dan sle projet 42 webserv
+		// Create the epoll instance. The parameter is obsolete, so put whatever you want. Prefer Epoll_create1() but it's forbidden in the 42 webserv project
 		if ((this->_epoll_fd = epoll_create(1)) < 0)
 				throw Server::configError("Epoll Error");
 		else
 		{
-				std::cout << "Epoll crée avec succes with fd: " << this->_epoll_fd << std::endl;
+				std::cout << "Epoll successfully created with fd: " << this->_epoll_fd << std::endl;
 				event.events = EPOLLIN;
 				event.data.fd = this->_socketFd;
 				if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
-						throw Server::configError("Fail to add Socket to epoll (epoll_ctl)");
+						throw Server::configError("Failed to add Socket to epoll (epoll_ctl)");
 		}
-		std::cout << "En attente de connexions sur le port " << this->_port << std::endl;
+		std::cout << "Waiting for connections on port " << this->_port << std::endl;
 	while (true) {
 		int event_count = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
 		if (event_count == -1) {
@@ -97,7 +98,7 @@ void    Server::runServer() {
 			if (events[i].data.fd == this->_socketFd) {
 				handleNewConnection();
 			} else {
-				// Gestion des connexions clients existantes
+				// Handling existing client connections
 				char buffer[1024] = {0};
 				int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
 				if (bytes_read > 0) {
@@ -105,14 +106,14 @@ void    Server::runServer() {
 					Request req(request, *this);
 					req.handleResponse();
 					send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-					// Vérifier si la connexion doit être maintenue (keep-alive)
+					// Check if the connection should be maintained (keep-alive)
 					if (req.getHeader("Connection") != "keep-alive") {
 						close(events[i].data.fd);
 						epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
 						this->_connexions.pop_back();
 					}
 				} else {
-					// Client déconnecté
+					// Client disconnected
 					close(events[i].data.fd);
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
 					this->_connexions.pop_back();
@@ -126,23 +127,16 @@ void    Server::runServer() {
 
 void Server::setNonBlocking()
 {
-		int flags = fcntl(this->_socketFd, F_GETFL, 0); // Recupere  le flag actuel de la socket
+		int flags = fcntl(this->_socketFd, F_GETFL, 0); // Retrieve the current flag of the socket
 	if (flags == -1) {
-		std::cerr << "Erreur fcntl(F_GETFL)" << std::endl;
+		std::cerr << "Error fcntl(F_GETFL)" << std::endl;
 	}
-		std::cout << "Flag a la creation de la socket: " << flags << std::endl;
-	if (fcntl(this->_socketFd, F_SETFL, flags | O_NONBLOCK) == -1) { // Ajoute le flag 0_NONBLOCK (devient non bloquant)
-		std::cerr << "Erreur fcntl(F_SETFL)" << std::endl;
+		std::cout << "Flag at socket creation: " << flags << std::endl;
+	if (fcntl(this->_socketFd, F_SETFL, flags | O_NONBLOCK) == -1) { // Add the O_NONBLOCK flag (becomes non-blocking)
+		std::cerr << "Error fcntl(F_SETFL)" << std::endl;
 	}
-		std::cout << "Flag a la creation de la socket: " << flags << std::endl;
+		std::cout << "Flag at socket creation: " << flags << std::endl;
 
-}
-void Server::init(std::string &configFile)
-{
-	this->_configFile = configFile;
-		createSocket();
-		configSocket();
-		runServer();
 }
 
 void Server::pushLocation(const Location& location)
@@ -162,22 +156,35 @@ void Server::handleNewConnection()
 	int client_fd = accept(this->_socketFd, (struct sockaddr *)&client_addr, &client_addrlen);
 
 	if (client_fd < 0) {
-		std::cerr << "Accept echoué" << std::endl;
+		std::cerr << "Accept failed" << std::endl;
 		return;
 	}
 
-	std::cout << "Nouvelle connexion client acceptée: " << client_fd << std::endl;
+	std::cout << "New client connection accepted: " << client_fd << std::endl;
 	this->_connexions.push_back(client_fd);
 
-	// Ajouter le socket client à epoll
+	// Add the client socket to epoll
 	struct epoll_event event;
 	event.events = EPOLLIN;
 	event.data.fd = client_fd;
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
-		std::cerr << "Erreur lors de l'ajout du client à epoll" << std::endl;
+		std::cerr << "Error while adding the client to epoll" << std::endl;
 		close(client_fd);
 		this->_connexions.pop_back();
 		return;
+	}
+}
+
+void Server::addConnexion(int fd)
+{
+	this->_connexions.push_back(fd);
+}
+
+void Server::removeConnexion(int fd)
+{
+	std::deque<int>::iterator it = std::find(this->_connexions.begin(), this->_connexions.end(), fd);
+	if (it != this->_connexions.end()) {
+		this->_connexions.erase(it);
 	}
 }
 

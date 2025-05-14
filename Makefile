@@ -28,6 +28,7 @@ SRC = ${addsuffix .cpp, ${MAIN}} \
 	  methods/Post.cpp \
 	  methods/Delete.cpp \
 	  methods/CGIhandler.cpp \
+	  server/EpollManager.cpp \
 
 SRC_DIR = srcs
 
@@ -143,6 +144,14 @@ $(OBJ_DIR)/%_CGIhandler.o: $(SRC_DIR)/methods/CGIhandler.cpp
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_CGIhandler.d -c $< -o $@ -I$(INC_DIR)
 	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
 
+
+$(OBJ_DIR)/%_EpollManager.o: $(SRC_DIR)/server/EpollManager.cpp
+	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
+	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
+	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_EpollManager.d -c $< -o $@ -I$(INC_DIR)
+	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
+
+	
 clean:
 	@echo "$(RED)$(BOLD)Nettoyage des fichiers objets...$(RESET)"
 	@rm -rf $(OBJ_DIR)

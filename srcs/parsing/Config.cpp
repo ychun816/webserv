@@ -3,6 +3,8 @@
 #include <sys/wait.h> // For waitpid
 #include <sys/select.h> // For select
 #include <sys/epoll.h> // For epoll
+#include "../../includes/server/EpollManager.hpp"
+
 
 Config::Config(const std::string& filename) {
     if (filename.empty())
@@ -244,78 +246,104 @@ void Config::parseServer(std::vector<std::string>& lines)
         throw ConfigException("No server found");
 }
 
-void Config::runServers()
-{
+void Config::runServers() {
     if (_servers.empty()) {
-        std::cerr << "No servers to start" << std::endl;
+        std::cerr << "Pas de serveurs à démarrer" << std::endl;
         return;
     }
 
-    std::cout << "Starting " << _servers.size() << " servers..." << std::endl;
+    std::cout << "Démarrage de " << _servers.size() << " serveurs..." << std::endl;
 
-    // Initialize all servers
+    // Obtenir l'instance du singleton
+    EpollManager* epollManager = EpollManager::getInstance();
+    
+    // Initialiser tous les serveurs
     for (size_t i = 0; i < _servers.size(); i++) {
-        std::cout << "Configuring server " << i << " on port " << _servers[i].getPort() << std::endl;
+        std::cout << "Configuration du serveur " << i << " sur port " << _servers[i].getPort() << std::endl;
         _servers[i].createSocket();
         _servers[i].configSocket();
+        
+        // Ajouter le socket serveur au epoll centralisé
+        epollManager->addServerSocket(_servers[i].getSocketFd(), i);
     }
-
-    // Create a single epoll instance for all servers
-    int epoll_fd = epoll_create(1);
-    if (epoll_fd < 0) {
-        std::cerr << "Epoll Error" << std::endl;
-        return;
-    }
-
-    // Add all server sockets to epoll
-    for (size_t i = 0; i < _servers.size(); i++) {
-        struct epoll_event event;
-        event.events = EPOLLIN;
-        event.data.fd = _servers[i].getSocketFd();
-        _servers[i].setEpollFd(epoll_fd);  // Set epoll_fd for each server
-        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event) == -1) {
-            std::cerr << "Fail to add Socket to epoll" << std::endl;
-            continue;
-        }
-    }
-
-    // Main loop with epoll
-    struct epoll_event events[MAX_EVENTS];
-    while (true) {
-        int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        if (event_count == -1) {
-            std::cerr << "epoll_wait error" << std::endl;
-            continue;
-        }
-
-        for (int i = 0; i < event_count; i++) {
-            // Trouver le serveur correspondant
-            for (size_t j = 0; j < _servers.size(); j++) {
-                if (events[i].data.fd == _servers[j].getSocketFd()) {
-                    // Nouvelle connexion
-                    _servers[j].handleNewConnection();
-                } else {
-                    // Connexion client existante
-                    char buffer[1024] = {0};
-                    int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
-                    if (bytes_read > 0) {
-                        std::string request(buffer, bytes_read);
-                        Request req(request, _servers[j]);
-                        req.handleResponse();
-                        send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-                    } else {
-                        // Client déconnecté
-                        close(events[i].data.fd);
-                        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-                    }
-                }
-            }
-        }
-    }
-
-    // Cleanup
-    close(epoll_fd);
+    
+    // Déléguer le traitement des événements au singleton
+    epollManager->processEvents(_servers);
 }
+
+// void Config::runServers()
+// {
+//     if (_servers.empty()) {
+//         std::cerr << "No servers to start" << std::endl;
+//         return;
+//     }
+
+//     std::cout << "Starting " << _servers.size() << " servers..." << std::endl;
+
+//     // Initialize all servers
+//     for (size_t i = 0; i < _servers.size(); i++) {
+//         std::cout << "Configuring server " << i << " on port " << _servers[i].getPort() << std::endl;
+//         _servers[i].createSocket();
+//         _servers[i].configSocket();
+//     }
+
+//     // Create a single epoll instance for all servers
+//     int epoll_fd = epoll_create(1);
+//     if (epoll_fd < 0) {
+//         std::cerr << "Epoll Error" << std::endl;
+//         return;
+//     }
+
+//     // Add all server sockets to epoll
+//     for (size_t i = 0; i < _servers.size(); i++) {
+//         struct epoll_event event;
+//         event.events = EPOLLIN;
+//         event.data.fd = _servers[i].getSocketFd();
+//         _servers[i].setEpollFd(epoll_fd);  // Set epoll_fd for each server
+//         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event) == -1) {
+//             std::cerr << "Fail to add Socket to epoll" << std::endl;
+//             continue;
+//         }
+//     }
+
+//     // Main loop with epoll
+//     struct epoll_event events[MAX_EVENTS];
+//     while (true) {
+//         int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+//         if (event_count == -1) {
+//             std::cerr << "epoll_wait error" << std::endl;
+//             continue;
+//         }
+
+//         for (int i = 0; i < event_count; i++) {
+//             // Trouver le serveur correspondant
+//             for (size_t j = 0; j < _servers.size(); j++) {
+//                 if (events[i].data.fd == _servers[j].getSocketFd()) {
+//                     // Nouvelle connexion
+//                     _servers[j].handleNewConnection();
+//                 } else {
+//                     // Connexion client existante
+//                     char buffer[1024] = {0};
+//                     int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
+//                     if (bytes_read > 0) {
+//                         std::string request(buffer, bytes_read);
+//                         Request req(request, _servers[j]);
+//                         req.handleResponse();
+//                         send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+
+//                     } else {
+//                         // Client déconnecté
+//                         close(events[i].data.fd);
+//                         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     // Cleanup
+//     close(epoll_fd);
+// }
 
 
 void Config::initParsing(std::ifstream& file)

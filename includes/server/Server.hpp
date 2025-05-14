@@ -34,7 +34,6 @@ class Server
                 Server & operator=(const Server &assign);
 
                 // Methods
-                void    init(std::string &configFile);
                 void    createSocket();
                 void    configSocket();
                 void    runServer();
@@ -42,6 +41,8 @@ class Server
                 void    pushLocation(const Location& location);
                 void    handleNewConnection();
                 void    setEpollFd(int epoll_fd);
+                void    addConnexion(int fd);
+                void    removeConnexion(int fd);
                 // Getters
                 const std::string& getConfigFile() const { return _configFile; }
                 const std::deque<int>& getConnexions() const { return _connexions; }
