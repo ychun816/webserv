@@ -62,7 +62,8 @@ std::string Response::formatResponse() const {
     
     // Ajouter Content-Type s'il n'existe pas déjà
     if (finalHeaders.find("Content-Type") == finalHeaders.end()) {
-        finalHeaders["Content-Type"] = "text/html";
+        finalHeaders["Content-Type"
+        ] = "text/html";
     }
     
     // Ajouter Content-Length s'il n'existe pas déjà

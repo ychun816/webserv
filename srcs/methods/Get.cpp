@@ -130,6 +130,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		file.close();
 
 		// Définir le corps de la réponse avec le contenu du fichier
+		request.fillResponse(response, 200, buffer.str());
 		response.setBody(buffer.str());
 		response.setStatus(200);
 		std::map<std::string, std::string> headers;

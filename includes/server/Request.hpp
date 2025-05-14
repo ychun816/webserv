@@ -56,4 +56,5 @@ public:
 	bool isValidInt(const std::string& value);
 	bool isValidBool(const std::string& value);
 	bool isValidEmail(const std::string& value);
+	void fillResponse(Response& response, int statusCode, const std::string& body);
 };
