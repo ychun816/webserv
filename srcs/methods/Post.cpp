@@ -7,23 +7,7 @@ Post::~Post() {}
 
 void Post::execute(Request& request, Response& response, Server& server)
 {
-    handleUpload(request, response, server);
-}
-
-/**
- * 1 get uploadpath / filename / body 
- * 2 Create a file stream for output, using full path
- * 3 check if can create file
- * - if not -> error msg 
- * - if yes -> write body to file
- * 4 close() + set status success 
- * 5 set status and success message 
- * 
- * @note std::ofstream out(uploadPath + PATH_SEPARATOR + filename.c_str()) : Create a file stream for output, using full path
- */
-
-void Post::handleUpload(Request& request, Response& response, Server& server)
-{
+    // handleUpload(request, response, server);
     std::string uploadPath;
     std::string filename;
     std::string body;
@@ -39,8 +23,6 @@ void Post::handleUpload(Request& request, Response& response, Server& server)
     //check if the file can be created
     if (!output.is_open())
     {
-        //Internal server error 500
-        //set error msg
         response.setStatus(500);
         response.setBody("Error : Failed saving file.\n");
         return; 
@@ -50,7 +32,50 @@ void Post::handleUpload(Request& request, Response& response, Server& server)
 
     response.setStatus(201);
     response.setBody("Success : file uploaded.\n");
+
 }
+
+/**
+ * 1 get uploadpath / filename / body 
+ * 2 Create a file stream for output, using full path
+ * 3 check if can create file
+ * - if not -> error msg 
+ * - if yes -> write body to file
+ * 4 close() + set status success 
+ * 5 set status and success message 
+ * 
+ * @note std::ofstream out(uploadPath + PATH_SEPARATOR + filename.c_str()) : Create a file stream for output, using full path
+ */
+
+// void Post::handleUpload(Request& request, Response& response, Server& server)
+// {
+//     std::string uploadPath;
+//     std::string filename;
+//     std::string body;
+
+//     uploadPath = server.getUpload();
+//     filename = request.getFilename();
+//     body = request.getBody();
+
+//     // Create a file stream for output, using full path
+//     std::string full_path = uploadPath + PATH_SEPARATOR + filename;
+//     std::ofstream output(full_path.c_str());
+
+//     //check if the file can be created
+//     if (!output.is_open())
+//     {
+//         //Internal server error 500
+//         //set error msg
+//         response.setStatus(500);
+//         response.setBody("Error : Failed saving file.\n");
+//         return; 
+//     }
+//     output << body;
+//     output.close();
+
+//     response.setStatus(201);
+//     response.setBody("Success : file uploaded.\n");
+// }
 
 
 

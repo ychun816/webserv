@@ -224,12 +224,23 @@ void Server::executeMethods(Request& request, Response& response)
 
 	AMethods*       exec = NULL;
 	if (method == "GET")
+	{
+		std::cout << "SEVER-GET" << std::endl;
 		exec = new Get();
+	}
 	else if (method == "POST")
+	{
+		std::cout << "SEVER-POST" << std::endl;
 		exec = new Post();
+	}
+
 	else if (method == "DELETE")
 		exec = new Delete();
 	else
+	{
 		response.setStatus(405); //method not allowed
+		//return; 
+	}
 	exec->process(request, response, *this);
+	delete exec; // Free the memory allocated for the method?
 }
