@@ -106,16 +106,16 @@ bool	isPathSafe(const std::string& path)
 }
 
 // Verifie si l'on a bien acces au path et si il n'y a pas d'enjeux de securite.
-bool AMethods::checkPath(Request& request, Server& server)
+bool AMethods::checkPath(Request& request, Server& server, Response& response)
 {
 	if (!pathExist(request, server))
 	{
-		std::cout << "path not found" << std::endl;
+		request.fillResponse(response, 404, "<html><body><h1>403 Not a Directory</h1></body></html>");
 		return (false);
 	}
 	if (!isPathSafe(request.getAbspath()))
 	{
-		std::cout << "path not safe" << std::endl;
+		request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory not safe</h1></body></html>");
 		return (false);
 	}
 	return (true);

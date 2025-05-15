@@ -1,4 +1,5 @@
 #include "../../includes/methods/Post.hpp"
+#include "../../includes/server/Request.hpp"
 
 Post::Post() : AMethods::AMethods() {}
 // Post::Post(const Post& copy) : AMethods::AMethods(copy) {}
@@ -11,14 +12,14 @@ void Post::execute(Request& request, Response& response, Server& server)
 }
 
 /**
- * 1 get uploadpath / filename / body 
+ * 1 get uploadpath / filename / body
  * 2 Create a file stream for output, using full path
  * 3 check if can create file
- * - if not -> error msg 
+ * - if not -> error msg
  * - if yes -> write body to file
- * 4 close() + set status success 
- * 5 set status and success message 
- * 
+ * 4 close() + set status success
+ * 5 set status and success message
+ *
  * @note std::ofstream out(uploadPath + PATH_SEPARATOR + filename.c_str()) : Create a file stream for output, using full path
  */
 
@@ -28,7 +29,7 @@ void Post::handleUpload(Request& request, Response& response, Server& server)
     std::string filename;
     std::string body;
 
-    uploadPath = server.getUpload();
+    uploadPath = request.getAbspath() + server.getUpload();
     filename = request.getFilename();
     body = request.getBody();
 
@@ -43,7 +44,7 @@ void Post::handleUpload(Request& request, Response& response, Server& server)
         //set error msg
         response.setStatus(500);
         response.setBody("Error : Failed saving file.\n");
-        return; 
+        return;
     }
     output << body;
     output.close();

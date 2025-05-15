@@ -49,7 +49,7 @@ class AMethods
 		// Template Method pattern pour le flux commun
 		void process(Request& request, Response& response, Server& server)
 		{
-			if (!checkPath(request, server))
+			if (!checkPath(request, server, response))
 			{
 				std::cout << "uri : " << request.getUri() << std::endl;
 				std::cerr << "Path error" << std::endl;
@@ -76,7 +76,7 @@ class AMethods
 		};
 
 	protected :
-		bool checkPath(Request& request, Server& server);
+		bool checkPath(Request& request, Server& server, Response& response);
 		FileType getFileType(const std::string& path);
 		bool checkIfCgi(std::string filepath);
 

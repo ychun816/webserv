@@ -14,7 +14,7 @@ server {
 
     location /upload {
         methods POST;
-        upload_dir /uploads;
+        upload_dir /upload;
         client_max_body_size 20M;
     }
 
