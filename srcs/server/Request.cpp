@@ -1,8 +1,7 @@
 #include "../../includes/server/Request.hpp"
 #include "../../includes/server/Response.hpp"
 #include "../../includes/server/Server.hpp"
-// #include "../../includes/methods/AMethods.hpp"
-//#include "../../includes/methods/Get.hpp"
+#include "../../includes/utils/Utils.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -30,11 +29,10 @@ Request::~Request()
 
 void Request::handleResponse()
 {
-
 	Response response(*this);
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
-	std::cout << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << std::endl;
+	std::cout << BLUE << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << RESET << std::endl;
 }
 
 
@@ -187,14 +185,15 @@ bool Request::isValidEmail(const std::string& value)
 
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
 {
-	(void)_server;
 	response.setStatus(statusCode);
-	response.setResponse(response.formatResponse());
-	//response.setStatusMessage(statusMessage);
+	//std::cout << "response.getStatusMessage() : "<< response.getStatusMessage() << std::endl;
+	//response.setResponse(response.formatResponse());
+	//std::cout << "response.getResponse() : "<< response.getResponse() << std::endl;
 	response.setBody(body);
+	//std::cout << "response.getBody() : "<< response.getBody() << std::endl;
 	response.setHeaders(this->getHeaders());
 	response.setHttpVersion(this->getHttpVersion());
-	// _response = response.formatResponse();
+	//std::cout << "response.getHttpVersion() : " << response.getHttpVersion() << std::endl;
 	_response = response;
 }
 
