@@ -8,27 +8,6 @@ Post::~Post() {}
 
 void Post::execute(Request& request, Response& response, Server& server)
 {
-<<<<<<< HEAD
-    // handleUpload(request, response, server);
-=======
-    handleUpload(request, response, server);
-}
-
-/**
- * 1 get uploadpath / filename / body
- * 2 Create a file stream for output, using full path
- * 3 check if can create file
- * - if not -> error msg
- * - if yes -> write body to file
- * 4 close() + set status success
- * 5 set status and success message
- *
- * @note std::ofstream out(uploadPath + PATH_SEPARATOR + filename.c_str()) : Create a file stream for output, using full path
- */
-
-void Post::handleUpload(Request& request, Response& response, Server& server)
-{
->>>>>>> 956969ea7a2131e61dd83346e94e196c69b22920
     std::string uploadPath;
     std::string filename;
     std::string body;

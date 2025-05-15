@@ -49,13 +49,9 @@ class AMethods
 		// Template Method pattern pour le flux commun
 		void process(Request& request, Response& response, Server& server)
 		{
-<<<<<<< HEAD
-			std:: cout << "👻 in process BEFORE EVYTHING" << std::endl;
 
-			if (!checkPath(request, server))
-=======
+			std:: cout << "👻 in process BEFORE EVYTHING" << std::endl;
 			if (!checkPath(request, server, response))
->>>>>>> 956969ea7a2131e61dd83346e94e196c69b22920
 			{
 				std::cout << "uri : " << request.getUri() << std::endl;
 				std::cerr << "Path error" << std::endl;
