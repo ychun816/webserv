@@ -28,28 +28,27 @@ void Post::handleUpload(Request& request, Response& response, Server& server)
     std::string filename;
     std::string body;
 
-    uploadPath = server.getUploadPath();
+    uploadPath = server.getUpload();
     filename = request.getFilename();
     body = request.getBody();
 
     // Create a file stream for output, using full path
-    std::ofstream output(uploadPath + PATH_SEPARATOR + filename.c_str());
+    std::string full_path = uploadPath + PATH_SEPARATOR + filename;
+    std::ofstream output(full_path.c_str());
 
     //check if the file can be created
-    if (!filename.is_open())
+    if (!output.is_open())
     {
         //Internal server error 500
         //set error msg
         response.setStatus(500);
-        void setStatusMessage("Internal Server Error\n");//do i need? or just set body?
         response.setBody("Error : Failed saving file.\n");
-        return 
+        return; 
     }
     output << body;
     output.close();
 
     response.setStatus(201);
-    void setStatusMessage("Created — New resource created\n");//should i use status msg or set body? 
     response.setBody("Success : file uploaded.\n");
 }
 

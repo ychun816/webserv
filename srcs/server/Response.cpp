@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-Response::Response() : 
+Response::Response() :
     _statusCode(0),
     _response(""),
     _statusMessage(""),
@@ -12,7 +12,7 @@ Response::Response() :
     _httpVersion("HTTP/1.1")
 {}
 
-Response::Response(const Request& request) : 
+Response::Response(const Request& request) :
     _statusCode(0),
     _response(""),
     _statusMessage(""),
@@ -30,7 +30,7 @@ Response::~Response()
 void Response::setStatus(int code)
 {
     _statusCode = code;
-    
+
     // Mettre à jour le message de statut en fonction du code
     switch (code) {
         case 200: _statusMessage = "OK"; break;
@@ -53,31 +53,32 @@ void Response::setStatus(int code)
 
 std::string Response::formatResponse() const {
     std::stringstream ss;
-    
+
     // Ligne de statut
     ss << _httpVersion << " " << _statusCode << " " << _statusMessage << "\r\n";
-    
+
     // En-têtes existants
     std::map<std::string, std::string> finalHeaders = _headers;
-    
+
     // Ajouter Content-Type s'il n'existe pas déjà
-    if (finalHeaders.find("Content-Type") == finalHeaders.end()) {
-        finalHeaders["Content-Type"] = "text/html";
-    }
-    
+    // if (finalHeaders.find("Content-Type") == finalHeaders.end()) {
+    //     finalHeaders["Content-Type"
+    //     ] = "text/html";
+    // }
+
     // Ajouter Content-Length s'il n'existe pas déjà
     if (finalHeaders.find("Content-Length") == finalHeaders.end()) {
         std::stringstream lenStream;
         lenStream << _body.length();
         finalHeaders["Content-Length"] = lenStream.str();
     }
-    
+
     // Écrire tous les en-têtes
     std::map<std::string, std::string>::const_iterator it;
     for (it = finalHeaders.begin(); it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";
     }
-    
+
     ss << "\r\n" << _body;
     return ss.str();
 }

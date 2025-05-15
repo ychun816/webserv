@@ -1,9 +1,10 @@
 #pragma once
 #include "../parsing/Locations.hpp"
 
-#include "../../includes/methods/Get.hpp" //added to exec methods
-#include "../../includes/methods/Post.hpp" //added to exec methods
-#include "../../includes/methods/Delete.hpp" //added to exec methods
+// #include "../../includes/methods/Get.hpp" //added to exec methods
+// #include "../../includes/methods/Post.hpp" //added to exec methods
+// #include "../../includes/methods/Delete.hpp" //added to exec methods
+#include "../../includes/methods/AMethods.hpp" //added to exec methods
 
 #include <iostream>
 #include <string>
@@ -33,13 +34,15 @@ class Server
                 Server & operator=(const Server &assign);
 
                 // Methods
-                void    init(std::string &configFile);
                 void    createSocket();
                 void    configSocket();
                 void    runServer();
                 void    setNonBlocking();
                 void    pushLocation(const Location& location);
                 void    handleNewConnection();
+                void    setEpollFd(int epoll_fd);
+                void    addConnexion(int fd);
+                void    removeConnexion(int fd);
                 // Getters
                 const std::string& getConfigFile() const { return _configFile; }
                 const std::deque<int>& getConnexions() const { return _connexions; }
@@ -71,9 +74,10 @@ class Server
                 void setLocations(const std::list<Location>& locations) { _locations = locations; }
   
                 //added to exec methods
-	              void executeMethods(Request& request, Response& response, Server& server);//change to server class?
+	              void executeMethods(Request& request, Response& response);//change to server class?
   
         private:
+                int                                     _epoll_fd;
                 std::string             _configFile;
                 std::deque<int>         _connexions;
                 int                                     _socketFd;

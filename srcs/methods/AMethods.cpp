@@ -41,10 +41,12 @@ std::string	normalizePath(const std::string& path)
 }
 
 // Verifie si le path existe
-bool	pathExist(Request& request)
+bool	pathExist(Request& request, Server& server)
 {
 	struct stat buffer;
-	return (stat(request.getPath().c_str(), &buffer) == 0);
+	request.setAbspath("." + server.getRoot() + request.getPath());
+	std::cout << "Exist path : " << request.getAbspath() << std::endl;
+	return (stat(request.getAbspath().c_str(), &buffer) == 0);
 }
 
 // Rempli le vecteur des path sensibles
@@ -103,34 +105,19 @@ bool	isPathSafe(const std::string& path)
 	return (true);
 }
 
-// Recupere le path absolue
-std::string get_absolute_path(Request& request)
-{
-	char absolute_path[MAX_PATH_LENGTH];
-
-	#ifdef _WIN32
-		DWORD result = GetFullPathNameA(path.c_str(), MAX_PATH_LENGTH, absolute_path, NULL);
-		if (result == 0 || result >= MAX_PATH_LENGTH) {
-			return "";
-		}
-	#else
-		if (realpath(request.getPath().c_str(), absolute_path) == NULL) {
-			return "";
-		}
-	#endif
-	{
-		request.setAbspath(std::string(absolute_path));
-		return std::string(absolute_path);
-	}
-}
-
 // Verifie si l'on a bien acces au path et si il n'y a pas d'enjeux de securite.
-bool AMethods::checkPath(Request& request)
+bool AMethods::checkPath(Request& request, Server& server)
 {
-	if (!pathExist(request))
+	if (!pathExist(request, server))
+	{
+		std::cout << "path not found" << std::endl;
 		return (false);
-	if (!isPathSafe(get_absolute_path(request)))
+	}
+	if (!isPathSafe(request.getAbspath()))
+	{
+		std::cout << "path not safe" << std::endl;
 		return (false);
+	}
 	return (true);
 }
 

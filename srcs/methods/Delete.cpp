@@ -7,35 +7,32 @@ Delete::~Delete() {}
 
 /**
  * 1 get path
- * 2 check file type -> if file not accessible => error(403) (Client Err: Forbidden — Access denied) 
- * 3 if file ok -> .remove() 
+ * 2 check file type -> if file not accessible => error(403) (Client Err: Forbidden — Access denied)
+ * 3 if file ok -> .remove()
  * -> if fail => error(500) (Server Err: Internal Server Error)
  * -> success => 200
- * 
+ *
  * @note std::move(*i) => takes character -> need .c_str()
- * 
+ *
  */
 void Delete::execute(Request& request, Response& response, Server& server)
 {
+    (void)server;
+    std::string path = request.getPath();
 	FileType type = getFileType(path);
-	std::string path = request.getPath();
-    
+
     if (type != TYPE_REGULAR_FILE)
     {
-        setStatus(403);
+        response.setStatus(403);
         //return;  //maybe no need?
     }
-
-    if (checkPath(request) == false)
-        return;
-    
-    if (!std::remove(path.c_str())) 
+    if (!std::remove(path.c_str()))
     {
-        setStatus(500);
+        response.setStatus(500);
         // return ; //maybe no need return?
     }
     else
-        setStatus(200);
+        response.setStatus(200);
 
 }
 
