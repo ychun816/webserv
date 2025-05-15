@@ -1,0 +1,1813 @@
+[33m[2025-05-15 17:47:02] Parsing configuration file: config/baseConfig.txt[0m
+[32m/**********PARSING CONFIG FILE**********/[0m
+[36m----------before parsing----------[0m
+server {
+    listen 8080;
+    server_name localhost;
+    root /www/simplesite;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    error_page 500 /errors/500.html;
+    location / {
+        methods GET POST;
+        index index.html;
+        autoindex on;
+    }
+    location /upload {
+        methods POST;
+        upload_dir /upload;
+        client_max_body_size 20M;
+    }
+    location /cgi-bin {
+        methods GET POST;
+        cgi_ext .php .py;
+        root /cgi-bin;
+    }
+}
+server {
+    listen 8081;
+    server_name example.com;
+    root /www/simplesite;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+server {
+    listen 3000;
+    server_name example.com;
+    root /www/armel;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+[36m----------after parsing----------[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8080;]
+Checking line: [server_name localhost;]
+Checking line: [root /www/simplesite;]
+Checking line: [client_max_body_size 10M;]
+Checking line: [error_page 404 /errors/404.html;]
+Checking line: [error_page 500 /errors/500.html;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET POST;
+Line: index index.html;
+Line: autoindex on;
+Line: }
+Checking line: [location /upload {]
+Found location in line: [location /upload {]
+Location: /upload
+Path: /upload
+Line: methods POST;
+Line: upload_dir /upload;
+Line: client_max_body_size 20M;
+Line: }
+Checking line: [location /cgi-bin {]
+Found location in line: [location /cgi-bin {]
+Location: /cgi-bin
+Path: /cgi-bin
+Line: methods GET POST;
+Line: cgi_ext .php .py;
+Line: root /cgi-bin;
+Line: }
+Server Line 0: [listen 8080;]
+Server Line 1: [server_name localhost;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [client_max_body_size 10M;]
+Server Line 4: [error_page 404 /errors/404.html;]
+Server Line 5: [error_page 500 /errors/500.html;]
+Server Line 6: [location / {]
+Server Line 7: [methods GET POST;]
+Server Line 8: [index index.html;]
+Server Line 9: [autoindex on;]
+Server Line 10: [}]
+Server Line 11: [location /upload {]
+Server Line 12: [methods POST;]
+Server Line 13: [upload_dir /upload;]
+Server Line 14: [client_max_body_size 20M;]
+Server Line 15: [}]
+Server Line 16: [location /cgi-bin {]
+Server Line 17: [methods GET POST;]
+Server Line 18: [cgi_ext .php .py;]
+Server Line 19: [root /cgi-bin;]
+Server Line 20: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8080
+  Host: localhost
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 10M
+  Allow Methods: 
+  Locations: 3
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8081;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/simplesite;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 8081;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8081
+  Host: example.com
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 3000;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/armel;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 3000;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/armel;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 3000
+  Host: example.com
+  Root: /www/armel
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+
+[32mServer added[0m
+
+
+
+[32m/**********END OF PARSING**********/[0m
+Démarrage de 3 serveurs...
+Configuration du serveur 0 sur port 8080
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 1 sur port 8081
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 2 sur port 3000
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Nouvelle connexion acceptée sur serveur 0 (fd:7)
+Traitement requête client sur serveur 0
+method: GET
+uri: /
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /
+Chemin absolu: ./www/simplesite/
+Type de fichier détecté: 1
+[32mTraitement comme répertoire[0m
+indexFile : ./www/simplesite/
+server : localhost
+stat(indexFile.c_str(), &buffer) : 0
+autoindex : 
+[32mIndex file found[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /
+Chemin absolu: ./www/simplesite/
+Type de fichier détecté: 1
+[32mTraitement comme répertoire[0m
+indexFile : ./www/simplesite/
+server : localhost
+stat(indexFile.c_str(), &buffer) : 0
+autoindex : 
+[32mIndex file found[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 203
+Content-Type: text/html
+
+<!-- Test home page for GET requests -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Site</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 203
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<!-- Test home page for GET requests -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Site</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+[0m
+Traitement requête client sur serveur 0
+method: GET
+uri: /style.css
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/style.css
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /style.css
+Chemin absolu: ./www/simplesite/style.css
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/style.css
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/style.css
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /style.css
+Chemin absolu: ./www/simplesite/style.css
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/style.css
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 383
+Content-Type: text/css
+
+/* Test static resource (CSS) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/css,*/*;q=0.1
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 383
+Host: localhost:8080
+Priority: u=2
+Referer: http://localhost:8080/
+Sec-Fetch-Dest: style
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+/* Test static resource (CSS) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+[0m
+Nouvelle connexion acceptée sur serveur 0 (fd:8)
+Traitement requête client sur serveur 0
+method: GET
+uri: /style.css
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/style.css
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /style.css
+Chemin absolu: ./www/simplesite/style.css
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/style.css
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/style.css
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /style.css
+Chemin absolu: ./www/simplesite/style.css
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/style.css
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 383
+Content-Type: text/css
+
+/* Test static resource (CSS) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/css,*/*;q=0.1
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 383
+Host: localhost:8080
+Priority: u=2
+Referer: http://localhost:8080/
+Sec-Fetch-Dest: style
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+/* Test static resource (CSS) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+[0m
+Traitement requête client sur serveur 0
+method: GET
+uri: /upload
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload
+Chemin absolu: ./www/simplesite/upload
+Type de fichier détecté: 1
+[32mTraitement comme répertoire[0m
+indexFile : ./www/simplesite/upload
+server : localhost
+stat(indexFile.c_str(), &buffer) : 0
+autoindex : 
+[31mDirectory listing not allowed[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload
+Chemin absolu: ./www/simplesite/upload
+Type de fichier détecté: 1
+[32mTraitement comme répertoire[0m
+indexFile : ./www/simplesite/upload
+server : localhost
+stat(indexFile.c_str(), &buffer) : 0
+autoindex : 
+[31mDirectory listing not allowed[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 403 Forbidden
+Content-Length: 79
+Content-Type: text/html
+
+<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 403 Forbidden
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 79
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>[0m
+Traitement requête client sur serveur 0
+method: GET
+uri: /upload/upload.html
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 460
+Content-Type: text/html
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 460
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->[0m
+Traitement requête client sur serveur 0
+method: GET
+uri: /favicon.ico
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/favicon.ico
+uri : /favicon.ico
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/favicon.ico
+uri : /favicon.ico
+[34mSending response: [HTTP/1.1 404 Not Found
+Accept: image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 54
+Host: localhost:8080
+Priority: u=6
+Referer: http://localhost:8080/upload/upload.html
+Sec-Fetch-Dest: image
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<html><body><h1>403 Not a Directory</h1></body></html>...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 404 Not Found
+Accept: image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 54
+Host: localhost:8080
+Priority: u=6
+Referer: http://localhost:8080/upload/upload.html
+Sec-Fetch-Dest: image
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<html><body><h1>403 Not a Directory</h1></body></html>[0m
+Client déconnecté (fd:8)
+Traitement requête client sur serveur 0
+method: POST
+uri: /upload
+http version: HTTP/1.1
+Received request: [-----------------------------16380483925197897252636020248
+Content-Disposition: form-data; name="file"; filename="1284299.jpg"
+Content-Type: image/jpeg
+
+���� JFIF      ��(�Exif  MM *           J       R(              �i       Z   �   H      H    �     0221�     �     0100�       �      ��      8�  
+...]
+SEVER-POST
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+[34mSending response: [HTTP/1.1 500 Internal Server Error
+Content-Length: 28
+
+Error : Failed saving file.
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 0 
+Content-Length: 0
+
+[0m
+Traitement requête client sur serveur 0
+method:                               
+uri: 
+http version: 
+Received request: [...]
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite
+👻 amethod process try
+[33m[2025-05-15 17:47:52] Parsing configuration file: config/baseConfig.txt[0m
+[32m/**********PARSING CONFIG FILE**********/[0m
+[36m----------before parsing----------[0m
+server {
+    listen 8080;
+    server_name localhost;
+    root /www/simplesite;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    error_page 500 /errors/500.html;
+    location / {
+        methods GET POST;
+        index index.html;
+        autoindex on;
+    }
+    location /upload {
+        methods POST;
+        upload_dir /upload;
+        client_max_body_size 20M;
+    }
+    location /cgi-bin {
+        methods GET POST;
+        cgi_ext .php .py;
+        root /cgi-bin;
+    }
+}
+server {
+    listen 8081;
+    server_name example.com;
+    root /www/simplesite;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+server {
+    listen 3000;
+    server_name example.com;
+    root /www/armel;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+[36m----------after parsing----------[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8080;]
+Checking line: [server_name localhost;]
+Checking line: [root /www/simplesite;]
+Checking line: [client_max_body_size 10M;]
+Checking line: [error_page 404 /errors/404.html;]
+Checking line: [error_page 500 /errors/500.html;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET POST;
+Line: index index.html;
+Line: autoindex on;
+Line: }
+Checking line: [location /upload {]
+Found location in line: [location /upload {]
+Location: /upload
+Path: /upload
+Line: methods POST;
+Line: upload_dir /upload;
+Line: client_max_body_size 20M;
+Line: }
+Checking line: [location /cgi-bin {]
+Found location in line: [location /cgi-bin {]
+Location: /cgi-bin
+Path: /cgi-bin
+Line: methods GET POST;
+Line: cgi_ext .php .py;
+Line: root /cgi-bin;
+Line: }
+Server Line 0: [listen 8080;]
+Server Line 1: [server_name localhost;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [client_max_body_size 10M;]
+Server Line 4: [error_page 404 /errors/404.html;]
+Server Line 5: [error_page 500 /errors/500.html;]
+Server Line 6: [location / {]
+Server Line 7: [methods GET POST;]
+Server Line 8: [index index.html;]
+Server Line 9: [autoindex on;]
+Server Line 10: [}]
+Server Line 11: [location /upload {]
+Server Line 12: [methods POST;]
+Server Line 13: [upload_dir /upload;]
+Server Line 14: [client_max_body_size 20M;]
+Server Line 15: [}]
+Server Line 16: [location /cgi-bin {]
+Server Line 17: [methods GET POST;]
+Server Line 18: [cgi_ext .php .py;]
+Server Line 19: [root /cgi-bin;]
+Server Line 20: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8080
+  Host: localhost
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 10M
+  Allow Methods: 
+  Locations: 3
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8081;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/simplesite;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 8081;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8081
+  Host: example.com
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 3000;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/armel;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 3000;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/armel;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 3000
+  Host: example.com
+  Root: /www/armel
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+
+[32mServer added[0m
+
+
+
+[32m/**********END OF PARSING**********/[0m
+Démarrage de 3 serveurs...
+Configuration du serveur 0 sur port 8080
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 1 sur port 8081
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 2 sur port 3000
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Nouvelle connexion acceptée sur serveur 0 (fd:7)
+Traitement requête client sur serveur 0
+method: GET
+uri: /upload/upload.html
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 460
+Content-Type: text/html
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 460
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->[0m
+Traitement requête client sur serveur 0
+method: POST
+uri: /upload
+http version: HTTP/1.1
+Received request: [-----------------------------40817101257668879033867574169
+Content-Disposition: form-data; name="file"; filename="1284299.jpg"
+Content-Type: image/jpeg
+
+���� JFIF      ��(�Exif  MM *           J       R(              �i       Z   �   H      H    �     0221�     �     0100�       �      ��      8�  
+...]
+SEVER-POST
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+[34mSending response: [HTTP/1.1 500 Internal Server Error
+Content-Length: 28
+
+Error : Failed saving file.
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 0 
+Content-Length: 0
+
+[0m
+Traitement requête client sur serveur 0
+method:                               
+uri: 
+http version: 
+Received request: [...]
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite
+👻 amethod process try
+[33m[2025-05-15 17:57:27] Parsing configuration file: config/baseConfig.txt[0m
+[32m/**********PARSING CONFIG FILE**********/[0m
+[36m----------before parsing----------[0m
+server {
+    listen 8080;
+    server_name localhost;
+    root /www/simplesite;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    error_page 500 /errors/500.html;
+    location / {
+        methods GET POST;
+        index index.html;
+        autoindex on;
+    }
+    location /upload {
+        methods POST;
+        upload_dir /upload;
+        client_max_body_size 20M;
+    }
+    location /cgi-bin {
+        methods GET POST;
+        cgi_ext .php .py;
+        root /cgi-bin;
+    }
+}
+server {
+    listen 8081;
+    server_name example.com;
+    root /www/simplesite;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+server {
+    listen 3000;
+    server_name example.com;
+    root /www/armel;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+[36m----------after parsing----------[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8080;]
+Checking line: [server_name localhost;]
+Checking line: [root /www/simplesite;]
+Checking line: [client_max_body_size 10M;]
+Checking line: [error_page 404 /errors/404.html;]
+Checking line: [error_page 500 /errors/500.html;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET POST;
+Line: index index.html;
+Line: autoindex on;
+Line: }
+Checking line: [location /upload {]
+Found location in line: [location /upload {]
+Location: /upload
+Path: /upload
+Line: methods POST;
+Line: upload_dir /upload;
+Line: client_max_body_size 20M;
+Line: }
+Checking line: [location /cgi-bin {]
+Found location in line: [location /cgi-bin {]
+Location: /cgi-bin
+Path: /cgi-bin
+Line: methods GET POST;
+Line: cgi_ext .php .py;
+Line: root /cgi-bin;
+Line: }
+Server Line 0: [listen 8080;]
+Server Line 1: [server_name localhost;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [client_max_body_size 10M;]
+Server Line 4: [error_page 404 /errors/404.html;]
+Server Line 5: [error_page 500 /errors/500.html;]
+Server Line 6: [location / {]
+Server Line 7: [methods GET POST;]
+Server Line 8: [index index.html;]
+Server Line 9: [autoindex on;]
+Server Line 10: [}]
+Server Line 11: [location /upload {]
+Server Line 12: [methods POST;]
+Server Line 13: [upload_dir /upload;]
+Server Line 14: [client_max_body_size 20M;]
+Server Line 15: [}]
+Server Line 16: [location /cgi-bin {]
+Server Line 17: [methods GET POST;]
+Server Line 18: [cgi_ext .php .py;]
+Server Line 19: [root /cgi-bin;]
+Server Line 20: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8080
+  Host: localhost
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 10M
+  Allow Methods: 
+  Locations: 3
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8081;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/simplesite;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 8081;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8081
+  Host: example.com
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 3000;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/armel;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 3000;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/armel;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 3000
+  Host: example.com
+  Root: /www/armel
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+
+[32mServer added[0m
+
+
+
+[32m/**********END OF PARSING**********/[0m
+Démarrage de 3 serveurs...
+Configuration du serveur 0 sur port 8080
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 1 sur port 8081
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 2 sur port 3000
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Nouvelle connexion acceptée sur serveur 0 (fd:7)
+Traitement requête client sur serveur 0
+method: GET
+uri: /upload/upload.html
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 460
+Content-Type: text/html
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 460
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->[0m
+Traitement requête client sur serveur 0
+method: POST
+uri: /upload
+http version: HTTP/1.1
+Received request: [-----------------------------18260332713607111371174276790
+Content-Disposition: form-data; name="file"; filename="1284299.jpg"
+Content-Type: image/jpeg
+
+���� JFIF      ��(�Exif  MM *           J       R(              �i       Z   �   H      H    �     0221�     �     0100�       �      ��      8�  
+...]
+SEVER-POST
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+[34mSending response: [HTTP/1.1 500 Internal Server Error
+Content-Length: 28
+
+Error : Failed saving file.
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 0 
+Content-Length: 0
+
+[0m
+Traitement requête client sur serveur 0
+method:                               
+uri: 
+http version: 
+Received request: [...]
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite
+👻 amethod process try
+[33m[2025-05-15 18:01:09] Parsing configuration file: config/baseConfig.txt[0m
+[32m/**********PARSING CONFIG FILE**********/[0m
+[36m----------before parsing----------[0m
+server {
+    listen 8080;
+    server_name localhost;
+    root /www/simplesite;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    error_page 500 /errors/500.html;
+    location / {
+        methods GET POST;
+        index index.html;
+        autoindex on;
+    }
+    location /upload {
+        methods POST;
+        upload_dir /upload;
+        client_max_body_size 20M;
+    }
+    location /cgi-bin {
+        methods GET POST;
+        cgi_ext .php .py;
+        root /cgi-bin;
+    }
+}
+server {
+    listen 8081;
+    server_name example.com;
+    root /www/simplesite;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+server {
+    listen 3000;
+    server_name example.com;
+    root /www/armel;
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+[36m----------after parsing----------[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8080;]
+Checking line: [server_name localhost;]
+Checking line: [root /www/simplesite;]
+Checking line: [client_max_body_size 10M;]
+Checking line: [error_page 404 /errors/404.html;]
+Checking line: [error_page 500 /errors/500.html;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET POST;
+Line: index index.html;
+Line: autoindex on;
+Line: }
+Checking line: [location /upload {]
+Found location in line: [location /upload {]
+Location: /upload
+Path: /upload
+Line: methods POST;
+Line: upload_dir /upload;
+Line: client_max_body_size 20M;
+Line: }
+Checking line: [location /cgi-bin {]
+Found location in line: [location /cgi-bin {]
+Location: /cgi-bin
+Path: /cgi-bin
+Line: methods GET POST;
+Line: cgi_ext .php .py;
+Line: root /cgi-bin;
+Line: }
+Server Line 0: [listen 8080;]
+Server Line 1: [server_name localhost;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [client_max_body_size 10M;]
+Server Line 4: [error_page 404 /errors/404.html;]
+Server Line 5: [error_page 500 /errors/500.html;]
+Server Line 6: [location / {]
+Server Line 7: [methods GET POST;]
+Server Line 8: [index index.html;]
+Server Line 9: [autoindex on;]
+Server Line 10: [}]
+Server Line 11: [location /upload {]
+Server Line 12: [methods POST;]
+Server Line 13: [upload_dir /upload;]
+Server Line 14: [client_max_body_size 20M;]
+Server Line 15: [}]
+Server Line 16: [location /cgi-bin {]
+Server Line 17: [methods GET POST;]
+Server Line 18: [cgi_ext .php .py;]
+Server Line 19: [root /cgi-bin;]
+Server Line 20: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8080
+  Host: localhost
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 10M
+  Allow Methods: 
+  Locations: 3
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 8081;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/simplesite;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 8081;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/simplesite;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 8081
+  Host: example.com
+  Root: /www/simplesite
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+[32mServer added[0m
+[32mServer found[0m
+[32mServer closed by '}'[0m
+Checking line: [listen 3000;]
+Checking line: [server_name example.com;]
+Checking line: [root /www/armel;]
+Checking line: [location / {]
+Found location in line: [location / {]
+Location: /
+Path: /
+Line: methods GET;
+Line: index index.html;
+Line: autoindex off;
+Line: return 301 http://localhost:8080;
+Line: }
+Server Line 0: [listen 3000;]
+Server Line 1: [server_name example.com;]
+Server Line 2: [root /www/armel;]
+Server Line 3: [location / {]
+Server Line 4: [methods GET;]
+Server Line 5: [index index.html;]
+Server Line 6: [autoindex off;]
+Server Line 7: [return 301 http://localhost:8080;]
+Server Line 8: [}]
+
+[32mServer filled[0m
+Server Configuration:
+  Port: 3000
+  Host: example.com
+  Root: /www/armel
+  Index: 
+  Error Page: 
+  CGI: 
+  Upload: 
+  Client Max Body Size: 
+  Allow Methods: 
+  Locations: 1
+
+
+
+
+[32mServer added[0m
+
+
+
+[32m/**********END OF PARSING**********/[0m
+Démarrage de 3 serveurs...
+Configuration du serveur 0 sur port 8080
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 1 sur port 8081
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Configuration du serveur 2 sur port 3000
+Flag at socket creation: 2
+Flag at socket creation: 2
+Bind Success
+Nouvelle connexion acceptée sur serveur 0 (fd:7)
+Traitement requête client sur serveur 0
+method: GET
+uri: /upload/upload.html
+http version: HTTP/1.1
+Received request: [...]
+SEVER-GET
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload/upload.html
+👻 amethod process try
+
+=== DEBUG execute ===
+Méthode: GET
+URI: /upload/upload.html
+Chemin absolu: ./www/simplesite/upload/upload.html
+Type de fichier détecté: 0
+[32mTraitement comme fichier régulier[0m
+./www/simplesite/upload/upload.html
+[32mFin de traitement fichier régulier[0m
+=== FIN DEBUG execute ===
+
+[34mSending response: [HTTP/1.1 200 OK
+Content-Length: 460
+Content-Type: text/html
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 200 OK
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.5
+Connection: keep-alive
+Content-Length: 460
+Host: localhost:8080
+Priority: u=0, i
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+
+<!-- Form for testing POST upload requests-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload File</h1>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" />
+    <input type="submit" value="Upload" />
+  </form>
+</body>
+</html>
+
+
+<!--
+for testing upload functionality:
+
+location /upload {
+    methods POST;
+    upload_dir /uploads;
+    client_max_body_size 20M;
+}
+
+-->[0m
+Traitement requête client sur serveur 0
+method: POST
+uri: /upload
+http version: HTTP/1.1
+Received request: [-----------------------------183831603733152736263842488648
+Content-Disposition: form-data; name="file"; filename="1284299.jpg"
+Content-Type: image/jpeg
+
+���� JFIF      ��(�Exif  MM *           J       R(              �i       Z   �   H      H    �     0221�     �     0100�       �      ��      8� 
+...]
+SEVER-POST
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite/upload
+👻 amethod process try
+[34mSending response: [HTTP/1.1 500 Internal Server Error
+Content-Length: 28
+
+Error : Failed saving file.
+...][0m
+[31m=========SEND RESPONSE EPOLL==========[0m
+[31mHTTP/1.1 0 
+Content-Length: 0
+
+[0m
+Traitement requête client sur serveur 0
+method:                                
+uri: 
+http version: 
+Received request: [...]
+👻 in process BEFORE EVYTHING
+Exist path : ./www/simplesite
+👻 amethod process try

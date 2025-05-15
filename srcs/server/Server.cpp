@@ -110,13 +110,13 @@ void    Server::runServer() {
 					if (req.getHeader("Connection") != "keep-alive") {
 						close(events[i].data.fd);
 						epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-						this->_connexions.pop_back();
+						removeConnexion(events[i].data.fd); //this->_connexions.pop_back();
 					}
 				} else {
 					// Client disconnected
 					close(events[i].data.fd);
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-					this->_connexions.pop_back();
+					removeConnexion(events[i].data.fd); //this->_connexions.pop_back();
 				}
 			}
 		}
@@ -170,7 +170,7 @@ void Server::handleNewConnection()
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
 		std::cerr << "Error while adding the client to epoll" << std::endl;
 		close(client_fd);
-		this->_connexions.pop_back();
+		this->_connexions.pop_back(); //removeConnexion(events[i].data.fd); ? use here too?
 		return;
 	}
 }
@@ -242,5 +242,26 @@ void Server::executeMethods(Request& request, Response& response)
 		//return; 
 	}
 	exec->process(request, response, *this);
-	delete exec; // Free the memory allocated for the method?
+
+	if (exec)
+	{
+		exec->process(request, response, *this);
+		delete exec; // Free the memory allocated for the method?
+	}
 }
+
+
+
+/* TO FIX?
+2. Incorrect _connexions.pop_back() Use
+
+You are calling pop_back() regardless of which client FD is being closed. This will remove the wrong connection in most cases.
+
+Fix: Use removeConnexion(fd); instead:
+
+close(events[i].data.fd);
+epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+removeConnexion(events[i].data.fd); // FIXED
+
+
+*/

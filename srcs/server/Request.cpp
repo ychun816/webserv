@@ -24,7 +24,6 @@ Request::Request(std::string request, Server& server) :
 
 Request::~Request()
 {
-
 }
 
 void Request::handleResponse()

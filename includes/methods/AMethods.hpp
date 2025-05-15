@@ -60,7 +60,7 @@ class AMethods
 			try
 			{
 				std:: cout << "👻 amethod process try" << std::endl;
-				execute(request, response, server);
+				this->execute(request, response, server);
 			}
 			catch (const std::exception& e)
 			{
