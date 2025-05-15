@@ -63,12 +63,13 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	std::cout << request.getAbspath().c_str() << std::endl;
 	if (!file.is_open())
 	{
-		std::cerr << "Error opening file" << std::endl;
+		std::cerr << RED << "Error opening file" << RESET << std::endl;
 		request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
 		return ;
 	}
-	if (checkIfCgi(request.getPath()))
+	if (checkIfCgi(request.getAbspath()))
 	{
+		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
 		Request* requestPtr = new Request(request);
 		Server* serverPtr = new Server(server);
 		CGIhandler	execCgi(requestPtr, serverPtr);
@@ -76,18 +77,21 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		request.fillResponse(response, 200, CGIoutput);
 		delete requestPtr;
 		delete serverPtr;
+		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
 	}
 	else
 	{
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		request.fillResponse(response, 200, buffer.str());
+		file.close();
 
 		// Définir le type MIME correct
 		std::string contentType = getMimeType(request.getAbspath());
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = contentType;
 		response.setHeaders(headers);
+		std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
 	}
 }
 
