@@ -19,6 +19,6 @@ class Post : public AMethods
 		virtual void execute(Request& request, Response& response, Server& server); //Best practice: make destructors virtual in base classes when the class is intended to be inherited.
 
 	private:
-		void handleUpload(Request& request, Response& response, Server& server);
+		std::string extractFileContent(std::string& rawBody) const;
 
 };

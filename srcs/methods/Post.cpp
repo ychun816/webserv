@@ -6,16 +6,63 @@ Post::Post() : AMethods::AMethods() {}
 // Post&	Post::operator=(const Post& copy) {return *this;}
 Post::~Post() {}
 
+
+//extract file content
+std::string Post::extractFileContent(std::string& rawBody) const 
+{
+    std::string delimiter = "\r\n\r\n"; // End of headers
+    size_t contentStart = rawBody.find(delimiter);
+    if (contentStart == std::string::npos) return "";
+
+    contentStart += delimiter.length();
+
+    size_t contentEnd = rawBody.rfind("--"); // Last boundary
+    if (contentEnd == std::string::npos || contentEnd <= contentStart) return "";
+
+    return rawBody.substr(contentStart, contentEnd - contentStart);
+}
+
+// std::string Post::extractFileContent(std::string& rawBody) const
+// {
+//     std::string delimiter = "\r\n\r\n"; // Delimiter for the file content
+//     size_t delimiterLen = delimiter.length();
+    
+//     size_t headerEnd = rawBody.find(delimiter);
+//     if (headerEnd == std::string::npos)
+//         return "";
+
+//     size_t contentStart = headerEnd + delimiterLen;
+//     contentStart += 
+//     size_t contentEnd = rawBody.rfind("--");// Strip last boundary
+//     if (contentEnd == std::string::npos || contentEnd < contentStart)
+//         return "";
+
+//     std::string content = rawBody.substr(contentStart, contentEnd - contentStart);
+
+//     //CHECK DEBUG
+//     std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
+//     std::cout << "DELIMITER : " << delimiter << std::endl;
+//     std::cout << "DELIMITER LEN : " << delimiterLen << std::endl;
+//     std::cout << "CONTENT START : " << contentStart << std::endl;
+//     std::cout << "CONTENT END : " << contentEnd << std::endl;
+//     std::cout << "CONTENT : " << content << std::endl;
+//     std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
+
+//     return content;
+// }
+
 void Post::execute(Request& request, Response& response, Server& server)
 {
     std::string uploadPath;
     std::string filename;
+    std::string rawBody;
     std::string body;
 
     (void)server;
     uploadPath = request.getAbspath(); //+ server.getUploadPath();
     filename = request.getFilename();
-    body = request.getBody();
+    rawBody = request.getBody();
+    body = extractFileContent(rawBody);
 
     // Create a file stream for output, using full path
     std::string full_path = uploadPath + PATH_SEPARATOR + filename;
@@ -24,9 +71,10 @@ void Post::execute(Request& request, Response& response, Server& server)
     //DEBUG /////////////////////////////////////////////////
     std::cout << "=== 📍DEBUG POST EXECUTE ===" << std::endl;
     std::cout << "UPLOAD PATH : " << uploadPath << std::endl;
-    std::cout << "FILENAME : " << filename << std::endl; //getfilename -> wrong
-    std::cout << "FULL PATH : " << full_path << std::endl; //wrong!!
-    std::cout << "BODY : " << body << std::endl; //wrong too? 
+    std::cout << "FILENAME : " << filename << std::endl;
+    std::cout << "FULL PATH : " << full_path << std::endl; //shold be ok
+    std::cout << "RAW BODY : " << rawBody << std::endl;
+    std::cout << "BODY : " << body << std::endl;
     std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
     /////////////////////////////////////////////////
     
@@ -46,47 +94,6 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 }
 
-/**
- * 1 get uploadpath / filename / body 
- * 2 Create a file stream for output, using full path
- * 3 check if can create file
- * - if not -> error msg 
- * - if yes -> write body to file
- * 4 close() + set status success 
- * 5 set status and success message 
- * 
- * @note std::ofstream out(uploadPath + PATH_SEPARATOR + filename.c_str()) : Create a file stream for output, using full path
- */
-
-// void Post::handleUpload(Request& request, Response& response, Server& server)
-// {
-//     std::string uploadPath;
-//     std::string filename;
-//     std::string body;
-
-//     uploadPath = server.getUpload();
-//     filename = request.getFilename();
-//     body = request.getBody();
-
-//     // Create a file stream for output, using full path
-//     std::string full_path = uploadPath + PATH_SEPARATOR + filename;
-//     std::ofstream output(full_path.c_str());
-
-//     //check if the file can be created
-//     if (!output.is_open())
-//     {
-//         //Internal server error 500
-//         //set error msg
-//         response.setStatus(500);
-//         response.setBody("Error : Failed saving file.\n");
-//         return; 
-//     }
-//     output << body;
-//     output.close();
-
-//     response.setStatus(201);
-//     response.setBody("Success : file uploaded.\n");
-// }
 
 
 
