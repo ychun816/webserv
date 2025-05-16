@@ -201,14 +201,20 @@ std::string Request::getFilename() const
 {
     std::string filename;
     size_t pos = _body.find("filename=\""); //std::string::size_type pos
+	// std::cout << ">>>FILENAME POS : " << pos << std::endl; //DEBUG
 
     if (pos != std::string::npos)
     {
         //found
         pos += 10; //skip filename="
         size_t endPos = _body.find("\"", pos);//start find frm pos
+		
+		// std::cout << ">>>FILENAME ENDPOS : " << pos << std::endl; //DEBUG
+
         if (endPos != std::string::npos)
-            filename = _body.substr(endPos - pos);
+		    filename = _body.substr(pos, endPos - pos);
+		// std::cout << ">>>FILENAME  : " << filename << std::endl; //DEBUG
     }
     return filename;
 }
+

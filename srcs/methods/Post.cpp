@@ -12,7 +12,8 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::string filename;
     std::string body;
 
-    uploadPath = request.getAbspath() + server.getUpload();
+    (void)server;
+    uploadPath = request.getAbspath(); //+ server.getUploadPath();
     filename = request.getFilename();
     body = request.getBody();
 
@@ -20,6 +21,15 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::string full_path = uploadPath + PATH_SEPARATOR + filename;
     std::ofstream output(full_path.c_str());
 
+    //DEBUG /////////////////////////////////////////////////
+    std::cout << "=== 📍DEBUG POST EXECUTE ===" << std::endl;
+    std::cout << "UPLOAD PATH : " << uploadPath << std::endl;
+    std::cout << "FILENAME : " << filename << std::endl; //getfilename -> wrong
+    std::cout << "FULL PATH : " << full_path << std::endl; //wrong!!
+    std::cout << "BODY : " << body << std::endl; //wrong too? 
+    std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
+    /////////////////////////////////////////////////
+    
     //check if the file can be created
     if (!output.is_open())
     {
@@ -28,6 +38,7 @@ void Post::execute(Request& request, Response& response, Server& server)
         return;
     }
     output << body;
+    std::cout << "📍📍OUTPUT : " << output << std::endl;
     output.close();
 
     response.setStatus(201);
