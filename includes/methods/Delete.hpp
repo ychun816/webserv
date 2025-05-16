@@ -17,7 +17,4 @@ class Delete : public AMethods
 
 		virtual void execute(Request& request, Response& response, Server& server);
 
-	// private:
-
-
 };

@@ -21,6 +21,13 @@ void Delete::execute(Request& request, Response& response, Server& server)
     std::string path = request.getPath();
 	FileType type = getFileType(path);
 
+    std::cout << "=== 📍DEBUG DELETE EXECUTE ===" << std::endl;
+    std::cout << "PATH : " << path << std::endl;
+    std::cout << "FILE TYPE : " << type << std::endl;
+    std::cout << "=== 📍END | DEBUG DELETE EXECUTE ===" << std::endl;
+
+
+
     if (type != TYPE_REGULAR_FILE)
     {
         response.setStatus(403);

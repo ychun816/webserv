@@ -1,6 +1,15 @@
 #include "../../includes/methods/Post.hpp"
 #include "../../includes/server/Request.hpp"
 
+
+/* TO DO NOTE:
+1. upload file can save to another temp directory OR download to the same directory
+2. have to test download the uploaded file
+*/
+
+
+
+
 Post::Post() : AMethods::AMethods() {}
 // Post::Post(const Post& copy) : AMethods::AMethods(copy) {}
 // Post&	Post::operator=(const Post& copy) {return *this;}
@@ -88,9 +97,13 @@ void Post::execute(Request& request, Response& response, Server& server)
 
     response.setStatus(201);
     response.setBody("Success : file uploaded.\n");
+    
+    //if uploaded redirect to other page
+    // response.setStatus(303);
+    // response.setHeaders(response.getHeaders());
+    // response.setBody(""); // Optionally empty
 
 }
-
 
 
 
