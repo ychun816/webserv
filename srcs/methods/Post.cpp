@@ -6,50 +6,35 @@ Post::Post() : AMethods::AMethods() {}
 // Post&	Post::operator=(const Post& copy) {return *this;}
 Post::~Post() {}
 
-
-//extract file content
-std::string Post::extractFileContent(std::string& rawBody) const 
+std::string Post::extractFileContent(std::string& rawBody) const
 {
-    std::string delimiter = "\r\n\r\n"; // End of headers
-    size_t contentStart = rawBody.find(delimiter);
-    if (contentStart == std::string::npos) return "";
+    // Start after headers
+    size_t contentStart = rawBody.find("\r\n\r\n");
+    if (contentStart == std::string::npos)
+        return "";
+    contentStart += 4; // Skip "\r\n\r\n"
 
-    contentStart += delimiter.length();
+    // Find start of the final boundary
+    size_t contentEnd = rawBody.rfind("\r\n--");
+    if (contentEnd == std::string::npos || contentEnd < contentStart)
+        return "";
 
-    size_t contentEnd = rawBody.rfind("--"); // Last boundary
-    if (contentEnd == std::string::npos || contentEnd <= contentStart) return "";
+    std::string content = rawBody.substr(contentStart, contentEnd - contentStart);
 
-    return rawBody.substr(contentStart, contentEnd - contentStart);
+    // Trim trailing \r\n
+    content.erase(content.find_last_not_of("\r\n") + 1);
+
+    //CHECK DEBUG
+    // std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
+    // std::cout << "HEADER DELIMITER : " << headerDelimiter << std::endl;
+    // std::cout << "CONTENT START : " << contentStart << std::endl;
+    // std::cout << "CONTENT END : " << contentEnd << std::endl;
+    // std::cout << "CONTENT : " << content << std::endl;
+    // std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
+
+    return content;
 }
 
-// std::string Post::extractFileContent(std::string& rawBody) const
-// {
-//     std::string delimiter = "\r\n\r\n"; // Delimiter for the file content
-//     size_t delimiterLen = delimiter.length();
-    
-//     size_t headerEnd = rawBody.find(delimiter);
-//     if (headerEnd == std::string::npos)
-//         return "";
-
-//     size_t contentStart = headerEnd + delimiterLen;
-//     contentStart += 
-//     size_t contentEnd = rawBody.rfind("--");// Strip last boundary
-//     if (contentEnd == std::string::npos || contentEnd < contentStart)
-//         return "";
-
-//     std::string content = rawBody.substr(contentStart, contentEnd - contentStart);
-
-//     //CHECK DEBUG
-//     std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
-//     std::cout << "DELIMITER : " << delimiter << std::endl;
-//     std::cout << "DELIMITER LEN : " << delimiterLen << std::endl;
-//     std::cout << "CONTENT START : " << contentStart << std::endl;
-//     std::cout << "CONTENT END : " << contentEnd << std::endl;
-//     std::cout << "CONTENT : " << content << std::endl;
-//     std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
-
-//     return content;
-// }
 
 void Post::execute(Request& request, Response& response, Server& server)
 {
@@ -78,15 +63,27 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
     /////////////////////////////////////////////////
     
+    //first check body size ( client_max_body_size 20M;)
+    if (body.length() > 20 * 1024 * 1024) //20MB
+    {
+        response.setStatus(413);
+        response.setBody("Error : File too large.\n");
+        exit(1);//return;
+    }
     //check if the file can be created
     if (!output.is_open())
     {
         response.setStatus(500);
         response.setBody("Error : Failed saving file.\n");
-        return;
+        exit(1);//return;
     }
     output << body;
+
+    /////////////////////////////////////////////////
+    std::cout << "📍📍BODY LEN : " << body.length() << std::endl;
     std::cout << "📍📍OUTPUT : " << output << std::endl;
+    /////////////////////////////////////////////////
+
     output.close();
 
     response.setStatus(201);
