@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HTTP POST & GET File Test</title>
+    <title>HTTP File Upload / Download / Delete Test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,30 +22,114 @@
             padding: 8px 16px;
             margin-top: 10px;
         }
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <h2>📤 Upload File (POST)</h2>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
         <input type="file" name="file" required>
         <button type="submit">Upload</button>
     </form>
+    <div id="uploadStatus" class="status"></div>
+    <div id="uploadLink" class="status"></div>
 
     <h2>📥 Download File (GET)</h2>
     <form onsubmit="downloadFile(event)">
-        <input type="text" id="filename" placeholder="Enter filename (e.g., _testPost.txt)" required>
+        <input type="text" id="filename" placeholder="Enter filename (e.g., test.txt)" required>
         <button type="submit">Download</button>
     </form>
 
+    <h2>🗑️ Delete File (DELETE)</h2>
+    <form onsubmit="deleteFile(event)">
+        <input type="text" id="deleteFilename" placeholder="Enter filename to delete" required>
+        <button type="submit" style="background-color: #d9534f; color: white;">Delete</button>
+    </form>
+    <div id="deleteStatus" class="status"></div>
+
     <script>
+        // Clear status messages after delay
+        function clearStatusMessages() {
+            setTimeout(() => {
+                document.getElementById('uploadStatus').textContent = '';
+                document.getElementById('uploadLink').textContent = '';
+                document.getElementById('deleteStatus').textContent = '';
+            }, 5000);
+        }
+
+        // Upload file via JavaScript
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const fileInput = event.target.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const safeFilename = encodeURIComponent(file.name);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(responseText => {
+                document.getElementById('uploadStatus').textContent = "✅ Upload successful!";
+                document.getElementById('uploadLink').innerHTML =
+                    `🔗 <a href="/upload/${safeFilename}" download>Download ${file.name}</a>`;
+                clearStatusMessages();
+            })
+            .catch(error => {
+                document.getElementById('uploadStatus').textContent = "❌ Upload failed.";
+                document.getElementById('uploadLink').textContent = "";
+                console.error(error);
+                clearStatusMessages();
+            });
+        });
+
+        // Download file via GET
         function downloadFile(event) {
             event.preventDefault();
             const filename = document.getElementById('filename').value.trim();
             if (!filename) return;
 
-            const url = `/upload/${filename}`;
+            const url = `/upload/${encodeURIComponent(filename)}`;
             window.location.href = url;
+        }
+
+        // Delete file via DELETE
+        function deleteFile(event) {
+            event.preventDefault();
+            const filename = document.getElementById('deleteFilename').value.trim();
+            if (!filename) return;
+
+            fetch(`/upload/${encodeURIComponent(filename)}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.text().then(msg => ({ status: res.status, msg })))
+            .then(({ status, msg }) => {
+                if (status === 200 || status === 204) {
+                    document.getElementById('deleteStatus').textContent = `✅ File "${filename}" deleted successfully.`;
+                } else if (status === 404) {
+                    document.getElementById('deleteStatus').textContent = `❌ File "${filename}" not found.`;
+                } else if (status === 403) {
+                    document.getElementById('deleteStatus').textContent = `🚫 Permission denied to delete "${filename}".`;
+                } else {
+                    document.getElementById('deleteStatus').textContent = `❌ Failed to delete file: ${msg}`;
+                }
+                clearStatusMessages();
+            })
+            .catch(error => {
+                document.getElementById('deleteStatus').textContent = "❌ Error deleting file.";
+                console.error(error);
+                clearStatusMessages();
+            });
         }
     </script>
 

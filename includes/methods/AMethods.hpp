@@ -29,11 +29,11 @@
 #endif
 
 enum FileType {
-	TYPE_REGULAR_FILE,
-	TYPE_DIRECTORY,
-	TYPE_OTHER,
-	TYPE_NOT_FOUND,
-	TYPE_NO_PERMISSION
+	TYPE_REGULAR_FILE, //0
+	TYPE_DIRECTORY, //1
+	TYPE_OTHER, //2
+	TYPE_NOT_FOUND, //3
+	TYPE_NO_PERMISSION //4
 };
 
 class AMethods
@@ -60,7 +60,7 @@ class AMethods
 			try
 			{
 				std:: cout << "👻 amethod process try" << std::endl;
-				this->execute(request, response, server);
+				this->execute(request, response, server); 
 			}
 			catch (const std::exception& e)
 			{

@@ -53,7 +53,7 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::string body;
 
     (void)server;
-    uploadPath = request.getAbspath(); //+ server.getUploadPath();
+    uploadPath = request.getAbspath();
     filename = request.getFilename();
     rawBody = request.getBody();
     body = extractFileContent(rawBody);
