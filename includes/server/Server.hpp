@@ -20,6 +20,8 @@
 #include "Request.hpp"
 #define PORT 8080
 #define MAX_EVENTS 1000
+#define BUFFER_SIZE 8192
+#define MAX_REQUEST_SIZE (10 * 1024 * 1024) 
 
 class Server
 {

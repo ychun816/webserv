@@ -109,3 +109,5 @@ Ce projet est développé par:
 
 ## 📄 Licence
 42
+dd if=/dev/zero of=large_file.txt bs=1M count=10
+curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt

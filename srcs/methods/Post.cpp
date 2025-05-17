@@ -75,6 +75,7 @@ void Post::execute(Request& request, Response& response, Server& server)
     //first check body size ( client_max_body_size 20M;)
     if (body.length() > 20 * 1024 * 1024) //20MB
     {
+        std::cout << "Error : File too large." << std::endl;
         response.setStatus(413);
         response.setBody("Error : File too large.\n");
         exit(1);//return;
@@ -82,9 +83,10 @@ void Post::execute(Request& request, Response& response, Server& server)
     //check if the file can be created
     if (!output.is_open())
     {
+        std::cout << "Error : Failed saving file." << std::endl;
         response.setStatus(500);
         response.setBody("Error : Failed saving file.\n");
-        exit(1);//return;
+        // exit(1);//return;
     }
     output << body;
 
