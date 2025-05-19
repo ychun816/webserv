@@ -44,6 +44,7 @@ void Delete::execute(Request& request, Response& response, Server& server)
     {
         response.setStatus(403);
         response.setBody("Error: Not a regular file.");
+        request.fillResponse(response, 403, "<html><body><h1>Error: Not a regular file.</h1></body></html>"); //added to link with response -> show msg on frontend
         return;
     }
 
@@ -52,9 +53,21 @@ void Delete::execute(Request& request, Response& response, Server& server)
         // perror("Delete failed");
         response.setStatus(500);
         response.setBody("Error: Failed to delete file.");
+        request.fillResponse(response, 500, "<html><body><h1>Error: Failed to delete file.</h1></body></html>"); //added to link with response -> show msg on frontend
+        return; //added
+
     } 
     response.setStatus(200);
     response.setBody("Success: File deleted.");
+    request.fillResponse(response, 200, "<html><body><h1>Success: File deleted.</h1></body></html>"); //added to link with response -> show msg on frontend
+
+
+    // try to link with response
+    // struct stat buffer;
+	// request.fillResponse(response, 200, buffer.str());
+	// std::map<std::string, std::string> headers;
+	// headers["Content-Type"] = "text/html";
+	// response.setHeaders(headers);
 
 
 }
