@@ -9,7 +9,7 @@ DEP_DIR = deps
 # Création des dossiers nécessaires
 $(shell mkdir -p $(OBJ_DIR) $(DEP_DIR))
 
-CC = c++ 
+CC = c++
 
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 
@@ -22,7 +22,6 @@ SRC = ${addsuffix .cpp, ${MAIN}} \
 	  parsing/Locations.cpp \
 	  server/Request.cpp \
 	  server/Response.cpp \
-	  parsing/Files.cpp \
 	  methods/AMethods.cpp \
 	  methods/Get.cpp \
 	  methods/Post.cpp \
@@ -108,12 +107,6 @@ $(OBJ_DIR)/%_Response.o: $(SRC_DIR)/server/Response.cpp
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Response.d -c $< -o $@ -I$(INC_DIR)
 	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
 
-$(OBJ_DIR)/%_Files.o: $(SRC_DIR)/parsing/Files.cpp
-	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
-	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
-	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_Files.d -c $< -o $@ -I$(INC_DIR)
-	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
-
 $(OBJ_DIR)/%_AMethods.o: $(SRC_DIR)/methods/AMethods.cpp
 	@$(eval CURRENT_FILE := $(shell echo $$(($(CURRENT_FILE) + 1))))
 	@printf "$(BLUE)$(BOLD)Compilation [%d%%] %s$(RESET)\r" $$(( $(CURRENT_FILE) * 100 / $(TOTAL_FILES) )) $<
@@ -151,7 +144,7 @@ $(OBJ_DIR)/%_EpollManager.o: $(SRC_DIR)/server/EpollManager.cpp
 	@$(CC) $(CFLAGS) -MMD -MP -MF $(DEP_DIR)/$*_EpollManager.d -c $< -o $@ -I$(INC_DIR)
 	@if [ $(CURRENT_FILE) = $(TOTAL_FILES) ]; then echo ""; fi
 
-	
+
 clean:
 	@echo "$(RED)$(BOLD)Nettoyage des fichiers objets...$(RESET)"
 	@rm -rf $(OBJ_DIR)

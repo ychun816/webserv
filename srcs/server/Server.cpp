@@ -9,7 +9,7 @@
 
 // Constructors
 Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
-		
+
 
 }
 
@@ -41,32 +41,32 @@ std::string readChunkedData(int client_fd) {
     int bytes_read;
     size_t totalBytesRead = 0;
     int chunk_count = 0;
-    
+
     std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl;
     std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
-    
+
     while ((bytes_read = read(client_fd, buffer, BUFFER_SIZE)) > 0) {
         chunk_count++;
         completeData.append(buffer, bytes_read);
         totalBytesRead += bytes_read;
-        
-        std::cout << "CHUNK #" << chunk_count 
-                  << " | Taille: " << bytes_read 
-                  << " bytes | Total: " << totalBytesRead 
+
+        std::cout << "CHUNK #" << chunk_count
+                  << " | Taille: " << bytes_read
+                  << " bytes | Total: " << totalBytesRead
                   << " bytes" << std::endl;
-        
+
         if (totalBytesRead > MAX_REQUEST_SIZE) {
             std::cerr << "ERREUR: Requête trop grande: " << totalBytesRead << " bytes" << std::endl;
             throw std::runtime_error("Request too large");
         }
     }
-    
+
     std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl;
-    std::cout << "Client " << client_fd 
-              << " | Chunks: " << chunk_count 
-              << " | Taille totale: " << totalBytesRead 
+    std::cout << "Client " << client_fd
+              << " | Chunks: " << chunk_count
+              << " | Taille totale: " << totalBytesRead
               << " bytes\n" << std::endl;
-    
+
     return completeData;
 }
 void    Server::createSocket() {
@@ -141,27 +141,27 @@ void    Server::runServer() {
 					if (!request.empty()) {
 						Request req(request, *this);
 						req.handleResponse();
-						
+
 						// Envoi de la réponse en chunks si nécessaire
 						std::string response = req.getResponse();
 						size_t sent = 0;
 						int chunk_count = 0;
-						
+
 						std::cout << "\n=== DEBUT ENVOI CHUNKS ===" << std::endl;
 						std::cout << "Taille totale à envoyer: " << response.length() << " bytes" << std::endl;
-						
+
 						while (sent < response.length()) {
 							chunk_count++;
 							size_t toSend = std::min<size_t>(BUFFER_SIZE, response.length() - sent);
-							
-							std::cout << "CHUNK #" << chunk_count 
-									  << " | Taille: " << toSend 
-									  << " bytes | Progression: " << sent << "/" 
+
+							std::cout << "CHUNK #" << chunk_count
+									  << " | Taille: " << toSend
+									  << " bytes | Progression: " << sent << "/"
 									  << response.length() << " bytes" << std::endl;
-							
-							ssize_t bytes_sent = send(events[i].data.fd, 
-													response.c_str() + sent, 
-													toSend, 
+
+							ssize_t bytes_sent = send(events[i].data.fd,
+													response.c_str() + sent,
+													toSend,
 													0);
 							if (bytes_sent <= 0) {
 								std::cerr << "ERREUR: Échec envoi chunk" << std::endl;
@@ -169,11 +169,11 @@ void    Server::runServer() {
 							}
 							sent += bytes_sent;
 						}
-						
+
 						std::cout << "=== FIN ENVOI CHUNKS ===" << std::endl;
-						std::cout << "Total chunks envoyés: " << chunk_count 
+						std::cout << "Total chunks envoyés: " << chunk_count
 								  << " | Taille totale: " << sent << " bytes\n" << std::endl;
-						
+
 						// Gestion de keep-alive
 						if (req.getHeader("Connection") != "keep-alive") {
 							close(events[i].data.fd);
@@ -308,10 +308,7 @@ void Server::executeMethods(Request& request, Response& response)
 	else
 	{
 		response.setStatus(405); //method not allowed
-		//return; 
 	}
-	exec->process(request, response, *this);
-
 	if (exec)
 	{
 		exec->process(request, response, *this);
