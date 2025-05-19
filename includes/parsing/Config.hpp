@@ -43,7 +43,7 @@ public:
     
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
 
-    bool validateServerConfig(const Server& newServer) const
+    bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
 
     class ConfigException : public std::exception

@@ -15,6 +15,51 @@ Delete::~Delete() {}
  * @note std::move(*i) => takes character -> need .c_str()
  *
  */
+void Delete::execute(Request& request, Response& response, Server& server)
+{
+    (void)server;
+    std::string absPath = request.getAbspath(); //./www/simplesite/upload/_testPost.txt
+    std::string uri = request.getUri();            // e.g., /upload/test.txt
+    std::string fileName = uri.substr(uri.find_last_of("/") + 1);
+
+    // std::string deletePath = absPath.substr(absPath.find_last_of("/"));
+
+    // std::string fullPath = uploadPath;
+    // if (!fullPath.empty())//&& fullPath.back() != '/'
+    //     fullPath += "/";
+    // fullPath += fileName;
+
+    // DEBUG /////////////////////////////////////////////////
+    std::cout << "=== 📌DEBUG DELETE EXECUTE ===" << std::endl;
+    std::cout << "Abs PATH : " << absPath << std::endl; //UPLOAD PATH : ./www/simplesite/upload/_testPost.txt
+    std::cout << "URI : " << uri << std::endl;
+    // std::cout << "DELETE PATH : " << uri << std::endl;
+    std::cout << "FILENAME : " << fileName << std::endl;
+    std::cout << "FILE TYPE : " << getFileType(absPath) << std::endl;
+    std::cout << "=== 📌END | DEBUG DELETE EXECUTE ===" << std::endl;
+    /////////////////////////////////////////////////
+
+
+    if (getFileType(absPath) != TYPE_REGULAR_FILE) 
+    {
+        response.setStatus(403);
+        response.setBody("Error: Not a regular file.");
+        return;
+    }
+
+    if (std::remove(absPath.c_str()) != 0) 
+    {
+        // perror("Delete failed");
+        response.setStatus(500);
+        response.setBody("Error: Failed to delete file.");
+    } 
+    response.setStatus(200);
+    response.setBody("Success: File deleted.");
+
+
+}
+
+
 // void Delete::execute(Request& request, Response& response, Server& server)
 // {
 //     (void)server;
@@ -62,40 +107,3 @@ Delete::~Delete() {}
 //     }
 
 // }
-
-void Delete::execute(Request& request, Response& response, Server& server)
-{
-    (void)server;
-    std::string uploadPath = request.getAbspath(); // e.g., /www/simplesite/upload
-    std::string uri = request.getUri();            // e.g., /upload/test.txt
-    std::string fileName = uri.substr(uri.find_last_of("/") + 1);
-
-    std::string fullPath = uploadPath;
-    if (!fullPath.empty())//&& fullPath.back() != '/'
-        fullPath += "/";
-    fullPath += fileName;
-
-    // DEBUG
-    std::cout << "=== 📌DEBUG DELETE EXECUTE ===" << std::endl;
-    std::cout << "UPLOAD PATH : " << uploadPath << std::endl;
-    std::cout << "FULL PATH : " << fullPath << std::endl;
-    std::cout << "URI : " << uri << std::endl;
-    std::cout << "FILENAME : " << fileName << std::endl;
-    std::cout << "FILE TYPE : " << getFileType(fullPath) << std::endl;
-    std::cout << "=== 📌END | DEBUG DELETE EXECUTE ===" << std::endl;
-
-    if (getFileType(fullPath) != TYPE_REGULAR_FILE) {
-        response.setStatus(403);
-        response.setBody("Error: Not a regular file.");
-        return;
-    }
-
-    if (std::remove(fullPath.c_str()) != 0) {
-        perror("Delete failed");
-        response.setStatus(500);
-        response.setBody("Error: Failed to delete file.");
-    } else {
-        response.setStatus(200);
-        response.setBody("Success: File deleted.");
-    }
-}

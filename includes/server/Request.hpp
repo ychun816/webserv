@@ -9,7 +9,7 @@ class Server;
 class Request
 {
 private:
-	Server& _server;
+	Server& _server;//Server* _server;
 	Response _response;
 	std::string _request;
 	std::string _method;
