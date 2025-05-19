@@ -44,7 +44,7 @@ public:
 	void setRequest(const std::string& request) { _request = request; }
 	void setAbspath(const std::string& abspath) { _abspath = abspath; }
 	void setPathQueryString();
-	void setServer(Server& server) { _server = server; }
+	void setServer(Server& server);
 
 	// Methods
 	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?

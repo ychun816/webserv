@@ -2,6 +2,7 @@
 #include "../../includes/server/Response.hpp"
 #include "../../includes/server/Server.hpp"
 #include "../../includes/utils/Utils.hpp"
+#include "../../includes/parsing/Config.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -226,5 +227,9 @@ std::string Request::getFilename() const
 		// std::cout << ">>>FILENAME  : " << filename << std::endl; //DEBUG
     }
     return filename;
+}
+
+void Request::setServer(Server& server) {
+    _server = server;
 }
 
