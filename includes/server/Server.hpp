@@ -4,7 +4,7 @@
 // #include "../../includes/methods/Get.hpp" //added to exec methods
 // #include "../../includes/methods/Post.hpp" //added to exec methods
 // #include "../../includes/methods/Delete.hpp" //added to exec methods
-#include "../../includes/methods/AMethods.hpp" //added to exec methods
+#include "../methods/AMethods.hpp" //added to exec methods
 
 #include <iostream>
 #include <string>

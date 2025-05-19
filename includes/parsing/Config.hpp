@@ -19,16 +19,17 @@ private:
     Server fillServer(std::vector<std::string>& lines);
     void findParameters(std::vector<std::string>::iterator& it, Server& server, std::vector<std::string>& lines);
     
-    // Constructeur privé pour le pattern Singleton
-    Config(const std::string& filename);
+    // Private constructor for Singleton pattern
+    explicit Config(const std::string& filename);
     
 public:
+    
     ~Config();
     
-    // Méthode statique pour obtenir l'instance unique
+    // Static method to get the singleton instance
     static Config* getInstance(const std::string& filename = "");
     
-    // Méthode pour démarrer les serveurs
+    // Method to start servers
     void runServers();
 
     // Getters
@@ -36,20 +37,20 @@ public:
     Server& getServer(size_t index) { return _servers.at(index); }
     size_t getServerCount() const { return _servers.size(); }
 
-    // Méthodes utiles
+    // Utility methods
     void addServer(const Server& server) { _servers.push_back(server); }
     void removeServer(size_t index) { _servers.erase(_servers.begin() + index); }
     bool hasServer(size_t index) const { return index < _servers.size(); }
     
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
 
-    bool validateServerConfig(const Server& newServer) const
+    bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
 
     class ConfigException : public std::exception
     {
         public:
-            ConfigException(const std::string& message) : _message(message) {}
+            explicit ConfigException(const std::string& message) : _message(message) {}
             virtual ~ConfigException() throw() {}
             virtual const char* what() const throw() { return _message.c_str(); }
         private:

@@ -14,27 +14,19 @@ Config* Config::getInstance(const std::string& filename)
     {
         if (filename.empty())
             throw ConfigException("Cannot create Config instance without filename");
-        std::ifstream file(filename.c_str());
-        if (!file.is_open())
-            throw std::runtime_error("Cannot open config file: " + filename);
-        timestamp("Parsing configuration file: " + filename, YELLOW);
-        initParsing(file);
         _instance = new Config(filename);
     }
     return (_instance);
 }
 
-//Config::Config(const std::string& filename) {
-//    if (filename.empty())
-//        throw std::runtime_error("Empty config filename");
-
-//     std::ifstream file(filename.c_str());
-//    if (!file.is_open())
-//        throw std::runtime_error("Cannot open config file: " + filename);
-
-//    timestamp("Parsing configuration file: " + filename, YELLOW);
-//    initParsing(file);
-//}
+Config::Config(const std::string& filename) : _configFile(filename)
+{
+    std::ifstream file(filename.c_str());
+    if (!file.is_open())
+        throw std::runtime_error("Cannot open config file: " + filename);
+    timestamp("Parsing configuration file: " + filename, YELLOW);
+    initParsing(file);
+}
 
 Config::~Config()
 {
@@ -406,13 +398,10 @@ bool Config::validateServerConfig(const Server& newServer) const
     for (size_t i = 0; i < _servers.size(); i++) 
     {
         if (_servers[i].getPort() == newServer.getPort()) {
-            // Si le port est le même, vérifier les locations
             const std::list<Location>& existingLocations = _servers[i].getLocations();
             const std::list<Location>& newLocations = newServer.getLocations();
-            // Vérifier chaque nouvelle location
             for (std::list<Location>::const_iterator newLoc = newLocations.begin(); newLoc != newLocations.end(); ++newLoc) 
             {
-                // Vérifier si la location existe déjà dans un autre serveur avec le même port
                 for (std::list<Location>::const_iterator existingLoc = existingLocations.begin(); existingLoc != existingLocations.end(); ++existingLoc)
                 {
                     if (newLoc->getPath() == existingLoc->getPath()) 
@@ -434,17 +423,14 @@ Server* Config::findServerByLocation(const std::string& path, int port)
     {
         if (_servers[i].getPort() == port) 
         {
-            // Vérifier les locations de ce serveur
             const std::list<Location>& locations = _servers[i].getLocations();
             for (std::list<Location>::const_iterator loc = locations.begin(); loc != locations.end(); ++loc) 
             {
-                // Si le chemin de la location correspond au début du chemin demandé
                 if (path.find(loc->getPath()) == 0)
                     return (&_servers[i]);
             }
         }
     }
-    // Si aucun serveur ne correspond, retourner le premier serveur trouvé sur ce port
     for (size_t i = 0; i < _servers.size(); i++) 
     {
         if (_servers[i].getPort() == port)
