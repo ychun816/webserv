@@ -5,18 +5,36 @@
 #include <sys/epoll.h> // For epoll
 #include "../../includes/server/EpollManager.hpp"
 
+// Initialisation de l'instance statique
+Config* Config::_instance = 0;
 
-Config::Config(const std::string& filename) {
-    if (filename.empty())
-        throw std::runtime_error("Empty config filename");
-
-    std::ifstream file(filename.c_str());
-    if (!file.is_open())
-        throw std::runtime_error("Cannot open config file: " + filename);
-
-    timestamp("Parsing configuration file: " + filename, YELLOW);
-    initParsing(file);
+Config* Config::getInstance(const std::string& filename)
+{
+    if (_instance == 0) 
+    {
+        if (filename.empty())
+            throw ConfigException("Cannot create Config instance without filename");
+        std::ifstream file(filename.c_str());
+        if (!file.is_open())
+            throw std::runtime_error("Cannot open config file: " + filename);
+        timestamp("Parsing configuration file: " + filename, YELLOW);
+        initParsing(file);
+        _instance = new Config(filename);
+    }
+    return (_instance);
 }
+
+//Config::Config(const std::string& filename) {
+//    if (filename.empty())
+//        throw std::runtime_error("Empty config filename");
+
+//     std::ifstream file(filename.c_str());
+//    if (!file.is_open())
+//        throw std::runtime_error("Cannot open config file: " + filename);
+
+//    timestamp("Parsing configuration file: " + filename, YELLOW);
+//    initParsing(file);
+//}
 
 Config::~Config()
 {
@@ -216,8 +234,14 @@ void Config::parseServer(std::vector<std::string>& lines)
                 server = fillServer(serverLines);
                 std::cout << GREEN << "Server filled" << RESET << std::endl;
                 std::cout << server << std::endl;
-                addServer(server);
-                std::cout << GREEN << "Server added" << RESET << std::endl;
+                
+                // Valider la configuration du serveur avant de l'ajouter
+                if (validateServerConfig(server)) {
+                    addServer(server);
+                    std::cout << GREEN << "Server added" << RESET << std::endl;
+                } else {
+                    throw ConfigException("Invalid server configuration: duplicate location path on same port");
+                }
 
                 // Create a new vector with the remaining lines
                 std::vector<std::string> remainingLines(it + 1, lines.end());
@@ -374,4 +398,57 @@ void Config::initParsing(std::ifstream& file)
     // Don't automatically start servers at the end of parsing
     // runServers();
     // timestamp("Parsing configuration file: " + filename);
+}
+
+bool Config::validateServerConfig(const Server& newServer) const 
+{
+    // Vérifier si le port est déjà utilisé par un autre serveur
+    for (size_t i = 0; i < _servers.size(); i++) 
+    {
+        if (_servers[i].getPort() == newServer.getPort()) {
+            // Si le port est le même, vérifier les locations
+            const std::list<Location>& existingLocations = _servers[i].getLocations();
+            const std::list<Location>& newLocations = newServer.getLocations();
+            // Vérifier chaque nouvelle location
+            for (std::list<Location>::const_iterator newLoc = newLocations.begin(); newLoc != newLocations.end(); ++newLoc) 
+            {
+                // Vérifier si la location existe déjà dans un autre serveur avec le même port
+                for (std::list<Location>::const_iterator existingLoc = existingLocations.begin(); existingLoc != existingLocations.end(); ++existingLoc)
+                {
+                    if (newLoc->getPath() == existingLoc->getPath()) 
+                    {
+                        std::cerr << "Error: Duplicate location path '" << newLoc->getPath() << "' found on port " << newServer.getPort() << std::endl;
+                        return (false);
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+Server* Config::findServerByLocation(const std::string& path, int port) 
+{
+    // Parcourir tous les serveurs qui partagent le même port
+    for (size_t i = 0; i < _servers.size(); i++) 
+    {
+        if (_servers[i].getPort() == port) 
+        {
+            // Vérifier les locations de ce serveur
+            const std::list<Location>& locations = _servers[i].getLocations();
+            for (std::list<Location>::const_iterator loc = locations.begin(); loc != locations.end(); ++loc) 
+            {
+                // Si le chemin de la location correspond au début du chemin demandé
+                if (path.find(loc->getPath()) == 0)
+                    return (&_servers[i]);
+            }
+        }
+    }
+    // Si aucun serveur ne correspond, retourner le premier serveur trouvé sur ce port
+    for (size_t i = 0; i < _servers.size(); i++) 
+    {
+        if (_servers[i].getPort() == port)
+            return (&_servers[i]);
+    }
+    return NULL;
 }

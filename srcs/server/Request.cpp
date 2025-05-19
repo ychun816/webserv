@@ -29,6 +29,16 @@ Request::~Request()
 void Request::handleResponse()
 {
 	Response response(*this);
+	
+	// Obtenir le port du serveur actuel
+	int port = _server.getPort();
+	Config* config = Config::getInstance();
+	if (config)
+	{
+		Server* appropriateServer = config->findServerByLocation(_path, port);
+		if (appropriateServer)
+			_server = *appropriateServer;
+	}
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
 	std::cout << BLUE << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << RESET << std::endl;
