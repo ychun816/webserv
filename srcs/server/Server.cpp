@@ -316,7 +316,24 @@ void Server::executeMethods(Request& request, Response& response)
 	}
 }
 
+Location* Server::getCurrentLocation(const std::string& path) {
+    std::list<Location>::iterator it = _locations.begin();
+    Location* bestMatch = NULL;
+    size_t bestMatchLength = 0;
 
+    for (; it != _locations.end(); ++it) {
+        std::string locationPath = it->getPath();
+        // Vérifie si le chemin de la requête commence par le chemin de la location
+        if (path.find(locationPath) == 0) {
+            // Garde la location avec le chemin le plus long qui correspond
+            if (locationPath.length() > bestMatchLength) {
+                bestMatch = &(*it);
+                bestMatchLength = locationPath.length();
+            }
+        }
+    }
+    return bestMatch;
+}
 /* TO FIX?
 2. Incorrect _connexions.pop_back() Use
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "Response.hpp"
+#include "../parsing/Locations.hpp"
 
 class Server;
 
@@ -21,6 +22,7 @@ private:
 	std::map<std::string, std::string> _headers;
 	std::string _body;
 	std::map<std::string, std::string> _queryParams;
+	Location* _currentLocation;
 	// std::string _response;
 public:
 	Request(std::string request, Server& server);
@@ -39,11 +41,13 @@ public:
 	std::string getHeader(const std::string& name) const;
 	std::string getPath() const { return _path; };
 	std::string getFilename() const; //added for POST
+	Location* getCurrentLocation() const { return _currentLocation; }
 
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }
 	void setAbspath(const std::string& abspath) { _abspath = abspath; }
 	void setPathQueryString();
+	void setCurrentLocation(Location* location) { _currentLocation = location; }
 
 	// Methods
 	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?
@@ -57,4 +61,8 @@ public:
 	bool isValidBool(const std::string& value);
 	bool isValidEmail(const std::string& value);
 	void fillResponse(Response& response, int statusCode, const std::string& body);
+	bool isMethodAllowed() const;
+	bool isBodySizeValid() const;
+	
+	
 };

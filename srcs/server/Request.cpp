@@ -4,6 +4,8 @@
 #include "../../includes/utils/Utils.hpp"
 #include <sstream>
 #include <iostream>
+#include <algorithm>  // Pour std::find
+#include <cstdlib>  // Pour atoi
 
 Request::Request(std::string request, Server& server) :
 	_server(server),
@@ -15,11 +17,19 @@ Request::Request(std::string request, Server& server) :
 	//_queryString(""),
 	_path(""),
 	_headers(),
-	_body("")
+	_body(""),
+	_currentLocation(NULL)
 {
 	parseRequest();
 	setPathQueryString();
 	parseQuery();
+	_currentLocation = _server.getCurrentLocation(_path);
+            std::vector<std::string> methods = _currentLocation->getMethods();
+            std::cout << "Méthodes autorisées pour cette location : ";
+            for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl;
 }
 
 Request::~Request()
@@ -28,6 +38,20 @@ Request::~Request()
 
 void Request::handleResponse()
 {
+	if (!isMethodAllowed()) {
+		Response response(*this);
+		std::cout << "👻 Method Not Allowed" << std::endl;
+		response.setStatus(405); // Method Not Allowed
+		return;
+	}
+
+	if (!isBodySizeValid()) {
+		Response response(*this);
+		std::cout << "👻 Payload Too Large" << std::endl;
+		response.setStatus(413); // Payload Too Large
+		return;
+	}
+
 	Response response(*this);
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
@@ -217,4 +241,23 @@ std::string Request::getFilename() const
     }
     return filename;
 }
+
+bool Request::isBodySizeValid() const {
+	if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
+		// Utiliser la limite de la location
+		return static_cast<size_t>(atoi(_currentLocation->getClientMaxBodySize().c_str())) >= _body.length();
+	}
+	// Sinon utiliser la limite globale du serveur
+	return static_cast<size_t>(atoi(_server.getClientMaxBodySize().c_str())) >= _body.length();
+}
+
+bool Request::isMethodAllowed() const {
+	if (_currentLocation) {
+		std::vector<std::string> allowedMethods = _currentLocation->getMethods();
+		std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl;
+		return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end() ;
+	}
+	return false;
+}
+
 

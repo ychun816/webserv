@@ -69,7 +69,6 @@ void Delete::execute(Request& request, Response& response, Server& server)
     std::string uploadPath = request.getAbspath(); // e.g., /www/simplesite/upload
     std::string uri = request.getUri();            // e.g., /upload/test.txt
     std::string fileName = uri.substr(uri.find_last_of("/") + 1);
-
     std::string fullPath = uploadPath;
     if (!fullPath.empty())//&& fullPath.back() != '/'
         fullPath += "/";
