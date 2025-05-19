@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>404 Not Found</title>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet" />
     <style>
         /* Basic reset */
         * {
@@ -27,24 +27,16 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                /*
-                #000 0px,
-                #000 1px,
-                #222 1px,   //Dark gray instead of white
-                #222 2px
-                */                
                 black 0px,
                 black 1px,
                 white 1px,
                 white 2px
             );
-            /*animation: glitch 0.3s infinite linear; faster and smoother*/
             animation: glitch 0.5s infinite;
             z-index: -1;
         }
 
         @keyframes glitch {
-
             0% {
                 background-position: 0 0;
             }
@@ -66,6 +58,16 @@
             transform: translateY(-50%);
         }
 
+        .container h1, .container p {
+            text-shadow: -2px 2px 4px rgba(59, 4, 4, 0.7);
+            /* transition: transform 0.3s ease; */
+        }
+
+        .container h1:hover, .container p:hover {
+            transform: translateY(-10px);
+            cursor: pointer;
+        }
+
         h1 {
             font-size: 4em;
             margin-bottom: 0.5em;
@@ -80,7 +82,7 @@
     <div class="glitch-bg"></div>
 
     <div class="container">
-        <h1>404 Page Not Found</h1>
+        <h1>404 Not Found</h1>
         <!-- <p>The page you are looking for doesn't exist.</p> -->
     </div>
 </body>

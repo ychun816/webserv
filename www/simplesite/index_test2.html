@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World - Webserv Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Josefin Sans', sans-serif;
+      background: url('https://4kwallpapers.com/images/wallpapers/stars-galaxy-10307.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 4em;
+      color: #e0e0bb;
+      text-shadow: 0 0 10px #ffff66, 0 0 20px #ffff66, 0 0 40px #ffd700;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px #ffff66, 0 0 10px #ffff66, 0 0 20px #ffd700;
+      }
+      to {
+        text-shadow: 0 0 20px #ffff66, 0 0 30px #ffff66, 0 0 50px #ffd700;
+      }
+    }
+
+    .subcaption {
+      font-size: 1.5em;
+      margin-top: 1rem;
+      color: #fdcece;
+    }
+
+    .team {
+      font-size: 1.2em;
+      margin-top: 0.5rem;
+      color: #fdcece;
+    }
+
+    .links {
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .links a {
+      text-decoration: none;
+      color: #bbdbf8;
+      font-size: 1.2em;
+      transition: transform 0.2s, color 0.3s;
+    }
+
+    .links a:hover {
+      transform: translateY(-4px);
+      color: #fdd281;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>Hello World</h1>
+    <div class="subcaption">Webserv project created by team GET LUCKY</div>
+    <div class="team">jopfeiff & agiliber & yilin</div>
+    <div class="links">
+      <a href="/get.html">GET</a>
+      <a href="/post.html">POST & Download</a>
+      <a href="/delete.html">DELETE</a>
+      <a href="/upload.html">File Upload</a>
+      <a href="/cgi.html">CGI Scripts</a>
+      <a href="/error-pages.html">Error Pages</a>
+    </div>
+  </div>
+</body>
+</html>

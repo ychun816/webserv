@@ -1,0 +1,99 @@
+server {
+    # Basic Parameters
+    port=8080               # Listening port
+    host=127.0.0.1          # == localhost -> IP address to listen on
+    server_name=localhost   # Server name
+
+    # Global Parameters
+    root=./www              # Root directory of the server
+
+    # Custom Error Pages
+    error_page=404 error/404.html
+    error_page=500 error/500.html
+    error_page=403 error/403.html
+    error_page=504 error/504.html
+    error_page=405 error/405.html
+    error_page=400 error/400.html
+    error_page=408 error/408.html
+    error_page=413 error/413.html
+    error_page=501 error/501.html
+
+    # Default Location
+    location / {
+        allowed_methods=GET POST DELETE
+        index=index.html index.htm
+        autoindex=off
+        client_max_body_size=1M
+    }
+
+    # YouTube Redirection
+    location /google.com {
+        allowed_methods=GET
+        return=301 https://www.google.com
+    }
+
+    # Generic Redirection
+    location /redirect {
+        allowed_methods=GET
+        return=301 https://www.42.fr
+    }
+
+    # Alias for fraise.html
+    location /fraise.html {
+        alias=./www/pages/features/alias.html
+        allowed_methods=GET
+    }
+
+    # Alias for cerise.html
+    location /cerise.html {
+        alias=./www/pages/features/alias.html
+        allowed_methods=GET
+    }
+
+    # CGI Configuration
+    location /cgi-bin {
+        allowed_methods=GET POST DELETE
+        root=./www
+        cgi_ext=.php .py .pl .cgi
+        cgi_handler=/usr/bin/php-cgi /usr/bin/python3 /usr/bin/perl /bin/sh
+        client_max_body_size=10M
+        autoindex=off
+    }
+
+    # Upload Handling
+    location /file-upload {
+        allowed_methods=POST GET DELETE
+        root=./www
+        upload_directory=uploads
+        autoindex=off
+        client_max_body_size=10M
+    }
+
+    # Access to Uploaded Files
+    location /uploads {
+        allowed_methods=GET DELETE POST
+        root=./www
+        autoindex=on
+        client_max_body_size=10M
+    }
+
+    # Data Directory
+    location /data {
+        allowed_methods=GET POST DELETE
+        autoindex=on
+        client_max_body_size=1M
+        root=./www
+    }
+
+    # Route to Test 405 Error
+    location /test-405 {
+        allowed_methods=POST
+        root=./www
+        client_max_body_size=1M
+    }
+
+    # Restricted Area (handled by RouteHandler)
+    location /restricted-area {
+        allowed_methods=GET
+    }
+}

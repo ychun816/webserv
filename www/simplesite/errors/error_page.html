@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Error</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet" />
+  <style>
+    /* ... include your glitch background styles here ... */
+
+    .container {
+      position: relative;
+      z-index: 1;
+      color: red;
+      text-align: center;
+      top: 0%;
+      transform: translateY(-50%);
+    }
+
+    h1 {
+      font-size: 4em;
+      margin-bottom: 0.5em;
+      /* text-shadow: -2px 2px 4px rgba(36, 10, 10, 0.7); */
+      transition: transform 0.3s ease;
+    }
+
+    h1:hover {
+      transform: translateY(-10px);
+      cursor: pointer;
+    }
+
+    p {
+      font-size: 1.5em;
+      /* text-shadow: -2px 2px 4px rgba(58, 7, 7, 0.7); */
+      transition: transform 0.3s ease;
+    }
+
+    p:hover {
+      transform: translateY(-10px);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="glitch-bg"></div>
+  <div class="container">
+    <h1 id="error-code">Error</h1>
+    <p id="error-message">Something went wrong.</p>
+  </div>
+  <script>
+    const errorMessages = {
+      400: "Bad Request.",
+      403: "Access Forbidden.",
+      404: "Page Not Found.",
+      405: "Method Not Allowed.",
+      408: "Request Timeout.",
+      413: "Payload Too Large.",
+      500: "Internal Server Error.",
+      501: "Not Implemented.",
+      504: "Gateway Timeout."
+    };
+
+    const code = parseInt(window.location.pathname.match(/(\d{3})\.html$/)?.[1]) || 0;
+    const heading = document.getElementById('error-code');
+    const message = document.getElementById('error-message');
+
+    if (errorMessages[code]) {
+      heading.textContent = code;
+      message.textContent = errorMessages[code];
+    } else {
+      heading.textContent = 'Error';
+      message.textContent = 'Unexpected Error';
+    }
+  </script>
+</body>
+</html>
