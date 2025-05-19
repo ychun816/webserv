@@ -12,9 +12,8 @@ int main(int argc, char const *argv[])
 		if (argc <= 2)
 		{
 			const std::string configFile = (argc == 1 ? "config/baseConfig.txt" : argv[1]);
-			Config config(configFile);
-
-			config.runServers();
+			Config* config = Config::getInstance(configFile);
+			config->runServers();
 		}
 		else
 			std::cerr << "Usage: ./webserv  [config file]" << std::endl;
