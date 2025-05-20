@@ -1,6 +1,6 @@
 #include "../../includes/methods/Post.hpp"
 #include "../../includes/server/Request.hpp"
-
+#include "../../includes/utils/Utils.hpp"
 
 /* TO DO NOTE:
 1. upload file can save to another temp directory OR download to the same directory
@@ -49,15 +49,15 @@ void Post::execute(Request& request, Response& response, Server& server)
 {
     std::string uploadPath;
     std::string filename;
-    std::string rawBody;
     std::string body;
 
     (void)server;
     uploadPath = request.getAbspath();
     filename = request.getFilename();
-    std::cout << "👻 filename : " << filename << std::endl; 
-    rawBody = request.getBody();
-    body = extractFileContent(rawBody);
+    
+    // Le body est déjà décodé si c'était du chunked
+    body = request.getBody();
+    body = extractFileContent(body);
 
     // Create a file stream for output, using full path
     std::string full_path = uploadPath + PATH_SEPARATOR + filename;
@@ -68,7 +68,7 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::cout << "UPLOAD PATH : " << uploadPath << std::endl;
     std::cout << "FILENAME : " << filename << std::endl;
     std::cout << "FULL PATH : " << full_path << std::endl; //shold be ok
-    std::cout << "RAW BODY : " << rawBody << std::endl;
+    std::cout << "RAW BODY : " << body << std::endl;
     std::cout << "BODY : " << body << std::endl;
     std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
     /////////////////////////////////////////////////

@@ -19,7 +19,8 @@ Request::Request(std::string request, Server& server) :
 	_path(""),
 	_headers(),
 	_body(""),
-	_currentLocation(NULL)
+	_currentLocation(NULL),
+	_isChunked(false)
 {
 	parseRequest();
 	setPathQueryString();
@@ -90,12 +91,17 @@ void Request::parseRequest()
 		parseHeader(line);
 	}
 
-	// The rest is the request body
-	std::string body;
-	while (std::getline(ss, line)) {
-		body += line + "\n";
+	_isChunked = (getHeader("Transfer-Encoding") == "chunked");
+	
+	if (_isChunked) {
+		parseChunkedBody();
+	} else {
+		std::string body;
+		while (std::getline(ss, line)) {
+			body += line + "\n";
+		}
+		_body = body;
 	}
-	_body = body;
 	std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
 	//handleResponse();
 
@@ -294,5 +300,33 @@ bool Request::isContentLengthValid() const {
     
     return declaredSize <= maxSize;
 }
+
+void Request::parseChunkedBody() {
+    if (_isChunked) {
+        size_t pos = 0;
+        std::string decodedBody;
+        
+        while (pos < _request.length()) {
+            // Trouver la fin de la ligne (taille du chunk)
+            size_t endOfLine = _request.find("\r\n", pos);
+            if (endOfLine == std::string::npos) break;
+            
+            // Lire la taille du chunk (en hexadécimal)
+            std::string chunkSizeStr = _request.substr(pos, endOfLine - pos);
+            size_t chunkSize = hexToSizeT(chunkSizeStr);
+            
+            if (chunkSize == 0) break; // Fin du transfert
+            
+            // Ajouter le contenu du chunk
+            pos = endOfLine + 2; // Passer après \r\n
+            decodedBody += _request.substr(pos, chunkSize);
+            pos += chunkSize + 2; // Passer après le chunk et son \r\n
+        }
+        
+        _body = decodedBody;
+    }
+}
+
+bool Request::isChunked() const { return _isChunked; }
 
 

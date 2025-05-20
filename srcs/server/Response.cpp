@@ -9,7 +9,8 @@ Response::Response() :
     _statusMessage(""),
     _body(""),
     _headers(),
-    _httpVersion("HTTP/1.1")
+    _httpVersion("HTTP/1.1"),
+    _request(NULL)
 {}
 
 Response::Response(const Request& request) :
@@ -18,10 +19,9 @@ Response::Response(const Request& request) :
     _statusMessage(""),
     _body(""),
     _headers(),
-    _httpVersion("HTTP/1.1")
-{
-    (void)request;
-}
+    _httpVersion("HTTP/1.1"),
+    _request(&request)
+{}
 
 Response::~Response()
 {
@@ -60,25 +60,45 @@ std::string Response::formatResponse() const {
     // Existing headers
     std::map<std::string, std::string> finalHeaders = _headers;
 
-    // Ajouter Content-Type s'il n'existe pas déjà
-    // if (finalHeaders.find("Content-Type") == finalHeaders.end()) {
-    //     finalHeaders["Content-Type"
-    //     ] = "text/html";
-    // }
-
-    // Add Content-Length if it doesn't exist
-    if (finalHeaders.find("Content-Length") == finalHeaders.end()) {
-        std::stringstream lenStream;
-        lenStream << _body.length();
-        finalHeaders["Content-Length"] = lenStream.str();
+    // Si la requête est chunked, on ne met pas Content-Length
+    if (_request && _request->isChunked()) {
+        finalHeaders.erase("Content-Length");
+        finalHeaders["Transfer-Encoding"] = "chunked";
+    } else {
+        // Add Content-Length if it doesn't exist
+        if (finalHeaders.find("Content-Length") == finalHeaders.end()) {
+            std::stringstream lenStream;
+            lenStream << _body.length();
+            finalHeaders["Content-Length"] = lenStream.str();
+        }
     }
 
     // Headers
-    std::map<std::string, std::string>::const_iterator it;
-    for (it = finalHeaders.begin(); it != finalHeaders.end(); ++it) {
+    for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin(); 
+         it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";
     }
 
-    ss << "\r\n" << _body;
+    ss << "\r\n";
+
+    // Si chunked, formater le body en chunks
+    if (_request && _request->isChunked()) {
+        std::stringstream chunkedBody;
+        size_t pos = 0;
+        const size_t chunkSize = 8192; // 8KB chunks
+
+        while (pos < _body.length()) {
+            size_t currentChunkSize = std::min(chunkSize, _body.length() - pos);
+            chunkedBody << std::hex << currentChunkSize << "\r\n";
+            chunkedBody << _body.substr(pos, currentChunkSize) << "\r\n";
+            pos += currentChunkSize;
+        }
+        // Fin du transfert chunked
+        chunkedBody << "0\r\n\r\n";
+        ss << chunkedBody.str();
+    } else {
+        ss << _body;
+    }
+
     return ss.str();
 }

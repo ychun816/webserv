@@ -1,6 +1,6 @@
 #pragma once
 #include "../parsing/Locations.hpp"
-
+#include "../utils/Utils.hpp"
 // #include "../../includes/methods/Get.hpp" //added to exec methods
 // #include "../../includes/methods/Post.hpp" //added to exec methods
 // #include "../../includes/methods/Delete.hpp" //added to exec methods
@@ -20,8 +20,7 @@
 #include "Request.hpp"
 #define PORT 8080
 #define MAX_EVENTS 1000
-#define BUFFER_SIZE 8192
-#define MAX_REQUEST_SIZE (10 * 1024 * 1024) 
+
 
 class Server
 {

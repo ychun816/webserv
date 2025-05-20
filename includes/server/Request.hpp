@@ -23,6 +23,7 @@ private:
 	std::string _body;
 	std::map<std::string, std::string> _queryParams;
 	Location* _currentLocation;
+	bool _isChunked;
 	// std::string _response;
 public:
 	Request(std::string request, Server& server);
@@ -66,6 +67,8 @@ public:
 	void fillResponse(Response& response, int statusCode, const std::string& body);
 	bool isMethodAllowed() const;
 	bool isBodySizeValid() const;
+	bool isChunked() const;
+	void parseChunkedBody();
 	
 	
 };

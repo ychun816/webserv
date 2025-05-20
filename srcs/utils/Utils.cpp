@@ -1,6 +1,43 @@
 #include "../../includes/webserv.hpp"
 
-std::string trim(const std::string& str, const std::string& chars = WHITESPACES_WITH_SPACE) {
+#include "../../includes/utils/Utils.hpp"
+
+std::string readChunkedData(int client_fd) {
+    std::string completeData;
+    char buffer[BUFFER_SIZE];
+    int bytes_read;
+    size_t totalBytesRead = 0;
+    int chunk_count = 0;
+
+    std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl;
+    std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
+
+    while ((bytes_read = read(client_fd, buffer, BUFFER_SIZE)) > 0) {
+        chunk_count++;
+        completeData.append(buffer, bytes_read);
+        totalBytesRead += bytes_read;
+
+        std::cout << "CHUNK #" << chunk_count
+                  << " | Taille: " << bytes_read
+                  << " bytes | Total: " << totalBytesRead 
+                  << " bytes" << std::endl;
+
+        if (totalBytesRead > MAX_REQUEST_SIZE) {
+            std::cerr << "ERREUR: Requête trop grande: " << totalBytesRead << " bytes" << std::endl;
+            throw std::runtime_error("Request too large");
+        }
+    }
+
+    std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl;
+    std::cout << "Client " << client_fd
+              << " | Chunks: " << chunk_count
+              << " | Taille totale: " << totalBytesRead
+              << " bytes\n" << std::endl;
+
+    return completeData;
+}
+
+std::string trim(const std::string& str, const std::string& chars) {
     if (str.empty()) return "";
 
     size_t first = str.find_first_not_of(chars);
@@ -50,3 +87,18 @@ size_t convertSizeToBytes(const std::string& size) {
     return value * multiplier;
 }
 
+size_t hexToSizeT(const std::string& hexStr) {
+    size_t result = 0;
+    for (size_t i = 0; i < hexStr.length(); ++i) {
+        char c = hexStr[i];
+        result *= 16;
+        if (c >= '0' && c <= '9') {
+            result += c - '0';
+        } else if (c >= 'a' && c <= 'f') {
+            result += c - 'a' + 10;
+        } else if (c >= 'A' && c <= 'F') {
+            result += c - 'A' + 10;
+        }
+    }
+    return result;
+}

@@ -249,7 +249,7 @@ void Config::parseServer(std::vector<std::string>& lines)
             }
 
             // Add the line to the current server
-            std::string trimmedLine = trim(*it);
+            std::string trimmedLine = trim(*it, WHITESPACES_WITH_SPACE);
             if (!trimmedLine.empty())
                 serverLines.push_back(trimmedLine);
         }

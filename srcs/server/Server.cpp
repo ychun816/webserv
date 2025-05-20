@@ -4,9 +4,6 @@
 #include "../../includes/methods/Delete.hpp" // added to execute methods
 #include <algorithm> // std::find
 
-#define BUFFER_SIZE 8192  // 8KB
-#define MAX_REQUEST_SIZE (10 * 1024 * 1024)  // 10MB
-
 // Constructors
 Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
 
@@ -35,40 +32,7 @@ Server::Server(const Server& other) {
 // Destructor
 Server::~Server() { std::cout << this->_configFile << std::endl; }
 
-std::string readChunkedData(int client_fd) {
-    std::string completeData;
-    char buffer[BUFFER_SIZE];
-    int bytes_read;
-    size_t totalBytesRead = 0;
-    int chunk_count = 0;
 
-    std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl;
-    std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
-
-    while ((bytes_read = read(client_fd, buffer, BUFFER_SIZE)) > 0) {
-        chunk_count++;
-        completeData.append(buffer, bytes_read);
-        totalBytesRead += bytes_read;
-
-        std::cout << "CHUNK #" << chunk_count
-                  << " | Taille: " << bytes_read
-                  << " bytes | Total: " << totalBytesRead
-                  << " bytes" << std::endl;
-
-        if (totalBytesRead > MAX_REQUEST_SIZE) {
-            std::cerr << "ERREUR: Requête trop grande: " << totalBytesRead << " bytes" << std::endl;
-            throw std::runtime_error("Request too large");
-        }
-    }
-
-    std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl;
-    std::cout << "Client " << client_fd
-              << " | Chunks: " << chunk_count
-              << " | Taille totale: " << totalBytesRead
-              << " bytes\n" << std::endl;
-
-    return completeData;
-}
 void    Server::createSocket() {
 	if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Socket creation, returns its FD
 				throw std::runtime_error("Error while creating the socket");
@@ -334,6 +298,7 @@ Location* Server::getCurrentLocation(const std::string& path) {
     }
     return bestMatch;
 }
+
 /* TO FIX?
 2. Incorrect _connexions.pop_back() Use
 

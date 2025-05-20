@@ -15,7 +15,7 @@ class Response
 		std::string _body;
 		std::map<std::string, std::string> _headers;
 		std::string _httpVersion;
-		
+		const Request* _request;
 	public:
 		Response();
 		Response(const Request& request);
