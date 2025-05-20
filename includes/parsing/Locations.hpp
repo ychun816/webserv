@@ -41,6 +41,7 @@ public:
 	std::string getIndex() const {return _index;};
 	std::string getReturn() const;
 	std::vector<std::string> getMethods() const {return _methods;};
+	std::string getErrorPage() const;
 	// Operators
 	Location& operator=(const Location& other);
 

@@ -55,6 +55,7 @@ void Post::execute(Request& request, Response& response, Server& server)
     (void)server;
     uploadPath = request.getAbspath();
     filename = request.getFilename();
+    std::cout << "👻 filename : " << filename << std::endl; 
     rawBody = request.getBody();
     body = extractFileContent(rawBody);
 

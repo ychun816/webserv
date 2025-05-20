@@ -77,7 +77,7 @@ class Server
   
                 //added to exec methods
 	              void executeMethods(Request& request, Response& response);//change to server class?
-  
+                Location* getCurrentLocation(const std::string& path);
         private:
                 int                                     _epoll_fd;
                 std::string             _configFile;
@@ -96,6 +96,7 @@ class Server
                 std::vector<std::string>        _errorPages;
                 std::list<Location>     _locations;
 
+                
                 class configError : public std::exception
                 {
                         public:
