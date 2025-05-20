@@ -43,6 +43,7 @@ public:
 	std::string getFilename() const; //added for POST
 	Location* getCurrentLocation() const { return _currentLocation; }
 
+
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }
 	void setAbspath(const std::string& abspath) { _abspath = abspath; }
@@ -61,6 +62,7 @@ public:
 	bool isValidInt(const std::string& value);
 	bool isValidBool(const std::string& value);
 	bool isValidEmail(const std::string& value);
+	bool isContentLengthValid() const;
 	void fillResponse(Response& response, int statusCode, const std::string& body);
 	bool isMethodAllowed() const;
 	bool isBodySizeValid() const;

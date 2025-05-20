@@ -13,5 +13,6 @@
 
 void timestamp(std::string str, std::string color);
 std::string trim(const std::string& str, const std::string& chars = WHITESPACES_WITH_SPACE);
+size_t convertSizeToBytes(const std::string& size);
 
 #endif

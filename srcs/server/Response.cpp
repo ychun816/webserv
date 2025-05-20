@@ -54,10 +54,10 @@ void Response::setStatus(int code)
 std::string Response::formatResponse() const {
     std::stringstream ss;
 
-    // Ligne de statut
+    // Status line
     ss << _httpVersion << " " << _statusCode << " " << _statusMessage << "\r\n";
 
-    // En-têtes existants
+    // Existing headers
     std::map<std::string, std::string> finalHeaders = _headers;
 
     // Ajouter Content-Type s'il n'existe pas déjà
@@ -66,14 +66,14 @@ std::string Response::formatResponse() const {
     //     ] = "text/html";
     // }
 
-    // Ajouter Content-Length s'il n'existe pas déjà
+    // Add Content-Length if it doesn't exist
     if (finalHeaders.find("Content-Length") == finalHeaders.end()) {
         std::stringstream lenStream;
         lenStream << _body.length();
         finalHeaders["Content-Length"] = lenStream.str();
     }
 
-    // Écrire tous les en-têtes
+    // Headers
     std::map<std::string, std::string>::const_iterator it;
     for (it = finalHeaders.begin(); it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";

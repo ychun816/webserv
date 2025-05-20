@@ -58,29 +58,43 @@ void Get::execute(Request& request, Response& response, Server& server)
 
 void	Get::serveFile(Request& request, Response& response, Server& server)
 {
-	// Utilisez .c_str() pour convertir std::string en const char*
 	std::ifstream file(request.getAbspath().c_str());
 	std::cout << request.getAbspath().c_str() << std::endl;
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
 		request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
-		return ;
+		return;
 	}
-	if (checkIfCgi(request.getAbspath()))
-	{
+
+	// Vérifier la taille du fichier avant de l'envoyer
+	file.seekg(0, std::ios::end);
+	size_t fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	// Vérifier si la taille du fichier dépasse la limite
+	size_t maxSize = 10 * 1024 * 1024; // 10MB par défaut
+	if (request.getCurrentLocation() && !request.getCurrentLocation()->getClientMaxBodySize().empty()) {
+		maxSize = convertSizeToBytes(request.getCurrentLocation()->getClientMaxBodySize());
+	} else if (!server.getClientMaxBodySize().empty()) {
+		maxSize = convertSizeToBytes(server.getClientMaxBodySize());
+	}
+
+	if (fileSize > maxSize) {
+		request.fillResponse(response, 413, "<html><body><h1>413 Payload Too Large</h1></body></html>");
+		return;
+	}
+
+	if (checkIfCgi(request.getAbspath())) {
 		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
 		Request* requestPtr = new Request(request);
 		Server* serverPtr = new Server(server);
-		CGIhandler	execCgi(requestPtr, serverPtr);
+		CGIhandler execCgi(requestPtr, serverPtr);
 		std::string CGIoutput = execCgi.execute();
 		request.fillResponse(response, 200, CGIoutput);
 		delete requestPtr;
 		delete serverPtr;
 		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
-	}
-	else
-	{
+	} else {
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		request.fillResponse(response, 200, buffer.str());

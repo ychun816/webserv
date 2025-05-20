@@ -73,13 +73,10 @@ void Post::execute(Request& request, Response& response, Server& server)
     std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
     /////////////////////////////////////////////////
     
-    //first check body size ( client_max_body_size 20M;)
-    if (body.length() > 20 * 1024 * 1024) //20MB
-    {
-        // std::cout << "Error : File too large." << std::endl;
+    if (!request.isBodySizeValid()) {
         response.setStatus(413);
-        response.setBody("Error : File too large.\n");
-        request.fillResponse(response, 413, "<html><body><h1>Error : File too large.</h1></body></html>"); //added to link with response -> show msg on frontend
+        response.setBody("Error: File too large.\n");
+        request.fillResponse(response, 413, "<html><body><h1>Error: File too large.</h1></body></html>");
         return;
     }
     //check if the file can be created
@@ -126,7 +123,7 @@ void Post::execute(Request& request, Response& response, Server& server)
 | **400** | Client Err. | Bad Request — Syntax error           | 請求格式錯誤 |
 | **401** | Client Err. | Unauthorized — Login required        | 未授權，需要驗證 |
 | **403** | Client Err. | Forbidden — Access denied            | 禁止存取，權限不足 |
-| **404** | Client Err. | Not Found — Resource doesn’t exist   | 找不到資源 |
+| **404** | Client Err. | Not Found — Resource doesn't exist   | 找不到資源 |
 | **405** | Client Err. | Method Not Allowed                   | 不支援的 HTTP 方法 |
 | **408** | Client Err. | Request Timeout                      | 請求逾時 |
 | **429** | Client Err. | Too Many Requests                    | 請求太頻繁，被限制 |

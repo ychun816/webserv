@@ -22,3 +22,31 @@ void timestamp(std::string str, std::string color)
     std::string dateTime = buffer;
     std::cout << color << "[" << dateTime << "] " << str << RESET << std::endl;
 }
+
+size_t convertSizeToBytes(const std::string& size) {
+    size_t multiplier = 1;
+    size_t value = 0;
+    
+    if (size.empty()) return 0;
+    
+    // Extract the numeric value
+    size_t i = 0;
+    while (i < size.length() && isdigit(size[i])) {
+        value = value * 10 + (size[i] - '0');
+        i++;
+    }
+    
+    // Suffix handling
+    if (i < size.length()) {
+        char suffix = toupper(size[i]);
+        switch (suffix) {
+            case 'K': multiplier = 1024; break;
+            case 'M': multiplier = 1024 * 1024; break;
+            case 'G': multiplier = 1024 * 1024 * 1024; break;
+            default: return 0;
+        }
+    }
+    
+    return value * multiplier;
+}
+

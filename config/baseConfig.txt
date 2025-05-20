@@ -13,9 +13,9 @@ server {
     }
 
     location /upload {
-        methods POST;
+        methods GET ;
         upload_dir /upload;
-        client_max_body_size 20M;
+        client_max_body_size 10M;
     }
 
     location /cgi-bin {

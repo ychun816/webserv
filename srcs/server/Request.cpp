@@ -39,17 +39,16 @@ Request::~Request()
 
 void Request::handleResponse()
 {
-	if (!isMethodAllowed()) {
+	if (!isContentLengthValid()) {
 		Response response(*this);
-		std::cout << "👻 Method Not Allowed" << std::endl;
-		response.setStatus(405); // Method Not Allowed
+		std::cout << "👻 Content-Length is not valid" << std::endl;
+		response.setStatus(413); // Payload Too Large
 		return;
 	}
 
-	if (!isBodySizeValid()) {
+	if (!isMethodAllowed()) {
 		Response response(*this);
-		std::cout << "👻 Payload Too Large" << std::endl;
-		response.setStatus(413); // Payload Too Large
+		response.setStatus(405); // Method Not Allowed
 		return;
 	}
 
@@ -66,6 +65,7 @@ void Request::handleResponse()
 	}
 	_server.executeMethods(*this, response);
 	response.setResponse(response.formatResponse());
+	
 	std::cout << BLUE << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << RESET << std::endl;
 }
 
@@ -258,12 +258,16 @@ void Request::setServer(Server& server) {
 }
 
 bool Request::isBodySizeValid() const {
-	if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
-		// Utiliser la limite de la location
-		return static_cast<size_t>(atoi(_currentLocation->getClientMaxBodySize().c_str())) >= _body.length();
-	}
-	// Sinon utiliser la limite globale du serveur
-	return static_cast<size_t>(atoi(_server.getClientMaxBodySize().c_str())) >= _body.length();
+    size_t maxSize = 1024 * 1024; // 1MB par défaut
+    
+    if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
+        maxSize = convertSizeToBytes(_currentLocation->getClientMaxBodySize());
+    } else if (!_server.getClientMaxBodySize().empty()) {
+        maxSize = convertSizeToBytes(_server.getClientMaxBodySize());
+    }
+    std::cout << "👻 maxSize: " << maxSize << std::endl;
+    std::cout << "👻 _body.length(): " << _body.length() << std::endl;
+    return maxSize >= _body.length();
 }
 
 bool Request::isMethodAllowed() const {
@@ -273,6 +277,22 @@ bool Request::isMethodAllowed() const {
 		return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end() ;
 	}
 	return false;
+}
+
+bool Request::isContentLengthValid() const {
+    std::string contentLength = getHeader("Content-Length");
+    if (contentLength.empty()) return true; // Pas de Content-Length, on continue
+    
+    size_t declaredSize = static_cast<size_t>(atoi(contentLength.c_str()));
+    size_t maxSize = 1024 * 1024; // 1MB par défaut
+    
+    if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
+        maxSize = convertSizeToBytes(_currentLocation->getClientMaxBodySize());
+    } else if (!_server.getClientMaxBodySize().empty()) {
+        maxSize = convertSizeToBytes(_server.getClientMaxBodySize());
+    }
+    
+    return declaredSize <= maxSize;
 }
 
 
