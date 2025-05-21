@@ -64,7 +64,7 @@
         // Upload file via JavaScript
         document.getElementById('uploadForm').addEventListener('submit', function (event) {
             event.preventDefault();
-
+/upload/upload_download_delete.html
             const fileInput = event.target.querySelector('input[type="file"]');
             const file = fileInput.files[0];
             if (!file) return;
@@ -86,17 +86,7 @@
                 clearStatusMessages();
             })
             .catch(error => {
-                document.getElementById('uploadStatus').textContent = "❌ Upload failed.";
-                document.getElementById('uploadLink').textContent = "";
-                console.error(error);
-                clearStatusMessages();
-            });
-        });
-
-        // Download file via GET
-        function downloadFile(event) {
-            event.preventDefault();
-            const filename = document.getElementById('filename').value.trim();
+                document.getEleme/upload/upload_download_delete.htmlment.getElementById('filename').value.trim();
             if (!filename) return;
 
             const url = `/upload/${encodeURIComponent(filename)}`;

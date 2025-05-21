@@ -16,6 +16,12 @@ server {
         methods GET POST DELETE;
         upload_dir /upload;
         client_max_body_size 10M;
+        #index list.html;
+    }
+
+    #Optional: redirect /upload to /upload/index.html if you want a redirect page
+    location = /upload {
+        return 301 http://localhost:8080;
     }
 
     location /cgi-bin {

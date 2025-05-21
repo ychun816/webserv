@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Uploaded Files List</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    h1 { margin-bottom: 1rem; }
+    ul { list-style-type: none; padding-left: 0; }
+    li { margin-bottom: 0.5rem; }
+    a { text-decoration: none; color: #007bff; }
+    a:hover { text-decoration: underline; }
+    .back-link { margin-top: 2rem; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Uploaded Files</h1>
+  <ul>
+    <!-- 
+      If your server supports directory listing at /upload/, 
+      this list will be auto-generated.
+      Otherwise, you can manually list files here or use JavaScript to fetch.
+    -->
+    <li><a href="/upload/file1.txt" download>file1.txt</a></li>
+    <li><a href="/upload/photo.jpg" download>photo.jpg</a></li>
+    <li><a href="/upload/report.pdf" download>report.pdf</a></li>
+  </ul>
+  <a href="/index.html" class="back-link">Back to Home</a>
+</body>
+</html>
