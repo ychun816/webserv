@@ -47,67 +47,65 @@ std::string Post::extractFileContent(std::string& rawBody) const
 
 void Post::execute(Request& request, Response& response, Server& server)
 {
-    std::string uploadPath;
-    std::string filename;
-    std::string body;
-
-    (void)server;
-    uploadPath = request.getAbspath();
-    filename = request.getFilename();
-    
-    // Le body est déjà décodé si c'était du chunked
-    body = request.getBody();
-    body = extractFileContent(body);
-
-    // Create a file stream for output, using full path
-    std::string full_path = uploadPath + PATH_SEPARATOR + filename;
-    std::ofstream output(full_path.c_str());
-
-    //DEBUG /////////////////////////////////////////////////
-    std::cout << "=== 📍DEBUG POST EXECUTE ===" << std::endl;
-    std::cout << "UPLOAD PATH : " << uploadPath << std::endl;
-    std::cout << "FILENAME : " << filename << std::endl;
-    std::cout << "FULL PATH : " << full_path << std::endl; //shold be ok
-    std::cout << "RAW BODY : " << body << std::endl;
-    std::cout << "BODY : " << body << std::endl;
-    std::cout << "=== 📍END | DEBUG POST EXECUTE ===" << std::endl;
-    /////////////////////////////////////////////////
-    
     if (!request.isBodySizeValid()) {
         response.setStatus(413);
         response.setBody("Error: File too large.\n");
         request.fillResponse(response, 413, "<html><body><h1>Error: File too large.</h1></body></html>");
         return;
     }
-    //check if the file can be created
-    if (!output.is_open())
-    {
-        // std::cout << "Error : Failed saving file." << std::endl;
-        response.setStatus(500);
-        response.setBody("Error : Failed saving file.\n");
-        request.fillResponse(response, 500, "<html><body><h1>Error : Failed saving file.</h1></body></html>"); //added to link with response -> show msg on frontend
-        return;
-    }
-    output << body;
-
-    /////////////////////////////////////////////////
-    std::cout << "📍📍BODY LEN : " << body.length() << std::endl;
-    std::cout << "📍📍OUTPUT : " << output << std::endl;
-    /////////////////////////////////////////////////
-
-    output.close();
-
-    response.setStatus(201);
-    response.setBody("Success : file uploaded.\n");
-    request.fillResponse(response, 201, "<html><body><h1>Success : file uploaded.</h1></body></html>"); //added to link with response -> show msg on frontend
     
-    //if uploaded redirect to other page
-    // response.setStatus(303);
-    // response.setHeaders(response.getHeaders());
-    // response.setBody(""); // Optionally empty
+    try {
+        std::string uploadPath;
+        std::string filename;
+        std::string body;
 
+        (void)server;
+        uploadPath = request.getAbspath();
+        if (uploadPath.empty()) {
+            response.setStatus(400);
+            response.setBody("Error: Invalid upload path.\n");
+            request.fillResponse(response, 400, "<html><body><h1>Error: Invalid upload path.</h1></body></html>");
+            return;
+        }
+
+        filename = request.getFilename();
+        if (filename.empty()) {
+            response.setStatus(400);
+            response.setBody("Error: Missing filename.\n");
+            request.fillResponse(response, 400, "<html><body><h1>Error: Missing filename.</h1></body></html>");
+            return;
+        }
+        
+        body = request.getBody();
+        if (!body.empty()) {
+            body = extractFileContent(body);
+        }
+
+        std::string full_path = uploadPath + PATH_SEPARATOR + filename;
+        std::ofstream output(full_path.c_str());
+
+        if (!output.is_open()) {
+            response.setStatus(500);
+            response.setBody("Error: Failed saving file.\n");
+            request.fillResponse(response, 500, "<html><body><h1>Error: Failed saving file.</h1></body></html>");
+            return;
+        }
+
+        output << body;
+        output.close();
+
+        response.setStatus(201);
+        response.setBody("Success: File uploaded.\n");
+        request.fillResponse(response, 201, "<html><body><h1>Success: File uploaded.</h1></body></html>");
+    }
+    catch (const std::exception& e) {
+        // Safely handle any exceptions that might occur
+        std::cerr << "Exception in POST handler: " << e.what() << std::endl;
+        response.setStatus(500);
+        response.setBody("Error: Internal server error.\n");
+        request.fillResponse(response, 500, "<html><body><h1>Error: Internal server error.</h1></body></html>");
+    }
 }
-
 
 
 /*

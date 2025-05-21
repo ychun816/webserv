@@ -9,11 +9,11 @@ server {
     location / {
         methods GET POST;
         index index.html;
-        autoindex on;
+        client_max_body_size 10M
     }
 
     location /upload {
-        methods GET ;
+        methods GET POST;
         upload_dir /upload;
         client_max_body_size 10M;
     }

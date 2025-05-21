@@ -43,6 +43,8 @@ void Request::handleResponse()
 	if (!isContentLengthValid()) {
 		Response response(*this);
 		std::cout << "👻 Content-Length is not valid" << std::endl;
+            // std::string error_response = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\n\r\n";
+            // send(_server.getSocketFd(), error_response.c_str(), error_response.size(), 0);
 		response.setStatus(413); // Payload Too Large
 		return;
 	}
@@ -237,7 +239,6 @@ void Request::fillResponse(Response& response, int statusCode, const std::string
 	_response = response;
 }
 
-// filename="....."
 std::string Request::getFilename() const
 {
     std::string filename;
@@ -273,6 +274,7 @@ bool Request::isBodySizeValid() const {
     }
     std::cout << "👻 maxSize: " << maxSize << std::endl;
     std::cout << "👻 _body.length(): " << _body.length() << std::endl;
+	std::cout << "👻 verif :" << (maxSize >= _body.length()) << std::endl;
     return maxSize >= _body.length();
 }
 

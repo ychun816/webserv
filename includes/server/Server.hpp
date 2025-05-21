@@ -79,21 +79,21 @@ class Server
                 Location* getCurrentLocation(const std::string& path);
         private:
                 int                                     _epoll_fd;
-                std::string             _configFile;
-                std::deque<int>         _connexions;
+                std::string                             _configFile;
+                std::deque<int>                          _connexions;
                 int                                     _socketFd;
                 int                                     _port;
-                std::string                     _host;
-                std::string                     _root;
-                std::string                     _index;
-                std::string                     _errorPage;
-                std::string                     _cgi;
-                std::string                     _upload;
-                std::string                     _clientMaxBodySize;
-                std::list<std::string>  _allowMethods;
-                struct sockaddr_in      _address;
-                std::vector<std::string>        _errorPages;
-                std::list<Location>     _locations;
+                std::string                             _host;
+                std::string                             _root;
+                std::string                             _index;
+                std::string                             _errorPage;
+                std::string                             _cgi;
+                std::string                             _upload;
+                std::string                             _clientMaxBodySize;
+                std::list<std::string>                  _allowMethods;
+                struct sockaddr_in                      _address;
+                std::vector<std::string>                _errorPages;
+                std::list<Location>                      _locations;
 
                 
                 class configError : public std::exception
