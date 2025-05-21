@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>404 Not Found</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet" />
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Josefin Sans', sans-serif;
+        }
+
+        /* Glitch animation background */
+        .glitch-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                black 0px,
+                black 1px,
+                white 1px,
+                white 2px
+            );
+            animation: glitch 0.5s infinite;
+            z-index: -1;
+        }
+
+        @keyframes glitch {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 0 5px;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+
+        /* Page content */
+        .container {
+            position: relative;
+            z-index: 1;
+            color: rgb(212, 17, 17);
+            text-align: center;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .container h1, .container p {
+            text-shadow: -2px 2px 4px rgba(59, 4, 4, 0.7);
+            transition: transform 0.3s ease; 
+        }*/
+
+        .container h1:hover, .container p:hover {
+            transform: translateY(-10px);
+            cursor: pointer;
+        }
+
+        h1 {
+            font-size: 4em;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="glitch-bg"></div>
+
+    <div class="container">
+        <h1>504 Gateway Timeout</h1>
+        <h2>網關逾時</h2>
+        <!-- <p>The page you are looking for doesn't exist.</p> -->
+    </div>
+</body>
+</html>

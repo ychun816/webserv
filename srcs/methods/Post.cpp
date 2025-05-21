@@ -130,4 +130,15 @@ void Post::execute(Request& request, Response& response, Server& server)
 | **503** | Server Err. | Service Unavailable                  | 服務暫停 |
 | **504** | Server Err. | Gateway Timeout                      | 網關逾時 |
 
+
+    error_page=404 error/404.html V
+    error_page=500 error/500.html V
+    error_page=403 error/403.html V
+    error_page=504 error/504.html V
+    error_page=405 error/405.html V
+    error_page=400 error/400.html V
+    error_page=408 error/408.html V
+    error_page=413 error/413.html
+    error_page=501 error/501.html
+
 */
