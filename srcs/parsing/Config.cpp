@@ -10,7 +10,7 @@ Config* Config::_instance = 0;
 
 Config* Config::getInstance(const std::string& filename)
 {
-    if (_instance == 0) 
+    if (_instance == 0)
     {
         if (filename.empty())
             throw ConfigException("Cannot create Config instance without filename");
@@ -66,7 +66,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             }
             NewLocation.setMethods(methodsVector);
         }
-        else if ((*it).find("index") != std::string::npos)
+        else if ((*it).find("index") != std::string::npos && (*it).find("autoindex") == std::string::npos)
         {
             size_t pos = (*it).find("index") + 5;
             std::string value = (*it).substr(pos);
@@ -146,6 +146,21 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
     return (NewLocation);
 }
 
+void	printLocation(Location& loc)
+{
+	std::cout << std::endl;
+	std::cout << "===========PRINT LOCATION===========" << std::endl;
+	std::cout << "loc.getPath : " << loc.getPath() << std::endl;
+    std::cout << "loc.getRoot : " << loc.getRoot() << std::endl;
+    std::cout << "loc.getAutoindex : " << loc.getAutoindex() << std::endl;
+    std::cout << "loc.getCgiExt : " << loc.getCgiExt() << std::endl;
+    std::cout << "loc.getClientMaxBodySize : " << loc.getClientMaxBodySize() << std::endl;
+    std::cout << "loc.getUploadPath : " << loc.getUploadPath() << std::endl;
+    std::cout << "loc.getIndex : " << loc.getIndex() << std::endl;
+	std::cout << "===========END PRINT LOCATION===========" << std::endl;
+	std::cout << std::endl;
+}
+
 void Config::findParameters(std::vector<std::string>::iterator& it, Server& server, std::vector<std::string>& lines)
 {
  std::cout << "Checking line: [" << *it << "]" << std::endl;
@@ -207,6 +222,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
 
             // parseLocation advances the iterator to the end of the block then we push the location into the server
             Location loc = parseLocation(value, lines, it);
+			//printLocation(loc);
             server.pushLocation(loc);
         }
         else if ((*it).find("cgi") != std::string::npos)
@@ -275,7 +291,7 @@ void Config::parseServer(std::vector<std::string>& lines)
                 server = fillServer(serverLines);
                 std::cout << GREEN << "Server filled" << RESET << std::endl;
                 std::cout << server << std::endl;
-                
+
                 // Valider la configuration du serveur avant de l'ajouter
                 if (validateServerConfig(server)) {
                     addServer(server);
@@ -321,17 +337,17 @@ void Config::runServers() {
 
     // Obtenir l'instance du singleton
     EpollManager* epollManager = EpollManager::getInstance();
-    
+
     // Initialiser tous les serveurs
     for (size_t i = 0; i < _servers.size(); i++) {
         std::cout << "Configuration du serveur " << i << " sur port " << _servers[i].getPort() << std::endl;
         _servers[i].createSocket();
         _servers[i].configSocket();
-        
+
         // Ajouter le socket serveur au epoll centralisé
         epollManager->addServerSocket(_servers[i].getSocketFd(), i);
     }
-    
+
     // Déléguer le traitement des événements au singleton
     epollManager->processEvents(_servers);
 }
@@ -441,19 +457,19 @@ void Config::initParsing(std::ifstream& file)
     // timestamp("Parsing configuration file: " + filename);
 }
 
-bool Config::validateServerConfig(const Server& newServer) const 
+bool Config::validateServerConfig(const Server& newServer) const
 {
     // Vérifier si le port est déjà utilisé par un autre serveur
-    for (size_t i = 0; i < _servers.size(); i++) 
+    for (size_t i = 0; i < _servers.size(); i++)
     {
         if (_servers[i].getPort() == newServer.getPort()) {
             const std::list<Location>& existingLocations = _servers[i].getLocations();
             const std::list<Location>& newLocations = newServer.getLocations();
-            for (std::list<Location>::const_iterator newLoc = newLocations.begin(); newLoc != newLocations.end(); ++newLoc) 
+            for (std::list<Location>::const_iterator newLoc = newLocations.begin(); newLoc != newLocations.end(); ++newLoc)
             {
                 for (std::list<Location>::const_iterator existingLoc = existingLocations.begin(); existingLoc != existingLocations.end(); ++existingLoc)
                 {
-                    if (newLoc->getPath() == existingLoc->getPath()) 
+                    if (newLoc->getPath() == existingLoc->getPath())
                     {
                         std::cerr << "Error: Duplicate location path '" << newLoc->getPath() << "' found on port " << newServer.getPort() << std::endl;
                         return (false);
@@ -465,22 +481,22 @@ bool Config::validateServerConfig(const Server& newServer) const
     return true;
 }
 
-Server* Config::findServerByLocation(const std::string& path, int port) 
+Server* Config::findServerByLocation(const std::string& path, int port)
 {
     // Parcourir tous les serveurs qui partagent le même port
-    for (size_t i = 0; i < _servers.size(); i++) 
+    for (size_t i = 0; i < _servers.size(); i++)
     {
-        if (_servers[i].getPort() == port) 
+        if (_servers[i].getPort() == port)
         {
             const std::list<Location>& locations = _servers[i].getLocations();
-            for (std::list<Location>::const_iterator loc = locations.begin(); loc != locations.end(); ++loc) 
+            for (std::list<Location>::const_iterator loc = locations.begin(); loc != locations.end(); ++loc)
             {
                 if (path.find(loc->getPath()) == 0)
                     return (&_servers[i]);
             }
         }
     }
-    for (size_t i = 0; i < _servers.size(); i++) 
+    for (size_t i = 0; i < _servers.size(); i++)
     {
         if (_servers[i].getPort() == port)
             return (&_servers[i]);
