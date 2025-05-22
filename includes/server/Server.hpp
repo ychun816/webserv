@@ -95,7 +95,6 @@ class Server
                 struct sockaddr_in                      _address;
                 std::map<size_t, std::string>           _errorPages; // key: error code, value: page path
                 std::list<Location>                     _locations;
-                
                 class configError : public std::exception
                 {
                         public:

@@ -124,6 +124,22 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             std::cout << "Redirection path: " << path << std::endl;
             NewLocation.setRedirections(redirections);
         }
+        else if ((*it).find("error_page") != std::string::npos)
+        {
+            size_t pos = (*it).find("error_page") + 11;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            std::map<size_t, std::string> errorPages;
+            std::stringstream ss(value);
+            std::string code, path;
+            while (ss >> code >> path) {
+                errorPages[atoi(code.c_str())] = path;
+            }
+            std::cout << "location Error page: " << value << std::endl;
+            std::cout << "location Error page code: " << code << std::endl;
+            std::cout << "location Error page path: " << path << std::endl;
+            NewLocation.setErrorPage(errorPages);
+        }
         it++;
     }
 

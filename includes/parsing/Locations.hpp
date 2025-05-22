@@ -14,7 +14,7 @@ private:
 	std::string _client_max_body_size;
 	std::string _upload_path;
 	std::string _index;
-	std::string _error_page;
+	std::map<size_t, std::string> _error_page;
 	std::vector<std::string> _methods;
 	std::map<size_t, std::string> _redirections;
 
@@ -32,7 +32,7 @@ public:
 	void setClientMaxBodySize(const std::string& client_max_body_size) {_client_max_body_size = client_max_body_size;};
 	void setUploadPath(const std::string& upload_path) {_upload_path = upload_path;};
 	void setIndex(const std::string& index) {_index = index;};
-	void setErrorPage(const std::string& error_page);
+	void setErrorPage(const std::map<size_t, std::string>& error_page) {_error_page = error_page;};
 	void setMethods(const std::vector<std::string>& methods) {_methods = methods;};
 	void setRedirections(const std::map<size_t, std::string>& redirections) {_redirections = redirections;};
 	// Getters
@@ -43,9 +43,8 @@ public:
 	std::string getClientMaxBodySize() const {return _client_max_body_size;};
 	std::string getUploadPath() const {return _upload_path;};
 	std::string getIndex() const {return _index;};
-	std::string getReturn() const;
 	std::vector<std::string> getMethods() const {return _methods;};
-	std::string getErrorPage() const;
+	std::map<size_t, std::string> getErrorPage() const {return _error_page;};
 	std::map<size_t, std::string> getRedirections() const {return _redirections;};
 
 	// Operators

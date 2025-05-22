@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Location::Location() : _path(""), _root(""), _autoindex(""), _cgi_ext(""), _client_max_body_size(""), _upload_path(""), _index(""), _error_page(""), _methods(std::vector<std::string>())
+Location::Location() : _path(""), _root(""), _autoindex(""), _cgi_ext(""), _client_max_body_size(""), _upload_path(""), _index(""), _error_page(std::map<size_t, std::string>()), _methods(std::vector<std::string>()), _redirections(std::map<size_t, std::string>())
 {
 }
 

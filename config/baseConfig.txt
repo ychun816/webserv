@@ -17,6 +17,7 @@ server {
         methods GET POST;
         upload_dir /upload;
         client_max_body_size 10M;
+        error_page 404 /errors/404.html;
     }
 
     location /cgi-bin {
