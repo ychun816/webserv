@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <map>
+
 class Location
 {
 private:
@@ -14,6 +16,8 @@ private:
 	std::string _index;
 	std::string _error_page;
 	std::vector<std::string> _methods;
+	std::map<size_t, std::string> _redirections;
+
 
 public:
 	Location();
@@ -30,7 +34,7 @@ public:
 	void setIndex(const std::string& index) {_index = index;};
 	void setErrorPage(const std::string& error_page);
 	void setMethods(const std::vector<std::string>& methods) {_methods = methods;};
-	void setReturn(const std::string& Return);
+	void setRedirections(const std::map<size_t, std::string>& redirections) {_redirections = redirections;};
 	// Getters
 	std::string getPath() const {return _path;};
 	std::string getRoot() const {return _root;};
@@ -42,6 +46,8 @@ public:
 	std::string getReturn() const;
 	std::vector<std::string> getMethods() const {return _methods;};
 	std::string getErrorPage() const;
+	std::map<size_t, std::string> getRedirections() const {return _redirections;};
+
 	// Operators
 	Location& operator=(const Location& other);
 

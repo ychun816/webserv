@@ -1,3 +1,4 @@
+
 #include "../../includes/server/Server.hpp"
 #include "../../includes/methods/Get.hpp" // added to execute methods
 #include "../../includes/methods/Post.hpp" // added to execute methods
@@ -221,7 +222,11 @@ void Server::removeConnexion(int fd)
 	}
 }
 
-// Operators
+// bool Server::errorPageExist(size_t code)
+// {
+//     return false;
+// }
+
 Server & Server::operator=(const Server &assign)
 {
 	if (this != &assign) {

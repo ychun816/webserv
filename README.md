@@ -104,10 +104,11 @@ curl http://localhost:8080
 ## 🤝 Contribution
 Ce projet est développé par:
 - [agilibert](https://github.com/Canybardeloton)
-- [clarily](https://github.com/CrystxlSith)\
-- []
+- [clarily](https://github.com/CrystxlSith)
+- [yilingit] (https://github.com/ychun816)
 
 ## 📄 Licence
 42
+
 dd if=/dev/zero of=large_file.txt bs=1M count=10
 curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt

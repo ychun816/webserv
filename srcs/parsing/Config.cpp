@@ -108,6 +108,22 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             value = trim(value, " \t;");
             NewLocation.setUploadPath(value);
         }
+        else if ((*it).find("return") != std::string::npos)
+        {
+            size_t pos = (*it).find("return") + 6;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            std::map<size_t, std::string> redirections;
+            std::stringstream ss(value);
+            std::string code, path;
+            while (ss >> code >> path) {
+                redirections[atoi(code.c_str())] = path;
+            }
+            std::cout << "Redirection: " << value << std::endl;
+            std::cout << "Redirection code: " << code << std::endl;
+            std::cout << "Redirection path: " << path << std::endl;
+            NewLocation.setRedirections(redirections);
+        }
         it++;
     }
 
@@ -184,6 +200,23 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             value = trim(value, " \t;");
             server.setCgi(value);
         }
+        else if ((*it).find("error_page") != std::string::npos)
+        {
+            size_t pos = (*it).find("error_page") + 11;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            std::map<size_t, std::string> errorPages;
+            std::stringstream ss(value);
+            std::string code, path;
+            while (ss >> code >> path) {
+                errorPages[atoi(code.c_str())] = path;
+            }
+            std::cout << "Error page: " << value << std::endl;
+            std::cout << "Error page code: " << code << std::endl;
+            std::cout << "Error page path: " << path << std::endl;
+            server.setErrorPages(errorPages);
+        }
+
 }
 
 Server Config::fillServer(std::vector<std::string>& lines)

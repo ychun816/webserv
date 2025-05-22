@@ -184,6 +184,30 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 									size_t content_length = 0;
 									iss >> content_length;
 									
+									// std::string config_size = servers[server_index].getClientMaxBodySize();
+									// if (!config_size.empty()) {
+									// 	size_t max_size = convertSizeToBytes(config_size);
+									// 	if (!max_size) {
+									// 		max_size = 1024 * 1024; // 1MB
+									// 	}
+									// 	if (content_length > max_size) {
+									// 		// Content-Length exceeds server limit
+									// 		std::cerr << "Content-Length exceeds server limit" << std::endl;
+									// 		std::cout << "Content-Length: " << content_length << std::endl;
+									// 		std::cout << "Max Size: " << max_size << std::endl;
+									// 		std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
+									// 									  "Content-Type: text/html\r\n"
+									// 									  "Content-Length: 67\r\n\r\n"
+									// 									  "<html><body><h1>Error: File too large.</h1></body></html>";
+									// 		std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
+									// 		std::cout << error_response << std::endl;
+									// 		// Send error response
+									// 		send(current_fd, error_response.c_str(), error_response.size(), 0);
+									// 		incomplete_requests.erase(current_fd);
+									// 		expected_sizes.erase(current_fd);
+									// 		;
+									// 	}
+									// }
 									// Find where headers end and body begins
 									size_t body_start = current_request.find("\r\n\r\n");
 									if (body_start != std::string::npos) {

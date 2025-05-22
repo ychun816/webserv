@@ -102,3 +102,4 @@ size_t hexToSizeT(const std::string& hexStr) {
     }
     return result;
 }
+

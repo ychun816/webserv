@@ -41,7 +41,6 @@ public:
     void addServer(const Server& server) { _servers.push_back(server); }
     void removeServer(size_t index) { _servers.erase(_servers.begin() + index); }
     bool hasServer(size_t index) const { return index < _servers.size(); }
-    
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
 
     bool validateServerConfig(const Server& newServer) const;
