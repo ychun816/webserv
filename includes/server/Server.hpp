@@ -44,7 +44,6 @@ class Server
                 void    setEpollFd(int epoll_fd);
                 void    addConnexion(int fd);
                 void    removeConnexion(int fd);
-                bool    errorPageExist(size_t code);
 
                 // Getters
                 const std::string& getConfigFile() const { return _configFile; }
@@ -69,7 +68,7 @@ class Server
                 void setHost(const std::string& host) { _host = host; }
                 void setRoot(const std::string& root) { _root = root; }
                 void setIndex(const std::string& index) { _index = index; }
-                void setErrorPages(const std::map<size_t, std::string>& errorPages) { _errorPages = errorPages; }
+                void setErrorPages(const std::pair<size_t, std::string>& errorPages) { _errorPages.insert(errorPages); }
                 void setCgi(const std::string& cgi) { _cgi = cgi; }
                 void setUpload(const std::string& upload) { _upload = upload; }
                 void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }
@@ -114,7 +113,7 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
         os << "  Host: " << server.getHost() << std::endl;
         os << "  Root: " << server.getRoot() << std::endl;
         os << "  Index: " << server.getIndex() << std::endl;
-        os << "  Error Page: " << server.getErrorPage() << std::endl;
+        os << "  Error Page: " << server.getErrorPage().size() << std::endl;
         os << "  CGI: " << server.getCgi() << std::endl;
         os << "  Upload: " << server.getUpload() << std::endl;
         os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;

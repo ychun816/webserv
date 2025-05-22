@@ -69,6 +69,9 @@ public:
 	bool isBodySizeValid() const;
 	bool isChunked() const;
 	void parseChunkedBody();
+	bool errorPageExist(size_t code);
+	void buildErrorPageHtml(size_t code, Response& response);
+	void openErrorPage(size_t code, Response& response);
 	
 	
 };
