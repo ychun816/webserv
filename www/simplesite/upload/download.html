@@ -140,11 +140,14 @@
   <div class="download-container">
     <h1>📥 Download File</h1>
     <div id="status" class="status-message"></div>
-    <form method="GET" action="/user_upload" onsubmit="return validateDownload()">
+
+    <!-- Fixed Form -->
+    <form id="downloadForm" onsubmit="return handleDownload(event)">
       <input type="text" name="filename" placeholder="Enter filename (e.g., report.pdf)" required />
       <br />
       <button type="submit">Download</button>
     </form>
+
     <div class="nav-links">
       <a href="/upload/upload.html">📤 Go to Upload</a>
       <a href="/upload/delete.html">🗑️ Go to Delete</a>
@@ -152,6 +155,7 @@
   </div>
 
   <script>
+    // Status message from query parameters
     const statusEl = document.getElementById('status');
     const params = new URLSearchParams(window.location.search);
     const status = params.get('status');
@@ -163,13 +167,21 @@
       statusEl.classList.add('error');
     }
 
-    function validateDownload() {
+    // Custom form handler to build proper URL
+    function handleDownload(event) {
+      event.preventDefault();
+
       const input = document.querySelector('input[name="filename"]');
-      if (!input.value.trim()) {
+      const filename = input.value.trim();
+
+      if (!filename) {
         alert('Please enter a filename.');
         return false;
       }
-      return true;
+
+      // Redirect with RESTful path
+      window.location.href = `/user_upload/${encodeURIComponent(filename)}`;
+      return false;
     }
   </script>
 </body>
