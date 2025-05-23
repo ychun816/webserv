@@ -117,7 +117,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             std::stringstream ss(value);
             std::string code, path;
             ss >> code >> path;
-
+            std::cout << "redirection page path: " << path << std::endl;
             NewLocation.setRedirections(std::make_pair(atoi(code.c_str()), path));
         }
         else if ((*it).find("error_page") != std::string::npos)
@@ -125,11 +125,26 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             size_t pos = (*it).find("error_page") + 11;
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
-            std::stringstream ss(value);
-            std::string code, path;
-            ss >> code >> path;
-            NewLocation.setErrorPage(std::make_pair(atoi(code.c_str()), path));
+            
+            // Extraire le code et le chemin
+            size_t spacePos = value.find(' ');
+            if (spacePos != std::string::npos) {
+                std::string code = value.substr(0, spacePos);
+                std::string path = value.substr(spacePos + 1);
+                path = trim(path, " \t;");
+                
+                // Nettoyer le chemin
+                if (!path.empty() && path[0] == '"') {
+                    path = path.substr(1);
+                }
+                if (!path.empty() && path[path.length()-1] == '"') {
+                    path = path.substr(0, path.length()-1);
+                }
+                
+                NewLocation.setErrorPage(std::make_pair(atoi(code.c_str()), path));
+            }
         }
+
         it++;
     }
 
@@ -212,7 +227,6 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
 
             // parseLocation advances the iterator to the end of the block then we push the location into the server
             Location loc = parseLocation(value, lines, it);
-			//printLocation(loc);
             server.pushLocation(loc);
         }
         else if ((*it).find("cgi") != std::string::npos)
@@ -227,10 +241,25 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             size_t pos = (*it).find("error_page") + 11;
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
-            std::stringstream ss(value);
-            std::string code, path;
-            ss >> code >> path;
-            server.setErrorPages(std::make_pair(atoi(code.c_str()), path));
+            
+            // Extraire le code et le chemin
+            size_t spacePos = value.find(' ');
+            if (spacePos != std::string::npos) {
+                std::string code = value.substr(0, spacePos);
+                std::string path = value.substr(spacePos + 1);
+                path = trim(path, " \t;");
+                
+                // Nettoyer le chemin
+                if (!path.empty() && path[0] == '"') {
+                    path = path.substr(1);
+                }
+                if (!path.empty() && path[path.length()-1] == '"') {
+                    path = path.substr(0, path.length()-1);
+                }
+                
+                std::cout << "error page path: " << path << std::endl;
+                server.setErrorPages(std::make_pair(atoi(code.c_str()), path));
+            }
         }
 
 }

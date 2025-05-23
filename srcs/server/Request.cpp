@@ -73,7 +73,6 @@ void Request::handleResponse()
         _server.executeMethods(*this, response);
     }
 
-    // Finaliser et envoyer la réponse
     response.setResponse(response.formatResponse());
     std::cout << BLUE << "Sending response: [" << response.getResponse().substr(0, 100) << "...]" << RESET << std::endl;
     
@@ -93,12 +92,16 @@ void Request::openErrorPage(size_t code, Response& response)
     
     // Ajouter Content-Type pour HTML
     std::map<std::string, std::string> headers = this->getHeaders();
+	Location* loc = _server.getCurrentLocation(_path);
+	std::cout << "loc->getErrorPage().find(code)->second.c_str() : " << loc->getErrorPage().find(code)->second.c_str() << std::endl;
+	if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
+		_uri = loc->getErrorPage().find(code)->second.c_str();
+	else
+		_uri = _server.getErrorPages().find(code)->second.c_str();
     headers["Content-Type"] = "text/html";
 	_method = "GET";
-	_uri = _server.getErrorPages().find(code)->second.c_str();
 	_path = _uri;
     response.setHeaders(headers);
-    
     Config* config = Config::getInstance();
     if (config) {
         Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
@@ -106,9 +109,7 @@ void Request::openErrorPage(size_t code, Response& response)
             _server = *appropriateServer;
     }
 	_server.executeMethods(*this, response);
-	// response.setResponse(response.formatResponse());
-	_response = response;
-    
+	_response = response;    
 }
 
 void Request::buildErrorPageHtml(size_t code, Response& response)
