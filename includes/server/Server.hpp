@@ -53,12 +53,11 @@ class Server
                 const std::string& getHost() const { return _host; }
                 const std::string& getRoot() const { return _root; }
                 const std::string& getIndex() const { return _index; }
-                const std::string& getErrorPage() const { return _errorPage; }
+                const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
                 const std::string& getCgi() const { return _cgi; }
                 const std::string& getUpload() const { return _upload; }
                 const std::string& getClientMaxBodySize() const { return _clientMaxBodySize; }
                 const std::list<std::string>& getAllowMethods() const { return _allowMethods; }
-                const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
                 const std::list<Location>& getLocations() const { return _locations; }
                 // Setters
                 void setConfigFile(const std::string& configFile) { _configFile = configFile; }
@@ -86,7 +85,6 @@ class Server
                 std::string                             _host;
                 std::string                             _root;
                 std::string                             _index;
-                std::string                             _errorPage;
                 std::string                             _cgi;
                 std::string                             _upload;
                 std::string                             _clientMaxBodySize;
@@ -113,7 +111,7 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
         os << "  Host: " << server.getHost() << std::endl;
         os << "  Root: " << server.getRoot() << std::endl;
         os << "  Index: " << server.getIndex() << std::endl;
-        os << "  Error Page: " << server.getErrorPage().size() << std::endl;
+        os << "  Error Page: " << server.getErrorPages().size() << std::endl;
         os << "  CGI: " << server.getCgi() << std::endl;
         os << "  Upload: " << server.getUpload() << std::endl;
         os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;
@@ -121,12 +119,17 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
         for (std::list<std::string>::const_iterator it = server.getAllowMethods().begin(); it != server.getAllowMethods().end(); ++it) {
                 os << *it << " ";
         }
-        std::cout << std::endl;
-        std::cout << "  Locations: " << server.getLocations().size() << std::endl;
+        os << std::endl;
+        os << "  Locations: " << server.getLocations().size() << std::endl;
+        for (std::list<Location>::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); ++it) {
+                os << "    Location " << it->getPath() << ":" << std::endl;
+                os << "      Error Pages: " << it->getErrorPage().size() << std::endl;
+                os << "      Methods: " << it->getMethods().size() << std::endl;
+                os << "      Redirections: " << it->getRedirections().size() << std::endl;
+        }
         os << std::endl;
         return os;
 }
-
 
 
 

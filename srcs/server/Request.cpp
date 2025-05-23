@@ -82,21 +82,31 @@ void Request::handleResponse()
 void Request::openErrorPage(size_t code, Response& response)
 {
     response.setStatus(code);
-    std::ifstream file(_server.getErrorPages().find(code)->second.c_str());
-    if (file.is_open())
-    {
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        response.setBody(buffer.str());
-        file.close();
-    }
+    // std::ifstream file();
+    // if (file.is_open())
+    // {
+    //     std::stringstream buffer;
+    //     buffer << file.rdbuf();
+    //     response.setBody(buffer.str());
+    //     file.close();
+    // }
     
     // Ajouter Content-Type pour HTML
     std::map<std::string, std::string> headers = this->getHeaders();
     headers["Content-Type"] = "text/html";
+	_method = "GET";
+	_uri = _server.getErrorPages().find(code)->second.c_str();
+	_path = _uri;
     response.setHeaders(headers);
     
-	response.setResponse(response.formatResponse());
+    Config* config = Config::getInstance();
+    if (config) {
+        Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
+        if (appropriateServer)
+            _server = *appropriateServer;
+    }
+	_server.executeMethods(*this, response);
+	// response.setResponse(response.formatResponse());
 	_response = response;
     
 }

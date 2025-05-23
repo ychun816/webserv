@@ -117,6 +117,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             std::stringstream ss(value);
             std::string code, path;
             ss >> code >> path;
+
             NewLocation.setRedirections(std::make_pair(atoi(code.c_str()), path));
         }
         else if ((*it).find("error_page") != std::string::npos)

@@ -17,6 +17,7 @@ Location::Location(const Location& other)
     this->_index = other._index;
     this->_error_page = other._error_page;
     this->_methods = other._methods;
+    this->_redirections = other._redirections;
 }
 
 
@@ -38,6 +39,7 @@ Location& Location::operator=(const Location& other)
         this->_index = other._index;
         this->_error_page = other._error_page;
         this->_methods = other._methods;
+        this->_redirections = other._redirections;
     }
     return (*this);
 }
