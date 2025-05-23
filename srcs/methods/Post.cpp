@@ -81,8 +81,23 @@ void Post::execute(Request& request, Response& response, Server& server)
             body = extractFileContent(body);
         }
 
-        std::string full_path = uploadPath + PATH_SEPARATOR + filename;
-        std::ofstream output(full_path.c_str());
+        //test with change /uplaoad to /user_upload
+        std::string uri = request.getUri();
+        // std::string newSavePath = "/user_upload";
+
+
+        std::string savePath = uploadPath + PATH_SEPARATOR + filename;
+        std::ofstream output(savePath.c_str());
+
+        //DEBUG /////////////////////////////////////////////////
+        std::cout << "=== ♦️DEBUG POST EXECUTE ===" << std::endl;
+        std::cout << "♦️UPLOAD PATH : " << uploadPath << std::endl;
+        std::cout << "♦️FILENAME : " << filename << std::endl;
+        std::cout << "♦️SAVE PATH : " << savePath << std::endl;
+	    std::cout << "♦️URI: " << uri << std::endl;
+        std::cout << "♦️BODY : " << body << std::endl;
+        std::cout << "=== ♦️END | DEBUG POST EXECUTE ===" << std::endl;
+        /////////////////////////////////////////////////
 
         if (!output.is_open()) {
             response.setStatus(500);
@@ -106,6 +121,32 @@ void Post::execute(Request& request, Response& response, Server& server)
         request.fillResponse(response, 500, "<html><body><h1>Error: Internal server error.</h1></body></html>");
     }
 }
+
+
+
+// std::string Request::getFilename() const
+// {
+//     std::string filename;
+//     size_t pos = _body.find("filename=\""); //std::string::size_type pos
+// 	// std::cout << ">>>FILENAME POS : " << pos << std::endl; //DEBUG
+
+//     if (pos != std::string::npos)
+//     {
+//         //found
+//         pos += 10; //skip filename="
+//         size_t endPos = _body.find("\"", pos);//start find frm pos
+		
+// 		// std::cout << ">>>FILENAME ENDPOS : " << pos << std::endl; //DEBUG
+
+//         if (endPos != std::string::npos)
+// 		    filename = _body.substr(pos, endPos - pos);
+// 		// std::cout << ">>>FILENAME  : " << filename << std::endl; //DEBUG
+//     }
+//     return filename;
+// }
+
+
+
 
 
 /*
