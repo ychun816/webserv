@@ -15,7 +15,10 @@ Location::Location(const Location& other)
     this->_client_max_body_size = other._client_max_body_size;
     this->_upload_path = other._upload_path;
     this->_index = other._index;
-    this->_error_page = other._error_page;
+    this->_error_page.clear();
+    for (std::map<size_t, std::string>::const_iterator it = other._error_page.begin(); it != other._error_page.end(); ++it) {
+        this->_error_page[it->first] = std::string(it->second);
+    }
     this->_methods = other._methods;
     this->_redirections = other._redirections;
 }
