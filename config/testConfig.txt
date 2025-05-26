@@ -17,7 +17,8 @@ server {
         upload_dir /upload;
         client_max_body_size 10M;
         autoindex on;
-        return 301 http://localhost:8080;
+        index list.html
+        #return 301 http://localhost:8080;
 
     }
 
