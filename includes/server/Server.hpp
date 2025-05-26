@@ -44,6 +44,7 @@ class Server
                 void    setEpollFd(int epoll_fd);
                 void    addConnexion(int fd);
                 void    removeConnexion(int fd);
+                bool    errorPageExist(size_t code);
 
                 // Getters
                 const std::string& getConfigFile() const { return _configFile; }
@@ -53,11 +54,12 @@ class Server
                 const std::string& getHost() const { return _host; }
                 const std::string& getRoot() const { return _root; }
                 const std::string& getIndex() const { return _index; }
-                const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
+                const std::string& getErrorPage() const { return _errorPage; }
                 const std::string& getCgi() const { return _cgi; }
                 const std::string& getUpload() const { return _upload; }
                 const std::string& getClientMaxBodySize() const { return _clientMaxBodySize; }
                 const std::list<std::string>& getAllowMethods() const { return _allowMethods; }
+                const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
                 const std::list<Location>& getLocations() const { return _locations; }
                 // Setters
                 void setConfigFile(const std::string& configFile) { _configFile = configFile; }
@@ -67,9 +69,7 @@ class Server
                 void setHost(const std::string& host) { _host = host; }
                 void setRoot(const std::string& root) { _root = root; }
                 void setIndex(const std::string& index) { _index = index; }
-                void setErrorPages(const std::pair<size_t, std::string>& errorPages) { 
-                    _errorPages.insert(std::make_pair(errorPages.first, std::string(errorPages.second))); 
-                }
+                void setErrorPages(const std::map<size_t, std::string>& errorPages) { _errorPages = errorPages; }
                 void setCgi(const std::string& cgi) { _cgi = cgi; }
                 void setUpload(const std::string& upload) { _upload = upload; }
                 void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }
@@ -87,6 +87,7 @@ class Server
                 std::string                             _host;
                 std::string                             _root;
                 std::string                             _index;
+                std::string                             _errorPage;
                 std::string                             _cgi;
                 std::string                             _upload;
                 std::string                             _clientMaxBodySize;
@@ -113,34 +114,20 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
         os << "  Host: " << server.getHost() << std::endl;
         os << "  Root: " << server.getRoot() << std::endl;
         os << "  Index: " << server.getIndex() << std::endl;
-        os << "  Error Pages:" << std::endl;
-        for (std::map<size_t, std::string>::const_iterator it = server.getErrorPages().begin(); it != server.getErrorPages().end(); ++it) {
-            os << "    " << it->first << ": " << it->second << std::endl;
-        }
+        os << "  Error Page: " << server.getErrorPage() << std::endl;
         os << "  CGI: " << server.getCgi() << std::endl;
         os << "  Upload: " << server.getUpload() << std::endl;
         os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;
         os << "  Allow Methods: ";
         for (std::list<std::string>::const_iterator it = server.getAllowMethods().begin(); it != server.getAllowMethods().end(); ++it) {
-            os << *it << " ";
+                os << *it << " ";
         }
-        os << std::endl;
-        os << "  Locations: " << server.getLocations().size() << std::endl;
-        for (std::list<Location>::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); ++it) {
-            os << "    Location " << it->getPath() << ":" << std::endl;
-            os << "      Error Pages:" << std::endl;
-            for (std::map<size_t, std::string>::const_iterator it2 = it->getErrorPage().begin(); it2 != it->getErrorPage().end(); ++it2) {
-                os << "        " << it2->first << ": " << it2->second << std::endl;
-            }
-            os << "      Methods: " << it->getMethods().size() << std::endl;
-            os << "      Redirections: " << it->getRedirections().size() << std::endl;
-            for (std::map<size_t, std::string>::const_iterator it2 = it->getRedirections().begin(); it2 != it->getRedirections().end(); ++it2) {
-                os << "        " << it2->first << ": " << it2->second << std::endl;
-            }
-        }
+        std::cout << std::endl;
+        std::cout << "  Locations: " << server.getLocations().size() << std::endl;
         os << std::endl;
         return os;
 }
+
 
 
 

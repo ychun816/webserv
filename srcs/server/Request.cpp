@@ -7,8 +7,6 @@
 #include <iostream>
 #include <algorithm>  // Pour std::find
 #include <cstdlib>  // Pour atoi
-#include <fstream>
-#include <string>
 
 Request::Request(std::string request, Server& server) :
 	_server(server),
@@ -48,7 +46,14 @@ Request::~Request()
 
 void Request::handleResponse()
 {
-    Response response(*this);
+	if (!isContentLengthValid()) {
+		Response response(*this);
+		std::cout << "👻 Content-Length is not valid" << std::endl;
+            // std::string error_response = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\n\r\n";
+            // send(_server.getSocketFd(), error_response.c_str(), error_response.size(), 0);
+		response.setStatus(413); // Payload Too Large
+		return;
+	}
 
     if (!isContentLengthValid()) {
         std::cout << "👻 Content-Length is not valid" << std::endl;
@@ -79,19 +84,36 @@ void Request::handleResponse()
         }
         _server.executeMethods(*this, response);
     }
+	// std::map<size_t, std::string> redir = getCurrentLocation()->getRedirections();
+	// if (!redir.empty())
+	// {
+	// 	std::map<size_t, std::string>::iterator it = redir.begin();
+	// 	std::ifstream file(("./www/simplesite/index.html"));
 
+	// 	std::stringstream buffer;
+	// 	buffer << file.rdbuf();
+	// 	file.close();
+
+	// 	// Définir le corps de la réponse avec le contenu du fichier
+	// 	fillResponse(response, it->first, buffer.str());
+	// 	std::map<std::string, std::string> headers;
+	// 	headers["Content-Type"] = "text/html";
+	// 	response.setHeaders(headers);
+	// 	response.setResponse(response.formatResponse());
+	// }
+	// else
     response.setResponse(response.formatResponse());
     std::cout << BLUE << "Sending response: [" << response.getResponse() << "]" << RESET << std::endl;
-    
+
 }
 
 void Request::openErrorPage(size_t code, Response& response)
 {
     response.setStatus(code);
-    
+
     std::map<std::string, std::string> headers = this->getHeaders();
     Location* loc = _server.getCurrentLocation(_path);
-    
+
     // Vérifier si loc est NULL avant d'accéder à ses méthodes
     if (loc) {
         std::cout << "loc->getRedirections().size() : " << loc->getRedirections().find(301)->second.c_str() << std::endl;
@@ -109,7 +131,7 @@ void Request::openErrorPage(size_t code, Response& response)
     _method = "GET";
     _path = _uri;
     response.setHeaders(headers);
-    
+
     Config* config = Config::getInstance();
     if (config) {
         Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
@@ -117,27 +139,9 @@ void Request::openErrorPage(size_t code, Response& response)
             _server = *appropriateServer;
     }
     _server.executeMethods(*this, response);
-    _response = response;    
+    _response = response;
 }
 
-void Request::buildErrorPageHtml(size_t code, Response& response)
-{
-    response.setStatus(code);
-    
-    std::ostringstream oss;
-    oss << code;
-    std::string codeStr = oss.str();
-    
-    response.setBody("<html><body><h1>Error " + codeStr + ": " + response.getStatusMessage(code) + "</h1></body></html>");
-    
-    // Ajouter Content-Type pour HTML
-    std::map<std::string, std::string> headers = this->getHeaders();
-    headers["Content-Type"] = "text/html";
-    response.setHeaders(headers);
-	response.setResponse(response.formatResponse());
-	
-	_response = response;
-}
 
 void Request::parseRequest()
 {
@@ -181,7 +185,7 @@ void Request::parseRequest()
     }
 
     _isChunked = (getHeader("Transfer-Encoding") == "chunked");
-    
+
     if (_isChunked) {
         parseChunkedBody();
     } else {
@@ -261,37 +265,6 @@ void	Request::setPathQueryString()
 	_queryString = "";
 }
 
-bool Request::errorPageExist(size_t code)
-{
-	// std::map<size_t, std::string> errorPages = _currentLocation->getErrorPage().find(code);
-	// std::map<size_t, std::string>::iterator it = errorPages.find(code);
-	std::map<size_t, std::string> errorPages = _server.getErrorPages();
-	std::cout << "errorPages: " << errorPages.size() << std::endl;
-	for (std::map<size_t, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
-	{
-		std::cout << "printing error pages" << std::endl;
-		std::cout << "Error page: " << it->first << " : " << it->second << std::endl;
-		std::cout << "Error page exist: " << it->second << std::endl;
-		std::cout << "Error page exist: " << it->first << std::endl;
-		if (it->first == code)
-		{
-			std::cout << "Error page exist: " << it->second << std::endl;
-			return true;
-		}
-	}
-	if (errorPages.find(code) != errorPages.end())
-	{
-		std::map<size_t, std::string>::const_iterator serverErrorPage = errorPages.find(code);
-
-		if (serverErrorPage != _server.getErrorPages().end())
-		{
-			std::cout << "Server Error page: " << serverErrorPage->second << std::endl;
-			return true;
-		}
-	}
-	return false;
-}
-
 bool Request::validateQueryParams()
 {
 	for (std::map<std::string, std::string>::const_iterator it = _queryParams.begin(); it != _queryParams.end(); ++it)
@@ -343,6 +316,17 @@ bool Request::isValidEmail(const std::string& value)
 	return true;
 }
 
+void Request::fillRedirection(Response& response, int statusCode, const std::string& location)
+{
+	response.setStatus(statusCode);
+	response.setLocation(location);
+	//std::cout << "response.getBody() : "<< response.getBody() << std::endl;
+	response.setHeaders(this->getHeaders());
+	response.setHttpVersion(this->getHttpVersion());
+	//std::cout << "response.getHttpVersion() : " << response.getHttpVersion() << std::endl;
+	_response = response;
+}
+
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
 {
 	response.setStatus(statusCode);
@@ -368,7 +352,7 @@ std::string Request::getFilename() const
         //found
         pos += 10; //skip filename="
         size_t endPos = _body.find("\"", pos);//start find frm pos
-		
+
 		// std::cout << ">>>FILENAME ENDPOS : " << pos << std::endl; //DEBUG
 
         if (endPos != std::string::npos)
@@ -384,7 +368,7 @@ void Request::setServer(Server& server) {
 
 bool Request::isBodySizeValid() const {
     size_t maxSize = 1024 * 1024; // 1MB par défaut
-    
+
     if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
         maxSize = convertSizeToBytes(_currentLocation->getClientMaxBodySize());
     } else if (!_server.getClientMaxBodySize().empty()) {
@@ -408,16 +392,16 @@ bool Request::isMethodAllowed() const {
 bool Request::isContentLengthValid() const {
     std::string contentLength = getHeader("Content-Length");
     if (contentLength.empty()) return true; // Pas de Content-Length, on continue
-    
+
     size_t declaredSize = static_cast<size_t>(atoi(contentLength.c_str()));
     size_t maxSize = 1024 * 1024; // 1MB par défaut
-    
+
     if (_currentLocation && !_currentLocation->getClientMaxBodySize().empty()) {
         maxSize = convertSizeToBytes(_currentLocation->getClientMaxBodySize());
     } else if (!_server.getClientMaxBodySize().empty()) {
         maxSize = convertSizeToBytes(_server.getClientMaxBodySize());
     }
-    
+
     return declaredSize <= maxSize;
 }
 
@@ -425,28 +409,26 @@ void Request::parseChunkedBody() {
     if (_isChunked) {
         size_t pos = 0;
         std::string decodedBody;
-        
+
         while (pos < _request.length()) {
             // Trouver la fin de la ligne (taille du chunk)
             size_t endOfLine = _request.find("\r\n", pos);
             if (endOfLine == std::string::npos) break;
-            
+
             // Lire la taille du chunk (en hexadécimal)
             std::string chunkSizeStr = _request.substr(pos, endOfLine - pos);
             size_t chunkSize = hexToSizeT(chunkSizeStr);
-            
+
             if (chunkSize == 0) break; // Fin du transfert
-            
+
             // Ajouter le contenu du chunk
             pos = endOfLine + 2; // Passer après \r\n
             decodedBody += _request.substr(pos, chunkSize);
             pos += chunkSize + 2; // Passer après le chunk et son \r\n
         }
-        
+
         _body = decodedBody;
     }
 }
 
 bool Request::isChunked() const { return _isChunked; }
-
-

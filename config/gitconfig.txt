@@ -1,0 +1,8 @@
+server {
+	server_name my_server;
+	listen 8080;
+	host testing;
+	root /home/agiliber/webserve/www/simplesite/;
+	index index.html;
+	client_max_body_size 1M;
+}

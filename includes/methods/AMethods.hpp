@@ -49,7 +49,6 @@ class AMethods
 		// Template Method pattern pour le flux commun
 		void process(Request& request, Response& response, Server& server)
 		{
-
 			std:: cout << "👻 in process BEFORE EVYTHING" << std::endl;
 			if (!checkPath(request, server, response))
 			{
@@ -60,7 +59,7 @@ class AMethods
 			try
 			{
 				std:: cout << "👻 amethod process try" << std::endl;
-				this->execute(request, response, server); 
+				this->execute(request, response, server);
 			}
 			catch (const std::exception& e)
 			{

@@ -21,6 +21,7 @@ Response::Response(const Request& request) :
     _body(""),
     _headers(),
     _httpVersion("HTTP/1.1"),
+	_location(""),
     _request(&request)
 {}
 
@@ -118,7 +119,7 @@ std::string Response::formatResponse() {
     appendConnection(finalHeaders);
 
     // Headers
-    for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin(); 
+    for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin();
          it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";
     }

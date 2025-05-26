@@ -166,7 +166,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	if (stat((indexFile + loc->getIndex()).c_str(), &buffer) == 0)
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
-		std::ifstream file((indexFile + "index.html").c_str());
+		std::ifstream file((indexFile + loc->getIndex()).c_str());
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;

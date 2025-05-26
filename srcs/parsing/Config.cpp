@@ -31,7 +31,6 @@ Config::Config(const std::string& filename) : _configFile(filename)
 Config::~Config()
 {
 }
-
 Location Config::parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it)
 {
     // std::string path = trim(location, " }");
@@ -114,37 +113,33 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             size_t pos = (*it).find("return") + 6;
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
+            std::map<size_t, std::string> redirections;
             std::stringstream ss(value);
             std::string code, path;
-            ss >> code >> path;
-            std::cout << "redirection page path: " << path << std::endl;
-            NewLocation.setRedirections(std::make_pair(atoi(code.c_str()), path));
+            while (ss >> code >> path) {
+                redirections[atoi(code.c_str())] = path;
+            }
+            std::cout << "Redirection: " << value << std::endl;
+            std::cout << "Redirection code: " << code << std::endl;
+            std::cout << "Redirection path: " << path << std::endl;
+            NewLocation.setRedirections(redirections);
         }
         else if ((*it).find("error_page") != std::string::npos)
         {
             size_t pos = (*it).find("error_page") + 11;
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
-            
-            // Extraire le code et le chemin
-            size_t spacePos = value.find(' ');
-            if (spacePos != std::string::npos) {
-                std::string code = value.substr(0, spacePos);
-                std::string path = value.substr(spacePos + 1);
-                path = trim(path, " \t;");
-                
-                // Nettoyer le chemin
-                if (!path.empty() && path[0] == '"') {
-                    path = path.substr(1);
-                }
-                if (!path.empty() && path[path.length()-1] == '"') {
-                    path = path.substr(0, path.length()-1);
-                }
-                
-                NewLocation.setErrorPage(std::make_pair(atoi(code.c_str()), path));
+            std::map<size_t, std::string> errorPages;
+            std::stringstream ss(value);
+            std::string code, path;
+            while (ss >> code >> path) {
+                errorPages[atoi(code.c_str())] = path;
             }
+            std::cout << "location Error page: " << value << std::endl;
+            std::cout << "location Error page code: " << code << std::endl;
+            std::cout << "location Error page path: " << path << std::endl;
+            NewLocation.setErrorPage(errorPages);
         }
-
         it++;
     }
 
@@ -227,6 +222,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
 
             // parseLocation advances the iterator to the end of the block then we push the location into the server
             Location loc = parseLocation(value, lines, it);
+			//printLocation(loc);
             server.pushLocation(loc);
         }
         else if ((*it).find("cgi") != std::string::npos)
@@ -241,25 +237,16 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             size_t pos = (*it).find("error_page") + 11;
             std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
-            
-            // Extraire le code et le chemin
-            size_t spacePos = value.find(' ');
-            if (spacePos != std::string::npos) {
-                std::string code = value.substr(0, spacePos);
-                std::string path = value.substr(spacePos + 1);
-                path = trim(path, " \t;");
-                
-                // Nettoyer le chemin
-                if (!path.empty() && path[0] == '"') {
-                    path = path.substr(1);
-                }
-                if (!path.empty() && path[path.length()-1] == '"') {
-                    path = path.substr(0, path.length()-1);
-                }
-                
-                std::cout << "error page path: " << path << std::endl;
-                server.setErrorPages(std::make_pair(atoi(code.c_str()), path));
+            std::map<size_t, std::string> errorPages;
+            std::stringstream ss(value);
+            std::string code, path;
+            while (ss >> code >> path) {
+                errorPages[atoi(code.c_str())] = path;
             }
+            std::cout << "Error page: " << value << std::endl;
+            std::cout << "Error page code: " << code << std::endl;
+            std::cout << "Error page path: " << path << std::endl;
+            server.setErrorPages(errorPages);
         }
 
 }
@@ -270,16 +257,13 @@ Server Config::fillServer(std::vector<std::string>& lines)
     for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)
     {
         findParameters(it, server, lines);
-        
     }
     // DEBUG
     for (size_t i = 0; i < lines.size(); i++) {
-        std::cout << "Server Line " << i << ": [" << lines[i] << "]" << std::endl;
-        std::cout << "Error page size: " << server.getErrorPages().size() << std::endl;
+            std::cout << "Server Line " << i << ": [" << lines[i] << "]" << std::endl;
         }
     return (server);
 }
-
 void Config::parseServer(std::vector<std::string>& lines)
 {
     if (lines.empty())
@@ -302,7 +286,7 @@ void Config::parseServer(std::vector<std::string>& lines)
 
             // If we find the end of the current server block
             if (braceCount == 0)
-            { 
+            {
                 std::cout << GREEN << "Server closed by '}'" << RESET << std::endl;
                 server = fillServer(serverLines);
                 std::cout << GREEN << "Server filled" << RESET << std::endl;
