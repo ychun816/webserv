@@ -19,8 +19,13 @@ void Get::execute(Request& request, Response& response, Server& server)
 	if (!request.validateQueryParams())
 	{
 		std::cout << "Paramètres de requête invalides" << std::endl;
-		response.setStatus(400);
-		response.setBody("<html><body><h1>400 Bad Request: Invalid Query Parameters</h1></body></html>");
+		if (!request.errorPageExist(400)) {
+			response.setStatus(400);
+			response.setStatusMessage(response.getStatusMessage(400));
+			request.buildErrorPageHtml(400, response);
+		} else {
+			request.openErrorPage(400, response);
+		}
 		return;
 	}
 	std::string path = request.getAbspath();
@@ -39,18 +44,33 @@ void Get::execute(Request& request, Response& response, Server& server)
 			break;
 		case (TYPE_NOT_FOUND) :
 			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
-			response.setStatus(404);
-			response.setBody("<html><body><h1>404 Not Found</h1></body></html>");
+			if (!request.errorPageExist(404)) {
+				response.setStatus(404);
+				response.setStatusMessage(response.getStatusMessage(404));
+				request.buildErrorPageHtml(404, response);
+			} else {
+				request.openErrorPage(404, response);
+			}
 			break;
 		case (TYPE_NO_PERMISSION) :
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
-			response.setStatus(403);
-			response.setBody("<html><body><h1>403 Forbidden</h1></body></html>");
+			if (!request.errorPageExist(403)) {
+				response.setStatus(403);
+				response.setStatusMessage(response.getStatusMessage(403));
+				request.buildErrorPageHtml(403, response);
+			} else {
+				request.openErrorPage(403, response);
+			}
 			break;
 		default:
 			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
-			response.setStatus(400);
-			response.setBody("<html><body><h1>400 Bad Request</h1></body></html>");
+			if (!request.errorPageExist(400)) {
+				response.setStatus(400);
+				response.setStatusMessage(response.getStatusMessage(400));
+				request.buildErrorPageHtml(400, response);
+			} else {
+				request.openErrorPage(400, response);
+			}
 			break;
 	}
 	std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
@@ -62,7 +82,13 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	std::cout << request.getAbspath().c_str() << std::endl;
 	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
-		request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
+		if (request.errorPageExist(404)) {
+			request.openErrorPage(404, response);
+		} else {
+			response.setStatus(404);
+			response.setStatusMessage(response.getStatusMessage(404));
+			request.buildErrorPageHtml(404, response);
+		}
 		return;
 	}
 
@@ -80,8 +106,14 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	}
 
 	if (fileSize > maxSize) {
-		request.fillResponse(response, 413, "<html><body><h1>413 Payload Too Large</h1></body></html>");
-		return;
+		if (!request.errorPageExist(413)) {
+		response.setStatus(413);
+			response.setStatusMessage(response.getStatusMessage(413));
+			request.buildErrorPageHtml(413, response);
+			return;
+		} else {
+			request.openErrorPage(413, response);
+		}
 	}
 
 	if (checkIfCgi(request.getAbspath())) {
@@ -138,7 +170,13 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;
-			request.fillResponse(response, 404, "<html><body><h1>404 Error: Error opening file</h1></body></html>");
+			if (request.errorPageExist(404)) {
+				request.openErrorPage(404, response);
+			} else {
+				response.setStatus(404);
+				response.setStatusMessage(response.getStatusMessage(404));
+				request.buildErrorPageHtml(404, response);
+			}
 			return;
 		}
 
@@ -163,7 +201,13 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		if (!current)
 		{
 			std::cerr << "Error opening the directory" << std::endl;
-			request.fillResponse(response, 404, "<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
+			if (request.errorPageExist(403)) {
+				request.openErrorPage(403, response);
+			} else {
+				response.setStatus(403);
+				response.setStatusMessage(response.getStatusMessage(403));
+				request.buildErrorPageHtml(403, response);
+			}
 			return;
 		}
 
