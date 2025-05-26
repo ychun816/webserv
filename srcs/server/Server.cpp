@@ -6,7 +6,7 @@
 #include <algorithm> // std::find
 
 // Constructors
-Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _cgi(""), _upload(""), _clientMaxBodySize(""),  _allowMethods(std::list<std::string>()), _errorPages(std::map<size_t, std::string>()) {
+Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
 
 
 }
@@ -19,7 +19,7 @@ Server::Server(const Server& other) {
 	_host = other._host;
 	_root = other._root;
 	_index = other._index;
-	_errorPages = other._errorPages;
+	_errorPage = other._errorPage;
 	_cgi = other._cgi;
 	_upload = other._upload;
 	_clientMaxBodySize = other._clientMaxBodySize;
@@ -236,7 +236,7 @@ Server & Server::operator=(const Server &assign)
 		_host = assign._host;
 		_root = assign._root;
 		_index = assign._index;
-		_errorPages = assign._errorPages;
+		_errorPage = assign._errorPage;
 		_cgi = assign._cgi;
 		_upload = assign._upload;
 		_clientMaxBodySize = assign._clientMaxBodySize;

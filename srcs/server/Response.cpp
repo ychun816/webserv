@@ -20,6 +20,7 @@ Response::Response(const Request& request) :
     _body(""),
     _headers(),
     _httpVersion("HTTP/1.1"),
+	_location(""),
     _request(&request)
 {}
 
@@ -51,27 +52,6 @@ void Response::setStatus(int code)
     }
 }
 
-std::string Response::getStatusMessage(size_t code) const{
-    switch (code) {
-        case 200: return "OK";
-        case 201: return "Created";
-        case 204: return "No Content";
-        case 301: return "Moved Permanently";
-        case 302: return "Found";
-        case 400: return "Bad Request";
-        case 401: return "Unauthorized";
-        case 403: return "Forbidden";
-        case 404: return "Not Found";
-        case 405: return "Method Not Allowed";
-        case 413: return "Payload Too Large";
-        case 500: return "Internal Server Error";
-        case 501: return "Not Implemented";
-        case 505: return "HTTP Version Not Supported";
-        default: return "Unknown Status";
-    }
-}
-
-
 std::string Response::formatResponse() const {
     std::stringstream ss;
 
@@ -95,7 +75,7 @@ std::string Response::formatResponse() const {
     }
 
     // Headers
-    for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin(); 
+    for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin();
          it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";
     }

@@ -4,10 +4,12 @@ server {
     root /www/simplesite;
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
-    error_page 500 /errors/500.html;
+    error_page 500 /errors/500.html
+
 
     location / {
         methods GET POST;
+		autoindex off;
         index index.html;
         client_max_body_size 10M
     }
@@ -16,11 +18,12 @@ server {
         methods GET POST DELETE;
         upload_dir /upload;
         client_max_body_size 10M;
-        #index list.html;
+        index list.html;
+		return 301 http://localhost:8080;
     }
 
     #Optional: redirect /upload to /upload/index.html if you want a redirect page
-    location = /upload {
+    location = /redirect/ {
         return 301 http://localhost:8080;
     }
 

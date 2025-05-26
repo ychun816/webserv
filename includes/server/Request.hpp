@@ -65,13 +65,11 @@ public:
 	bool isValidEmail(const std::string& value);
 	bool isContentLengthValid() const;
 	void fillResponse(Response& response, int statusCode, const std::string& body);
+	void fillRedirection(Response& response, int statusCode, const std::string& location);
 	bool isMethodAllowed() const;
 	bool isBodySizeValid() const;
 	bool isChunked() const;
 	void parseChunkedBody();
-	bool errorPageExist(size_t code);
-	void buildErrorPageHtml(size_t code, Response& response);
-	void openErrorPage(size_t code, Response& response);
-	
-	
+
+
 };
