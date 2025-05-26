@@ -60,6 +60,7 @@ void Delete::execute(Request& request, Response& response, Server& server)
     response.setStatus(200);
     response.setBody("Success: File deleted.");
     request.fillResponse(response, 200, "<html><body><h1>Success: File deleted.</h1></body></html>"); //added to link with response -> show msg on frontend
+    
 
 
     // try to link with response

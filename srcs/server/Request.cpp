@@ -23,18 +23,20 @@ Request::Request(std::string request, Server& server) :
 	_isChunked(false)
 {
 	parseRequest();
+	// Ne continuer que si la requête est valide
+	if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
+		return;
+	}
 	setPathQueryString();
 	parseQuery();
-	if (_server.getCurrentLocation(_path) != NULL)
-	{
-			_currentLocation = _server.getCurrentLocation(_path);
-			std::cout << "CURRENT LOCATION DEBUG ============= " << _currentLocation << std::endl;
-            std::vector<std::string> methods = _currentLocation->getMethods();
-            std::cout << "Méthodes autorisées pour cette location : ";
-            for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
-                std::cout << *it << " ";
-            }
-            std::cout << std::endl;
+	_currentLocation = _server.getCurrentLocation(_path);
+	if (_currentLocation) {
+		std::vector<std::string> methods = _currentLocation->getMethods();
+		std::cout << "Méthodes autorisées pour cette location : ";
+		for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
 	}
 }
 
@@ -53,23 +55,35 @@ void Request::handleResponse()
 		return;
 	}
 
-	if (!isMethodAllowed()) {
-		Response response(*this);
-		response.setStatus(405); // Method Not Allowed
-		return;
-	}
-
-	Response response(*this);
-
-	// Obtenir le port du serveur actuel
-	int port = _server.getPort();
-	Config* config = Config::getInstance();
-	if (config)
-	{
-		Server* appropriateServer = config->findServerByLocation(_path, port);
-		if (appropriateServer)
-			_server = *appropriateServer;
-	}
+    if (!isContentLengthValid()) {
+        std::cout << "👻 Content-Length is not valid" << std::endl;
+        if (!errorPageExist(413)) {
+			response.setStatusMessage(response.getStatusMessage(413));
+            buildErrorPageHtml(413, response);
+        } else {
+            openErrorPage(413, response);
+        }
+    }
+    else if (!isMethodAllowed()) {
+        std::cout << "👻 Method not allowed" << std::endl;
+        if (!errorPageExist(405)) {
+			std::cout << "👻 Error page not exist" << std::endl;
+			response.setStatusMessage(response.getStatusMessage(405));
+            buildErrorPageHtml(405, response);
+        } else {
+			std::cout << "👻 Error page exist" << std::endl;
+            openErrorPage(405, response);
+        }
+    }
+    else {
+        Config* config = Config::getInstance();
+        if (config) {
+            Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
+            if (appropriateServer)
+                _server = *appropriateServer;
+        }
+        _server.executeMethods(*this, response);
+    }
 	// std::map<size_t, std::string> redir = getCurrentLocation()->getRedirections();
 	// if (!redir.empty())
 	// {
@@ -88,45 +102,101 @@ void Request::handleResponse()
 	// 	response.setResponse(response.formatResponse());
 	// }
 	// else
-	_server.executeMethods(*this, response);
-	response.setResponse(response.formatResponse());
-	std::cout << BLUE << "Sending response: [" << response.getResponse().substr(0, response.getResponse().length()) << "...]" << RESET << std::endl;
+    response.setResponse(response.formatResponse());
+    std::cout << BLUE << "Sending response: [" << response.getResponse() << "]" << RESET << std::endl;
+
+}
+
+void Request::openErrorPage(size_t code, Response& response)
+{
+    response.setStatus(code);
+
+    std::map<std::string, std::string> headers = this->getHeaders();
+    Location* loc = _server.getCurrentLocation(_path);
+
+    // Vérifier si loc est NULL avant d'accéder à ses méthodes
+    if (loc) {
+        std::cout << "loc->getRedirections().size() : " << loc->getRedirections().find(301)->second.c_str() << std::endl;
+        std::cout << "loc->getErrorPage().find(code)->second.c_str() : " << loc->getErrorPage().find(code)->second.c_str() << std::endl;
+        if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
+            _uri = loc->getErrorPage().find(code)->second.c_str();
+        else
+            _uri = _server.getErrorPages().find(code)->second.c_str();
+    } else {
+        // Si pas de location trouvée, utiliser les pages d'erreur du serveur
+        _uri = _server.getErrorPages().find(code)->second.c_str();
+    }
+
+    headers["Content-Type"] = "text/html";
+    _method = "GET";
+    _path = _uri;
+    response.setHeaders(headers);
+
+    Config* config = Config::getInstance();
+    if (config) {
+        Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
+        if (appropriateServer)
+            _server = *appropriateServer;
+    }
+    _server.executeMethods(*this, response);
+    _response = response;
 }
 
 
 void Request::parseRequest()
 {
-	std::stringstream ss(_request);
-	std::string line;
+    if (_request.empty()) {
+        std::cout << "👻 Request is empty" << std::endl;
+        Response response(*this);
+        buildErrorPageHtml(400, response);
+        _method = ""; // Marquer la requête comme invalide
+        return;
+    }
 
-	// Parse la première ligne (méthode, URL, version)
-	if (std::getline(ss, line) && !line.empty()) {
-		parseRequestLine(line);
-		std::cout << "method: " << _method << std::endl;
-		std::cout << "uri: " << _uri << std::endl;
-		std::cout << "http version: " << _httpVersion << std::endl;
-	}
+    std::stringstream ss(_request);
+    std::string line;
 
-	// Parse les en-têtes
-	while (std::getline(ss, line) && !line.empty() && line != "\r") {
-		if (!line.empty() && line[line.length() - 1] == '\r')
-			line = line.substr(0, line.length() - 1); // Remove CR if present
-		parseHeader(line);
-	}
+    // Parse la première ligne (méthode, URL, version)
+    if (std::getline(ss, line) && !line.empty()) {
+        parseRequestLine(line);
+        if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
+            std::cout << "👻 Invalid request line - missing method, URI or HTTP version" << std::endl;
+            Response response(*this);
+            buildErrorPageHtml(400, response);
+            _method = ""; // Marquer la requête comme invalide
+            return;
+        }
+        std::cout << "method: " << _method << std::endl;
+        std::cout << "uri: " << _uri << std::endl;
+        std::cout << "http version: " << _httpVersion << std::endl;
+    } else {
+        std::cout << "👻 Empty request line" << std::endl;
+        Response response(*this);
+        buildErrorPageHtml(400, response);
+        _method = ""; // Marquer la requête comme invalide
+        return;
+    }
 
-	_isChunked = (getHeader("Transfer-Encoding") == "chunked");
+    // Parse les en-têtes
+    while (std::getline(ss, line) && !line.empty() && line != "\r") {
+        if (!line.empty() && line[line.length() - 1] == '\r')
+            line = line.substr(0, line.length() - 1); // Remove CR if present
+        parseHeader(line);
+    }
 
-	if (_isChunked) {
-		parseChunkedBody();
-	} else {
-		std::string body;
-		while (std::getline(ss, line)) {
-			body += line + "\n";
-		}
-		_body = body;
-	}
-	std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
-	//handleResponse();
+    _isChunked = (getHeader("Transfer-Encoding") == "chunked");
+
+    if (_isChunked) {
+        parseChunkedBody();
+    } else {
+        std::string body;
+        while (std::getline(ss, line)) {
+            body += line + "\n";
+        }
+        _body = body;
+    }
+    std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
+    //handleResponse();
 
 }
 

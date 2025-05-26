@@ -2,6 +2,7 @@
 #include "../../includes/server/Request.hpp"
 #include <iostream>
 #include <sstream>
+#include <ctime>
 
 Response::Response() :
     _statusCode(0),
@@ -52,7 +53,47 @@ void Response::setStatus(int code)
     }
 }
 
-std::string Response::formatResponse() const {
+std::string Response::getStatusMessage(size_t code) const{
+    switch (code) {
+        case 200: return "OK";
+        case 201: return "Created";
+        case 204: return "No Content";
+        case 301: return "Moved Permanently";
+        case 302: return "Found";
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 403: return "Forbidden";
+        case 404: return "Not Found";
+        case 405: return "Method Not Allowed";
+        case 413: return "Payload Too Large";
+        case 500: return "Internal Server Error";
+        case 501: return "Not Implemented";
+        case 505: return "HTTP Version Not Supported";
+        default: return "Unknown Status";
+    }
+}
+
+void Response::appendDate(std::map<std::string, std::string>& finalHeaders)
+{
+    std::time_t now = std::time(NULL);
+    std::string date = std::ctime(&now);
+    if (!date.empty() && date[date.length()-1] == '\n') {
+        date = date.substr(0, date.length()-1);
+    }
+    finalHeaders["Date"] = date;
+}
+
+void Response::appendConnection(std::map<std::string, std::string>& finalHeaders)
+{
+    if (_request && _request->getHeader("Connection") == "keep-alive") {
+        finalHeaders["Connection"] = "keep-alive";
+    } else {
+        finalHeaders["Connection"] = "close";
+    }
+}
+
+
+std::string Response::formatResponse() {
     std::stringstream ss;
 
     // Status line
@@ -74,12 +115,16 @@ std::string Response::formatResponse() const {
         }
     }
 
+    appendDate(finalHeaders);
+    appendConnection(finalHeaders);
+
     // Headers
     for (std::map<std::string, std::string>::const_iterator it = finalHeaders.begin();
          it != finalHeaders.end(); ++it) {
         ss << it->first << ": " << it->second << "\r\n";
     }
 
+    // Double retour à la ligne pour séparer les en-têtes du corps
     ss << "\r\n";
 
     // Si chunked, formater le body en chunks

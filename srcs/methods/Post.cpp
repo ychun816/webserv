@@ -71,8 +71,8 @@ void Post::execute(Request& request, Response& response, Server& server)
         filename = request.getFilename();
         if (filename.empty()) {
             response.setStatus(400);
-            response.setBody("Error: Missing filename.\n");
-            request.fillResponse(response, 400, "<html><body><h1>Error: Missing filename.</h1></body></html>");
+            response.setBody("Error: Bad Request.\n");
+            request.fillResponse(response, 400, "<html><body><h1>Error: Bad Request.</h1></body></html>");
             return;
         }
         

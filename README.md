@@ -112,3 +112,6 @@ Ce projet est développé par:
 
 dd if=/dev/zero of=large_file.txt bs=1M count=10
 curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt
+
+test sans methode : echo -e " / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080
+stress test siege :  siege -b -c 255 -t1M http://127.0.0.1:8080/
