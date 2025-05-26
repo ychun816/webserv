@@ -21,7 +21,9 @@ class Response
 		Response(const Request& request);
 		~Response();
 
-		std::string formatResponse() const;
+		std::string formatResponse();
+		void appendDate(std::map<std::string, std::string>& finalHeaders);
+		void appendConnection(std::map<std::string, std::string>& finalHeaders);
 
 		void setStatus(int code);
 		void setResponse(const std::string& response) { _response = response; }

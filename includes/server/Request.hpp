@@ -31,7 +31,7 @@ public:
 
 	// Getters
 	std::string getRequest() const { return _request; }
-	std::string getResponse() const { return _response.formatResponse(); }
+	std::string getResponse() { return _response.formatResponse(); }
 	std::string getMethod() const { return _method; }
 	std::string getUri() const { return _uri; }
 	std::string getAbspath() const { return _abspath; }
