@@ -1,0 +1,89 @@
+# Main Web Server Block
+server {
+    listen 8080;
+    server_name localhost;
+    root /www/simplesite;
+    client_max_body_size 10M;
+
+    # Error Pages
+    error_page 404 /errors/404.html;
+    error_page 403 /errors/403.html;
+    error_page 405 /errors/405_Method-Not-Allowed.html;
+    error_page 500 /errors/500.html;
+
+    # Root Location
+    location / {
+        methods GET POST;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+        error_page 405 /errors/405_Method-Not-Allowed-root.html;
+    }
+
+    # Upload Page
+    location /upload/ {
+        methods GET POST;
+        upload_dir /upload;
+        index list.html;
+        autoindex on;
+        try_files $uri $uri/list.html =404;
+        error_page 404 /errors/404.html;
+    }
+
+    # CGI-bin Logic
+    location /cgi-bin/ {
+        methods GET POST;
+        root /www/simplesite/cgi-bin;
+        cgi_ext .php .py;
+        index list.html;
+        autoindex off;
+        try_files $uri $uri/list.html =403;
+    }
+
+    # Static Errors Directory
+    location /errors/ {
+        root /www/simplesite;
+    }
+
+    # Catch-all for any unknown route or missing file
+    location ~ ^(.*/)$ {
+        try_files $uri/list.html =404;
+    }
+}
+
+# Mirror Site, Redirecting to 8080
+server {
+    listen 8081;
+    server_name example.com;
+    root /www/simplesite;
+
+    location / {
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+
+# Armel Site, Redirecting to 8080
+server {
+    listen 3000;
+    server_name example.com;
+    root /www/armel;
+
+    location / {rn 301 http://localhost:8080;
+        methods GET;
+        index index.html;
+        autoindex off;
+        return 301 http://localhost:8080;
+    }
+}
+
+
+
+# TO TRY WITH LISTING
+location /upload/ {
+    methods GET POST;
+    cgi_ext .py .php;
+    cgi_dir /www/simplesite/cgi-bin;
+    index list.py index.html;
+}

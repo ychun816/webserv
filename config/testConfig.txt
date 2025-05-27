@@ -23,7 +23,7 @@ server {
     }
 
     #Optional: redirect /upload to /upload/index.html if you want a redirect page
-    location = /redirect/ {
+    location = /upload {
         return 301 http://localhost:8080;
     }
 
