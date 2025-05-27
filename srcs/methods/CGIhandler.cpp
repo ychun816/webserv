@@ -14,9 +14,18 @@ std::string intToString(int value) {
 CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _server(server)
 {
 	_scriptPath = resolveScriptPath(request->getUri());
+	std::cout <<  "_scriptPath === " << _scriptPath << std::endl;
 	_interpreter = findInterpreter();
+	std::cout <<  "_interpreter === " << _interpreter << std::endl;
 	_postData = "";
 	setupEnvironment();
+	std::cout <<  "===== ENV VARS =====" << std::endl;
+	std::vector<std::string>::iterator it = _envVars.begin();
+	for (; it != _envVars.end(); it++)
+	{
+		std::cout << *it << std::endl;
+	}
+	std::cout <<  "===== ENV VARS END =====" << std::endl;
 }
 
 CGIhandler::CGIhandler(const CGIhandler& copy) : _request(new Request(*copy._request)), _server(new Server(*copy._server))
@@ -129,6 +138,7 @@ std::string CGIhandler::execute()
 		std::vector<char*> env;
 		for (size_t i = 0; i < _envVars.size(); i++)
 		{
+			std::cout <<  "_envVars[i] === " << _envVars[i] << std::endl;
 			env.push_back((char*)_envVars[i].c_str());
 		}
 		env.push_back(NULL);
@@ -172,12 +182,11 @@ void CGIhandler::handleRedirection(int inputPipe[2], int outputPipe[2])
 		exit(1);
 	}
 	close(inputPipe[0]);
-
-	close(outputPipe[0]);
+	close(outputPipe[1]);
 	if (dup2(outputPipe[0], STDOUT_FILENO) < 0)
 	{
 		std::cerr << "dup2 for stdout failed" << std::endl;
 		exit(1);
 	}
-	close(outputPipe[1]);
+	close(outputPipe[0]);
 }
