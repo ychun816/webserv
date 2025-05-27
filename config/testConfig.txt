@@ -16,7 +16,7 @@ server {
 
     location /upload {
         methods GET POST DELETE;
-        upload_dir /upload;
+        upload_dir /user_upload;
         client_max_body_size 10M;
         index list.html;
 		return 301 http://localhost:8080;
