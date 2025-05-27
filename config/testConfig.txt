@@ -16,14 +16,14 @@ server {
 
     location /upload {
         methods GET POST DELETE;
-        upload_dir /upload;
+        upload_dir /user_upload;
         client_max_body_size 10M;
-        index list.html;
+        autoindex on;
 		return 301 http://localhost:8080;
     }
 
     #Optional: redirect /upload to /upload/index.html if you want a redirect page
-    location = /redirect/ {
+    location = /upload {
         return 301 http://localhost:8080;
     }
 

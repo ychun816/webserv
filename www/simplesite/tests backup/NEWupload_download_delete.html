@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Download File - Webserv</title>
+  <title>File Manager - Webserv</title>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -16,9 +16,8 @@
       font-family: 'Josefin Sans', sans-serif;
       background: url('https://4kwallpapers.com/images/wallpapers/stars-galaxy-10307.jpg') no-repeat center center fixed;
       background-size: cover;
-      overflow: hidden;
+      overflow: auto;
       color: #fff;
-      position: relative;
     }
 
     body::before {
@@ -30,47 +29,23 @@
       z-index: 0;
     }
 
-    .download-container {
+    .container {
       position: relative;
       z-index: 1;
-      height: 100%;
+      padding: 3rem 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
+      gap: 2rem;
     }
 
     h1 {
-      font-size: 3em;
-      margin-bottom: 1.2rem;
+      font-size: 2.8em;
+      margin-bottom: 1rem;
       text-shadow: 0 0 10px #cdd9ff, 0 0 20px #86a9ff;
     }
 
-    .status-message {
-      margin-bottom: 1rem;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      width: 100%;
-      max-width: 400px;
-      display: none;
-    }
-
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      display: block;
-    }
-
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      display: block;
-    }
-
-    form {
+    .form-box {
       background: rgba(255, 255, 255, 0.05);
       padding: 1.5rem 2rem;
       border-radius: 15px;
@@ -79,6 +54,13 @@
       width: 100%;
     }
 
+    .form-box h2 {
+      margin-bottom: 1rem;
+      color: #fdd281;
+      text-shadow: 0 0 5px #fff;
+    }
+
+    input[type="file"],
     input[type="text"] {
       padding: 0.5rem;
       margin-bottom: 1rem;
@@ -91,7 +73,7 @@
       outline: none;
     }
 
-    input[type="text"]::placeholder {
+    input::placeholder {
       color: #ccc;
     }
 
@@ -114,7 +96,6 @@
       margin-top: 2rem;
       display: flex;
       gap: 1.2rem;
-      justify-content: center;
     }
 
     .nav-links a {
@@ -135,53 +116,68 @@
     }
   </style>
 </head>
-
 <body>
-  <div class="download-container">
-    <h1>📥 Download File</h1>
-    <div id="status" class="status-message"></div>
+  <div class="container">
+    <h1>📁 File Manager</h1>
 
-    <!-- Fixed Form -->
-    <form id="downloadForm" onsubmit="return handleDownload(event)">
-      <input type="text" name="filename" placeholder="Enter filename (e.g., report.pdf)" required />
+    <!-- Upload -->
+    <div class="form-box">
+      <h2>📤 Upload File</h2>
+      <form method="POST" action="/user_upload" enctype="multipart/form-data">
+        <input type="file" name="file" required />
+        <br />
+        <button type="submit">Upload</button>
+      </form>
+    </div>
+
+  <!-- Download -->
+  <div class="form-box">
+    <h2>📥 Download File</h2>
+    <form method="GET" action="/user_upload">
+      <select name="filename" required>
+        <option value="">-- Select a file to download --</option>
+        <!-- Dynamically generated options -->
+        <option value="photo.jpeg">photo.jpeg</option>
+        <option value="document.pdf">document.pdf</option>
+        <!-- Add more options as needed -->
+      </select>
       <br />
       <button type="submit">Download</button>
     </form>
+  </div>
 
+  <!-- Delete -->
+  <div class="form-box">
+    <h2>🗑️ Delete File</h2>
+    <form method="POST" action="/user_upload/delete">
+      <select name="filename" required>
+        <option value="">-- Select a file to delete --</option>
+        <!-- Dynamically generated options -->
+        <option value="old.txt">old.txt</option>
+        <option value="data.csv">data.csv</option>
+        <!-- Add more options as needed -->
+      </select>
+      <br />
+      <button type="submit">Delete</button>
+    </form>
+  </div>
+
+
+    <!-- Navigation -->
     <div class="nav-links">
-      <a href="/upload/upload.html">📤 Go to Upload</a>
-      <a href="/upload/delete.html">🗑️ Go to Delete</a>
+      <a href="/upload/list.html">📂 List Files</a>
+      <a href="/upload/upload.html">➕ Separate Upload Page</a>
     </div>
   </div>
 
   <script>
-    // Status message from query parameters
-    const statusEl = document.getElementById('status');
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get('status');
-    if (status === 'success') {
-      statusEl.textContent = '✅ File downloaded successfully.';
-      statusEl.classList.add('success');
-    } else if (status === 'fail') {
-      statusEl.textContent = '❌ Failed to download the file.';
-      statusEl.classList.add('error');
-    }
-
-    // Custom form handler to build proper URL
-    function handleDownload(event) {
-      event.preventDefault();
-
-      const input = document.querySelector('input[name="filename"]');
-      const filename = input.value.trim();
-
-      if (!filename) {
-        alert('Please enter a filename.');
+    function validate(action) {
+      const input = document.querySelector(`form[action="/${action}"] input[name="filename"]`);
+      if (!input || !input.value.trim()) {
+        alert("Please enter a filename.");
         return false;
       }
-
-      // Redirect with RESTful path
-      window.location.href = `/user_upload/${encodeURIComponent(filename)}`;
-      return false;
+      return true;
     }
   </script>
 </body>

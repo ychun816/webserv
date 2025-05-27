@@ -7,8 +7,8 @@
 
 // Constructors
 Server::Server()
-	: _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""),
-	  _allowMethods(std::list<std::string>())
+	: _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _cgi(""), _upload(""),  _clientMaxBodySize("")
+	,  _allowMethods(std::list<std::string>()), _errorPages(std::map<size_t, std::string>())
 {
 	_allowMethods.push_back("GET");
 	_allowMethods.push_back("POST");
@@ -23,7 +23,7 @@ Server::Server(const Server& other) {
 	_host = other._host;
 	_root = other._root;
 	_index = other._index;
-	_errorPage = other._errorPage;
+	_errorPages = other._errorPages;
 	_cgi = other._cgi;
 	_upload = other._upload;
 	_clientMaxBodySize = other._clientMaxBodySize;
@@ -240,14 +240,14 @@ Server & Server::operator=(const Server &assign)
 		_host = assign._host;
 		_root = assign._root;
 		_index = assign._index;
-		_errorPage = assign._errorPage;
+		_errorPages = assign._errorPages;
 		_cgi = assign._cgi;
 		_upload = assign._upload;
 		_clientMaxBodySize = assign._clientMaxBodySize;
 		_allowMethods = assign._allowMethods;
 		_connexions = assign._connexions;
 		_address = assign._address;
-				_locations = assign._locations;
+		_locations = assign._locations;
 	}
 	return *this;
 }

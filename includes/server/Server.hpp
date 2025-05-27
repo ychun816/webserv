@@ -117,7 +117,7 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
 		os << "  Host: " << server.getHost() << std::endl;
 		os << "  Root: " << server.getRoot() << std::endl;
 		os << "  Index: " << server.getIndex() << std::endl;
-		os << "  Error Page: " << server.getErrorPage() << std::endl;
+		// os << "  Error Page: " << server.getErrorPages() << std::endl;
 		os << "  CGI: " << server.getCgi() << std::endl;
 		os << "  Upload: " << server.getUpload() << std::endl;
 		os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;
