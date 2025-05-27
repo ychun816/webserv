@@ -6,9 +6,13 @@
 #include <algorithm> // std::find
 
 // Constructors
-Server::Server() : _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""), _allowMethods(std::list<std::string>()) {
-
-
+Server::Server()
+	: _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _errorPage(""), _cgi(""), _upload(""), _clientMaxBodySize(""),
+	  _allowMethods(std::list<std::string>())
+{
+	_allowMethods.push_back("GET");
+	_allowMethods.push_back("POST");
+	_allowMethods.push_back("DELETE");
 }
 
 // Copy constructor

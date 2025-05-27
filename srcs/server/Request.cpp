@@ -38,6 +38,13 @@ Request::Request(std::string request, Server& server) :
 		for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
 			std::cout << *it << " ";
 		}
+        if (!_currentLocation->getRoot().empty()) {
+            _server.setRoot(_currentLocation->getRoot());
+        }
+        if (!_currentLocation->getUploadPath().empty()) {
+            _server.setUpload(_currentLocation->getUploadPath());
+        }
+
 		std::cout << std::endl;
 	}
 }

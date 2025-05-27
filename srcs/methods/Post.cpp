@@ -49,8 +49,7 @@ void Post::execute(Request& request, Response& response, Server& server)
 {
     if (!request.isBodySizeValid()) {
         response.setStatus(413);
-        response.setBody("Error: File too large.\n");
-        request.fillResponse(response, 413, "<html><body><h1>Error: File too large.</h1></body></html>");
+        request.buildErrorPageHtml(response.getStatus(), response);
         return;
     }
     
@@ -60,19 +59,18 @@ void Post::execute(Request& request, Response& response, Server& server)
         std::string body;
 
         (void)server;
+        // Change the path to the upload_path in the configfile
         uploadPath = request.getAbspath();
         if (uploadPath.empty()) {
             response.setStatus(400);
-            response.setBody("Error: Invalid upload path.\n");
-            request.fillResponse(response, 400, "<html><body><h1>Error: Invalid upload path.</h1></body></html>");
+            request.buildErrorPageHtml(response.getStatus(), response);
             return;
         }
 
         filename = request.getFilename();
         if (filename.empty()) {
             response.setStatus(400);
-            response.setBody("Error: Bad Request.\n");
-            request.fillResponse(response, 400, "<html><body><h1>Error: Bad Request.</h1></body></html>");
+            request.buildErrorPageHtml(response.getStatus(), response);
             return;
         }
         
@@ -86,8 +84,7 @@ void Post::execute(Request& request, Response& response, Server& server)
 
         if (!output.is_open()) {
             response.setStatus(500);
-            response.setBody("Error: Failed saving file.\n");
-            request.fillResponse(response, 500, "<html><body><h1>Error: Failed saving file.</h1></body></html>");
+            request.buildErrorPageHtml(response.getStatus(), response);
             return;
         }
 
@@ -102,8 +99,7 @@ void Post::execute(Request& request, Response& response, Server& server)
         // Safely handle any exceptions that might occur
         std::cerr << "Exception in POST handler: " << e.what() << std::endl;
         response.setStatus(500);
-        response.setBody("Error: Internal server error.\n");
-        request.fillResponse(response, 500, "<html><body><h1>Error: Internal server error.</h1></body></html>");
+        request.buildErrorPageHtml(response.getStatus(), response);
     }
 }
 

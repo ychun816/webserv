@@ -23,7 +23,8 @@ server {
     location /cgi-bin {
         methods GET POST;
         cgi_ext .php .py;
-        root /cgi-bin;
+        root ./;
+        autoindex on
     }
 }
 

@@ -119,9 +119,6 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             while (ss >> code >> path) {
                 redirections[atoi(code.c_str())] = path;
             }
-            std::cout << "Redirection: " << value << std::endl;
-            std::cout << "Redirection code: " << code << std::endl;
-            std::cout << "Redirection path: " << path << std::endl;
             NewLocation.setRedirections(redirections);
         }
         else if ((*it).find("error_page") != std::string::npos)
@@ -135,14 +132,10 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             while (ss >> code >> path) {
                 errorPages[atoi(code.c_str())] = path;
             }
-            std::cout << "location Error page: " << value << std::endl;
-            std::cout << "location Error page code: " << code << std::endl;
-            std::cout << "location Error page path: " << path << std::endl;
             NewLocation.setErrorPage(errorPages);
         }
         it++;
     }
-
     return (NewLocation);
 }
 

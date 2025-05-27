@@ -41,12 +41,28 @@ std::string	normalizePath(const std::string& path)
 }
 
 // Verifie si le path existe
-bool	pathExist(Request& request, Server& server)
+bool pathExist(Request& request, Server& server)
 {
-	struct stat buffer;
-	request.setAbspath("." + server.getRoot() + request.getPath());
-	std::cout << "Exist path : " << request.getAbspath() << std::endl;
-	return (stat(request.getAbspath().c_str(), &buffer) == 0);
+    struct stat buffer;
+    std::string root = server.getRoot();
+    std::string path = request.getPath();
+    std::string finalPath;
+    
+    // Éliminer les doubles slashes
+    if (root.length() > 0 && root[root.length()-1] == '/' && path.length() > 0 && path[0] == '/') {
+        path = path.substr(1);
+    }
+    
+    // Si root commence par "./", alors ne pas ajouter de "." au début
+    if (root.length() >= 2 && root.substr(0, 2) == "./") {
+        finalPath = root + path;
+    } else {
+        finalPath = "." + root + path;
+    }
+    
+    request.setAbspath(normalizePath(finalPath));
+    std::cout << "Exist path : " << request.getAbspath() << std::endl;
+    return (stat(request.getAbspath().c_str(), &buffer) == 0);
 }
 
 // Rempli le vecteur des path sensibles
