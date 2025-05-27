@@ -5,4 +5,5 @@ server {
 	root /www/simplesite/;
 	index index.html;
 	client_max_body_size 1M;
+	autoindex on;
 }
