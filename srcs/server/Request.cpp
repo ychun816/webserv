@@ -33,11 +33,19 @@ Request::Request(std::string request, Server& server) :
 	parseQuery();
 	_currentLocation = _server.getCurrentLocation(_path);
 	if (_currentLocation) {
-		std::vector<std::string> methods = _currentLocation->getMethods();
-		std::cout << "Méthodes autorisées pour cette location : ";
-		for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
-			std::cout << *it << " ";
-		}
+        if (_currentLocation->getMethods().empty()) {
+            std::cout << "Aucune méthode autorisée pour cette location, utilisation des méthodes par défaut." << std::endl;
+            std::list<std::string> allowMethodsList = _server.getAllowMethods();
+            std::vector<std::string> allowMethodsVec(allowMethodsList.begin(), allowMethodsList.end());
+            _currentLocation->setMethods(allowMethodsVec);            
+        }
+        else if (_currentLocation->getMethods().size() > 0) {
+            std::cout << "Méthodes autorisées pour cette location: ";
+            	std::vector<std::string> methods = _currentLocation->getMethods();
+            for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); ++it) {
+                std::cout << *it << " ";
+            }
+        }
         if (!_currentLocation->getRoot().empty()) {
             _server.setRoot(_currentLocation->getRoot());
         }
@@ -409,6 +417,14 @@ bool Request::isMethodAllowed() const {
 		std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl;
 		return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end() ;
 	}
+    else if (!_server.getAllowMethods().empty()) {
+        std::list<std::string> allowedMethods = _server.getAllowMethods();
+        std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl;
+        return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end();
+    }
+    else {
+        std::cout << "👻 No allowed methods defined" << std::endl;
+    }
 	return false;
 }
 

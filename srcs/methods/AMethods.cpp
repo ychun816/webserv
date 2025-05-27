@@ -49,13 +49,6 @@ bool pathExist(Request& request, Server& server)
     std::string path = request.getPath();
 	std::cout << "Path : " << path << std::endl;
     std::string finalPath;
-
-    // Éliminer les doubles slashes
-    if (root.length() > 0 && root[root.length()-1] == '/' && path.length() > 0 && path[0] == '/') {
-        path = path.substr(1);
-    }
-
-    // Si root commence par "./", alors ne pas ajouter de "." au début
     if (root.length() >= 2 && root.substr(0, 2) == "./") {
         finalPath = root + path;
     } else {
