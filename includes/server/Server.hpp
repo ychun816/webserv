@@ -54,7 +54,6 @@ class Server
 				const std::string& getHost() const { return _host; }
 				const std::string& getRoot() const { return _root; }
 				const std::string& getIndex() const { return _index; }
-				const std::string& getErrorPage() const { return _errorPage; }
 				const std::string& getCgi() const { return _cgi; }
 				const std::string& getUpload() const { return _upload; }
 				const std::string& getClientMaxBodySize() const { return _clientMaxBodySize; }
@@ -87,7 +86,6 @@ class Server
 				std::string                             _host;
 				std::string                             _root;
 				std::string                             _index;
-				std::string                             _errorPage;
 				std::string                             _cgi;
 				std::string                             _upload;
 				std::string                             _clientMaxBodySize;
@@ -114,7 +112,7 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
 		os << "  Host: " << server.getHost() << std::endl;
 		os << "  Root: " << server.getRoot() << std::endl;
 		os << "  Index: " << server.getIndex() << std::endl;
-		os << "  Error Page: " << server.getErrorPage() << std::endl;
+		// os << "  Error Page: " << server.getErrorPages() << std::endl;
 		os << "  CGI: " << server.getCgi() << std::endl;
 		os << "  Upload: " << server.getUpload() << std::endl;
 		os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;
