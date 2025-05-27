@@ -19,13 +19,13 @@ CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _
 	std::cout <<  "_interpreter === " << _interpreter << std::endl;
 	_postData = "";
 	setupEnvironment();
-	// std::cout <<  "===== ENV VARS =====" << std::endl;
-	// std::vector<std::string>::iterator it = _envVars.begin();
-	// for (; it != _envVars.end(); it++)
-	// {
-	// 	std::cout << *it << std::endl;
-	// }
-	// std::cout <<  "===== ENV VARS END =====" << std::endl;
+	std::cout <<  "===== ENV VARS =====" << std::endl;
+	std::vector<std::string>::iterator it = _envVars.begin();
+	for (; it != _envVars.end(); it++)
+	{
+		std::cout << *it << std::endl;
+	}
+	std::cout <<  "===== ENV VARS END =====" << std::endl;
 }
 
 CGIhandler::CGIhandler(const CGIhandler& copy) : _request(new Request(*copy._request)), _server(new Server(*copy._server))
@@ -94,7 +94,7 @@ void CGIhandler::setupEnvironment()
 
 std::string CGIhandler::resolveScriptPath(const std::string& uri)
 {
-	return (_server->getCurrentLocation()->getRoot() + uri);
+	return (_server->getCurrentLocation(_request->getPath())->getRoot() + uri);
 }
 
 std::string CGIhandler::findInterpreter()
@@ -145,6 +145,7 @@ std::string CGIhandler::execute()
 		std::vector<char*> env;
 		for (size_t i = 0; i < _envVars.size(); i++)
 		{
+
 			env.push_back((char*)_envVars[i].c_str());
 		}
 		env.push_back(NULL);

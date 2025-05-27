@@ -45,21 +45,22 @@ bool pathExist(Request& request, Server& server)
 {
     struct stat buffer;
     std::string root = server.getRoot();
+	std::cout << "ROOT : " << root << std::endl;
     std::string path = request.getPath();
+	std::cout << "Path : " << path << std::endl;
     std::string finalPath;
-    
+
     // Éliminer les doubles slashes
     if (root.length() > 0 && root[root.length()-1] == '/' && path.length() > 0 && path[0] == '/') {
         path = path.substr(1);
     }
-    
+
     // Si root commence par "./", alors ne pas ajouter de "." au début
     if (root.length() >= 2 && root.substr(0, 2) == "./") {
         finalPath = root + path;
     } else {
         finalPath = "." + root + path;
     }
-    
     request.setAbspath(normalizePath(finalPath));
     std::cout << "Exist path : " << request.getAbspath() << std::endl;
     return (stat(request.getAbspath().c_str(), &buffer) == 0);
@@ -124,6 +125,8 @@ bool	isPathSafe(const std::string& path)
 // Verifie si l'on a bien acces au path et si il n'y a pas d'enjeux de securite.
 bool AMethods::checkPath(Request& request, Server& server, Response& response)
 {
+	// if (checkIfCgi(request.getPath()))
+	// 	return true;
 	if (!pathExist(request, server))
 	{
 		request.fillResponse(response, 404, "<html><body><h1>403 Not a Directory</h1></body></html>");
@@ -148,6 +151,8 @@ FileType AMethods::getFileType(const std::string& path)
 	struct stat file_info;
 
 	// Vérification de l'existence et récupération des infos
+	if (checkIfCgi(path))
+		return TYPE_REGULAR_FILE;
 	if (stat(path.c_str(), &file_info) != 0) {
 		// Analyse de l'erreur
 		if (errno == ENOENT) {
