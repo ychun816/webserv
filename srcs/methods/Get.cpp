@@ -162,10 +162,18 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	// std::cout << "server : " << server.getHost() << std::endl;
 	// std::cout << "stat(indexFile.c_str(), &buffer) : " << stat(indexFile.c_str(), &buffer) << std::endl;
 	// std::cout << "autoindex : " << autoindex << std::endl;
-	if (stat((indexFile + loc->getIndex()).c_str(), &buffer) == 0)
+	std::string finalIndex;
+	if (loc->getIndex().empty())
+		finalIndex = server.getIndex();
+	else
+		finalIndex = loc->getIndex();
+
+	if (stat((indexFile + finalIndex).c_str(), &buffer) == 0)
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
-		std::ifstream file((indexFile + loc->getIndex()).c_str());
+
+		std::cout << "Final index file: " << finalIndex << std::endl;
+		std::ifstream file((indexFile + finalIndex).c_str());
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;

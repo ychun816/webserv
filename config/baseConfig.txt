@@ -6,7 +6,6 @@ server {
     error_page 404 /errors/404.html;
     error_page 500 /errors/500.html;
     methods POST GET DELETE
-
     location / {
         index index.html;
         client_max_body_size 10M;
@@ -15,6 +14,7 @@ server {
 
     location /upload {
         methods GET POST;
+        index upload.html;
         upload_dir /upload;
         client_max_body_size 10M;
         error_page 404 /errors/404.html;
