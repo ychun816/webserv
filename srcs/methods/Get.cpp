@@ -208,7 +208,8 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	else if (autoindex == "on")
 	{
 		std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
-		std::string dirPath = "." + server.getRoot() + request.getAbspath();
+		std::string dirPath = request.getAbspath();
+		std::cout << "Directory path: " << dirPath << std::endl;
 		DIR* current = opendir(dirPath.c_str());
 		struct dirent *ent;
 

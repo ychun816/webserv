@@ -247,7 +247,7 @@ Server & Server::operator=(const Server &assign)
 		_allowMethods = assign._allowMethods;
 		_connexions = assign._connexions;
 		_address = assign._address;
-				_locations = assign._locations;
+		_locations = assign._locations;
 	}
 	return *this;
 }

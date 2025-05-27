@@ -236,9 +236,6 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             while (ss >> code >> path) {
                 errorPages[atoi(code.c_str())] = path;
             }
-            std::cout << "Error page: " << value << std::endl;
-            std::cout << "Error page code: " << code << std::endl;
-            std::cout << "Error page path: " << path << std::endl;
             server.setErrorPages(errorPages);
         }
 
