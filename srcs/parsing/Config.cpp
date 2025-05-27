@@ -191,7 +191,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             value = trim(value, " \t;");
             server.setRoot(value);
         }
-        else if ((*it).find("index") != std::string::npos)
+        else if ((*it).find("index") != std::string::npos && (*it).find("autoindex") == std::string::npos)
         {
             size_t pos = (*it).find("index") + 5;
             std::string value = (*it).substr(pos);
@@ -217,6 +217,13 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             Location loc = parseLocation(value, lines, it);
 			//printLocation(loc);
             server.pushLocation(loc);
+        }
+        else if ((*it).find("autoindex") != std::string::npos)
+        {
+            size_t pos = (*it).find("autoindex") + 9;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            server.setAutoIndex(value);
         }
         else if ((*it).find("cgi") != std::string::npos)
         {

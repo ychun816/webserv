@@ -54,6 +54,8 @@ class Server
 				const std::string& getHost() const { return _host; }
 				const std::string& getRoot() const { return _root; }
 				const std::string& getIndex() const { return _index; }
+				const std::string& getAutoIndex() const { return _autoIndex; }
+				const std::string& getErrorPage() const { return _errorPage; }
 				const std::string& getCgi() const { return _cgi; }
 				const std::string& getUpload() const { return _upload; }
 				const std::string& getClientMaxBodySize() const { return _clientMaxBodySize; }
@@ -68,6 +70,7 @@ class Server
 				void setHost(const std::string& host) { _host = host; }
 				void setRoot(const std::string& root) { _root = root; }
 				void setIndex(const std::string& index) { _index = index; }
+				void setAutoIndex(const std::string& autoIndex) { _autoIndex = autoIndex; }
 				void setErrorPages(const std::map<size_t, std::string>& errorPages) { _errorPages = errorPages; }
 				void setCgi(const std::string& cgi) { _cgi = cgi; }
 				void setUpload(const std::string& upload) { _upload = upload; }
@@ -86,6 +89,8 @@ class Server
 				std::string                             _host;
 				std::string                             _root;
 				std::string                             _index;
+				std::string                             _autoIndex;
+				std::string                             _errorPage;
 				std::string                             _cgi;
 				std::string                             _upload;
 				std::string                             _clientMaxBodySize;

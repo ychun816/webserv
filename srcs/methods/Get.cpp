@@ -149,6 +149,8 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	// std::cout << "GET-path : " << it->getPath() << std::endl;
 	// std::cout << "GET-autoindex : " << it->getAutoindex() << std::endl;
 	std::string autoindex = "off";
+	if (server.getAutoIndex() != "")
+		autoindex = server.getAutoIndex();
 	Location *loc = server.getCurrentLocation(request.getPath());
 	// if (loc == NULL)
 	// {
@@ -164,6 +166,8 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	// }
 	if (loc != NULL && loc->getAutoindex() != "")
 		autoindex = loc->getAutoindex();
+	else
+		autoindex = server.getAutoIndex();
 	std::cout << "GET-autoindex : " << autoindex << std::endl;
 
 	// Vérifier si un fichier index.html existe
