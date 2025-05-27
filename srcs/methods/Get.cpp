@@ -46,7 +46,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
 			if (!request.errorPageExist(404)) {
 				response.setStatus(404);
-				response.setStatusMessage(response.getStatusMessage(404));
+				//response.setStatusMessage(response.getStatusMessage(404));
 				request.buildErrorPageHtml(404, response);
 			} else {
 				request.openErrorPage(404, response);
@@ -56,7 +56,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
 			if (!request.errorPageExist(403)) {
 				response.setStatus(403);
-				response.setStatusMessage(response.getStatusMessage(403));
+				//response.setStatusMessage(response.getStatusMessage());
 				request.buildErrorPageHtml(403, response);
 			} else {
 				request.openErrorPage(403, response);
@@ -66,7 +66,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
 			if (!request.errorPageExist(400)) {
 				response.setStatus(400);
-				response.setStatusMessage(response.getStatusMessage(400));
+				//response.setStatusMessage(response.getStatusMessage(400));
 				request.buildErrorPageHtml(400, response);
 			} else {
 				request.openErrorPage(400, response);

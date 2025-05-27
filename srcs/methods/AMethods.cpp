@@ -123,8 +123,7 @@ bool AMethods::checkPath(Request& request, Server& server, Response& response)
 
 void AMethods::handleError(Response& response)
 {
-	throw (executeError(response.getStatusMessage()));
-
+	throw (executeError(response.getStatusMessage(response.getStatus())));
 	response.formatResponse();
 }
 

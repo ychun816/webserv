@@ -36,8 +36,8 @@ class Response
 
 		int	getStatus() const{ return _statusCode;}
 		std::string getResponse() const { return _response; }
-		std::string getStatusMessage() const { return _statusMessage; }
 		std::string getBody() const { return _body; }
 		std::map<std::string, std::string> getHeaders() const { return _headers; }
 		std::string getHttpVersion() const { return _httpVersion; }
+		std::string getStatusMessage(size_t code) const;
 };
