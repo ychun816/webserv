@@ -147,15 +147,27 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	std::cout << "indexFile : " << indexFile << std::endl;
 
 	// Déterminer si l'autoindex est activé
-	std::list<Location>::const_iterator it = server.getLocations().begin();
-	std::string autoindex = it->getAutoindex();
+
 	// std::cout << "Base autoindex : " << autoindex << std::endl;
 	// std::cout << "request.getPath() : " << request.getPath() << std::endl;
 	// std::cout << "GET-path : " << it->getPath() << std::endl;
 	// std::cout << "GET-autoindex : " << it->getAutoindex() << std::endl;
+	std::string autoindex = "off";
 	Location *loc = server.getCurrentLocation(request.getPath());
-	if (loc->getAutoindex() != "")
-		autoindex = it->getAutoindex();
+	// if (loc == NULL)
+	// {
+	// 	std::cerr << "Location not found for path: " << request.getPath() << std::endl;
+	// 	if (request.errorPageExist(404)) {
+	// 		request.openErrorPage(404, response);
+	// 	} else {
+	// 		response.setStatus(404);
+	// 		response.setStatusMessage(response.getStatusMessage(404));
+	// 		request.buildErrorPageHtml(404, response);
+	// 	}
+	// 	return;
+	// }
+	if (loc != NULL && loc->getAutoindex() != "")
+		autoindex = loc->getAutoindex();
 	std::cout << "GET-autoindex : " << autoindex << std::endl;
 
 	// Vérifier si un fichier index.html existe
@@ -163,7 +175,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	// std::cout << "stat(indexFile.c_str(), &buffer) : " << stat(indexFile.c_str(), &buffer) << std::endl;
 	// std::cout << "autoindex : " << autoindex << std::endl;
 	std::string finalIndex;
-	if (loc->getIndex().empty())
+	if (loc == NULL || loc->getIndex().empty())
 		finalIndex = server.getIndex();
 	else
 		finalIndex = loc->getIndex();
