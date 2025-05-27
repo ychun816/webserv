@@ -66,16 +66,17 @@ void CGIhandler::setupEnvironment()
 
 	//Informations sur la requête
 	_envVars.push_back("REQUEST_METHOD=" + _request->getMethod());
+	_envVars.push_back("REQUEST_URI=" + _request->getUri());
 	_envVars.push_back("QUERY_STRING=" + _queryString);
-	_envVars.push_back("CONTENT_TYPE=" + _request->getHeader("Content_type"));
-	_envVars.push_back("CONTENT_LENGTH=" + _request->getHeader("Content_length"));
-	//_envVars.push_back("PATH_INFO=" + sizeof(_request->getBody()));
-	//_envVars.push_back("PATH_TRANSLATED=" + sizeof(_request->getBody()));
+	_envVars.push_back("CONTENT_TYPE=" + _request->getHeader("Content-Type"));
+	_envVars.push_back("CONTENT_LENGTH=" + _request->getHeader("Content-Length"));
+	_envVars.push_back("PATH_INFO=" + _request->getPath());
 
 	//Informations sur le client
+	_envVars.push_back("REMOTE_ADDR=127.0.0.1");
 	_envVars.push_back("REMOTE_HOST=" + _request->getHeader("Host"));
 	_envVars.push_back("HTTP_USER_AGENT=" + _request->getHeader("User-Agent"));
-	_envVars.push_back("HTTP_COOKIE=" + _request->getHeader("Cookie"));
+	//_envVars.push_back("HTTP_COOKIE=" + _request->getHeader("Cookie"));
 	_envVars.push_back("HTTP_ACCEPT=" + _request->getHeader("Accept"));
 	_envVars.push_back("HTTP_ACCEPT_LANGUAGE=" + _request->getHeader("Accept-Language"));
 
@@ -84,6 +85,7 @@ void CGIhandler::setupEnvironment()
 	_envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	_envVars.push_back("SERVER_PORT=" + intToString(_server->getPort()));
 	_envVars.push_back("DOCUMENT_ROOT=" + _server->getRoot());
+	_envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
 	//Informations sur le script
 	_envVars.push_back("SCRIPT_FILENAME=" + _scriptPath);
@@ -92,7 +94,7 @@ void CGIhandler::setupEnvironment()
 
 std::string CGIhandler::resolveScriptPath(const std::string& uri)
 {
-	return (_server->getRoot() + uri);
+	return (_server->getCurrentLocation(_request->getPath())->getRoot() + uri);
 }
 
 std::string CGIhandler::findInterpreter()
@@ -102,18 +104,23 @@ std::string CGIhandler::findInterpreter()
 		return (_scriptPath);
 	std::string	extention = _scriptPath.substr(pos);
 	if (extention == ".php")
-		return ("usr/bin/php");
+		return ("/usr/bin/php");
 	else if (extention == ".py")
-		return ("usr/bin/python");
+		return ("/usr/bin/python");
 	else if (extention == ".pl")
-		return ("usr/bin/pearl");
+		return ("/usr/bin/perl");
 	else if (extention == ".rb")
-		return ("usr/bin/ruby");
+		return ("/usr/bin/ruby");
 	return (_scriptPath);
 }
 
 std::string CGIhandler::execute()
 {
+	if (access(_interpreter.c_str(), X_OK) != 0) {
+		std::cerr << "Interpreter not found or not executable: " << _interpreter << std::endl;
+		return "Content-Type: text/html\r\n\r\n<h1>500 Internal Server Error</h1><p>CGI interpreter not found</p>";
+	}
+
 	int inputPipe[2];
 	int outputPipe[2];
 
@@ -122,7 +129,7 @@ std::string CGIhandler::execute()
 	int pid = fork();
 	if (pid < 0)
 		throw std::runtime_error("failed to fork");
-	else
+	else if (pid == 0)
 	{
 		//Manage pipes
 		handleRedirection(inputPipe, outputPipe);
@@ -138,7 +145,7 @@ std::string CGIhandler::execute()
 		std::vector<char*> env;
 		for (size_t i = 0; i < _envVars.size(); i++)
 		{
-			std::cout <<  "_envVars[i] === " << _envVars[i] << std::endl;
+
 			env.push_back((char*)_envVars[i].c_str());
 		}
 		env.push_back(NULL);
@@ -176,17 +183,17 @@ std::string CGIhandler::execute()
 void CGIhandler::handleRedirection(int inputPipe[2], int outputPipe[2])
 {
 	close(inputPipe[1]);
+	close(outputPipe[0]);
 	if (dup2(inputPipe[0], STDIN_FILENO) < 0)
 	{
 		std::cerr << "dup2 for stdin failed" << std::endl;
 		exit(1);
 	}
 	close(inputPipe[0]);
-	close(outputPipe[1]);
-	if (dup2(outputPipe[0], STDOUT_FILENO) < 0)
+	if (dup2(outputPipe[1], STDOUT_FILENO) < 0)
 	{
 		std::cerr << "dup2 for stdout failed" << std::endl;
 		exit(1);
 	}
-	close(outputPipe[0]);
+	close(outputPipe[1]);
 }

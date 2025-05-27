@@ -46,7 +46,6 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
 			if (!request.errorPageExist(404)) {
 				response.setStatus(404);
-				//response.setStatusMessage(response.getStatusMessage(404));
 				request.buildErrorPageHtml(404, response);
 			} else {
 				request.openErrorPage(404, response);
@@ -56,8 +55,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
 			if (!request.errorPageExist(403)) {
 				response.setStatus(403);
-				//response.setStatusMessage(response.getStatusMessage());
-				request.buildErrorPageHtml(response.getStatus(), response);
+				request.buildErrorPageHtml(403, response);
 			} else {
 				request.openErrorPage(403, response);
 			}
@@ -66,8 +64,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
 			if (!request.errorPageExist(400)) {
 				response.setStatus(400);
-				//response.setStatusMessage(response.getStatusMessage(400));
-				request.buildErrorPageHtml(response.getStatus(), response);
+				request.buildErrorPageHtml(400, response);
 			} else {
 				request.openErrorPage(400, response);
 			}
@@ -86,7 +83,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 			request.openErrorPage(404, response);
 		} else {
 			response.setStatus(404);
-			request.buildErrorPageHtml(response.getStatus(), response);
+			request.buildErrorPageHtml(404, response);
 		}
 		return;
 	}
@@ -106,8 +103,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 
 	if (fileSize > maxSize) {
 		if (!request.errorPageExist(413)) {
-		response.setStatus(413);
-			response.setStatusMessage(response.getStatusMessage(413));
+			response.setStatus(413);
 			request.buildErrorPageHtml(413, response);
 			return;
 		} else {
@@ -122,8 +118,8 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		CGIhandler execCgi(requestPtr, serverPtr);
 		std::string CGIoutput = execCgi.execute();
 		request.fillResponse(response, 200, CGIoutput);
-		delete requestPtr;
-		delete serverPtr;
+		//delete requestPtr;
+		//delete serverPtr;
 		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
 	} else {
 		std::stringstream buffer;
@@ -193,7 +189,6 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 				request.openErrorPage(404, response);
 			} else {
 				response.setStatus(404);
-				response.setStatusMessage(response.getStatusMessage(404));
 				request.buildErrorPageHtml(404, response);
 			}
 			return;
@@ -224,7 +219,6 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 				request.openErrorPage(403, response);
 			} else {
 				response.setStatus(403);
-				response.setStatusMessage(response.getStatusMessage(403));
 				request.buildErrorPageHtml(403, response);
 			}
 			return;
