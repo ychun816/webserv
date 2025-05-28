@@ -31,11 +31,11 @@ void Delete::execute(Request& request, Response& response, Server& server)
 
     // DEBUG /////////////////////////////////////////////////
     std::cout << "=== 📌DEBUG DELETE EXECUTE ===" << std::endl;
-    std::cout << "Abs PATH : " << absPath << std::endl; //UPLOAD PATH : ./www/simplesite/upload/_testPost.txt
-    std::cout << "URI : " << uri << std::endl;
+    std::cout << "📌Abs PATH : " << absPath << std::endl; //UPLOAD PATH : ./www/simplesite/upload/_testPost.txt
+    std::cout << "📌URI : " << uri << std::endl;
     // std::cout << "DELETE PATH : " << uri << std::endl;
-    std::cout << "FILENAME : " << fileName << std::endl;
-    std::cout << "FILE TYPE : " << getFileType(absPath) << std::endl;
+    std::cout << "📌FILENAME : " << fileName << std::endl;
+    std::cout << "📌FILE TYPE : " << getFileType(absPath) << std::endl;
     std::cout << "=== 📌END | DEBUG DELETE EXECUTE ===" << std::endl;
     /////////////////////////////////////////////////
 
@@ -50,7 +50,6 @@ void Delete::execute(Request& request, Response& response, Server& server)
 
     if (std::remove(absPath.c_str()) != 0) 
     {
-        // perror("Delete failed");
         response.setStatus(500);
         response.setBody("Error: Failed to delete file.");
         request.fillResponse(response, 500, "<html><body><h1>Error: Failed to delete file.</h1></body></html>"); //added to link with response -> show msg on frontend
@@ -61,16 +60,6 @@ void Delete::execute(Request& request, Response& response, Server& server)
     response.setBody("Success: File deleted.");
     request.fillResponse(response, 200, "<html><body><h1>Success: File deleted.</h1></body></html>"); //added to link with response -> show msg on frontend
     
-
-
-    // try to link with response
-    // struct stat buffer;
-	// request.fillResponse(response, 200, buffer.str());
-	// std::map<std::string, std::string> headers;
-	// headers["Content-Type"] = "text/html";
-	// response.setHeaders(headers);
-
-
 }
 
 

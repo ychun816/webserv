@@ -75,5 +75,8 @@ public:
 	void buildErrorPageHtml(size_t code, Response& response);
 	void openErrorPage(size_t code, Response& response);
 
+	//Added for get upload directory name    //SAVED HERE FOR FUTRE USE
+	// std::string getUploadDirectory(const std::string& uri) const;
+
 
 };

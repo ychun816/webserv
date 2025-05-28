@@ -1,0 +1,48 @@
+<script>
+  const statusEl = document.getElementById('status');
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get('status');
+
+  if (status === 'success') {
+    statusEl.textContent = '✅ File uploaded successfully.';
+    statusEl.classList.add('success');
+  } else if (status === 'fail') {
+    statusEl.textContent = '❌ Failed to upload the file.';
+    statusEl.classList.add('error');
+  }
+
+  let uploadDir = '/upload'; // default fallback
+
+  fetch('/upload/config')
+    .then(res => res.json())
+    .then(data => {
+      if (data.upload_dir) {
+        uploadDir = data.upload_dir;
+      }
+    })
+    .catch(() => {
+      console.warn('Could not load dynamic upload_dir config, using default /upload');
+    });
+
+  document.getElementById('upload-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch(uploadDir, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (response.ok) {
+        window.location.href = '?status=success';
+      } else {
+        window.location.href = '?status=fail';
+      }
+    })
+    .catch(() => {
+      window.location.href = '?status=fail';
+    });
+  });
+
+</script>
+

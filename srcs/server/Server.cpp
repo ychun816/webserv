@@ -265,6 +265,23 @@ void Server::executeMethods(Request& request, Response& response)
 	std::string method = request.getMethod();
 
 	AMethods*       exec = NULL;
+	
+	//ADDED TO GET UPLOAD DIRECTORY ///SAVED HERE FOR FUTRE USE
+	// if (request.getMethod() == "GET" && request.getUploadDirectory(request.getUri()) != "")
+	// {
+	// 	response.setStatus(200);
+	// 	// response.setHeaders("Content-Type", "application/json");
+	// 	response.setHeaders(request.getHeaders());
+	// 	// response.setHttpVersion(request.getHttpVersion());
+
+	// 	std::string uploadDir = request.getUploadDirectory(request.getUri());
+	// 	response.setBody("{" + uploadDir + "\"}");
+
+	// 	std::cout << "🍓SEVER | Upload directory: " << uploadDir << std::endl; //DEBUG ////
+	// 	return;
+	// }
+
+	//general methods
 	if (method == "GET")
 	{
 		std::cout << "SEVER-GET" << std::endl;
