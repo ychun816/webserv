@@ -9,7 +9,7 @@ server {
     error_page 405 /errors/405_Not-Allowed.html;
 
     location / {
-        methods GET;
+        methods POST;
         index index.html ;
         error_page 405 /errors/405_Not-Allowed-mod.html;
         client_max_body_size 10M;
@@ -21,6 +21,7 @@ server {
         upload_dir /upload;
         client_max_body_size 10M;
         error_page 404 /errors/404.html;
+        return 301 http://localhost:8080;
     }
 
     location /cgi-bin {
@@ -28,7 +29,8 @@ server {
         cgi_ext .php .py;
         root ./;
         autoindex on;
-    }
+    } 
+
 }
 
 server {

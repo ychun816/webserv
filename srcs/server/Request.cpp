@@ -109,7 +109,7 @@ void Request::openErrorPage(size_t code, Response& response)
 
     // Vérifier si loc est NULL avant d'accéder à ses méthodes
     if (loc) {
-        std::cout << "loc->getRedirections().size() : " << loc->getRedirections().find(301)->second.c_str() << std::endl;
+        // std::cout << "loc->getRedirections().size() : " << loc->getRedirections().find(301)->second.c_str() << std::endl;
         std::cout << "loc->getErrorPage().find(code)->second.c_str() : " << loc->getErrorPage().find(code)->second.c_str() << std::endl;
         if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
             _uri = loc->getErrorPage().find(code)->second.c_str();
