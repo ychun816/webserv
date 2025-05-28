@@ -105,7 +105,7 @@ curl http://localhost:8080
 Ce projet est développé par:
 - [agilibert](https://github.com/Canybardeloton)
 - [clarily](https://github.com/CrystxlSith)
-- [yilingit] (https://github.com/ychun816)
+- [yilin] (https://github.com/ychun816)
 
 ## 📄 Licence
 42

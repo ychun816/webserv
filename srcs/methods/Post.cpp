@@ -2,17 +2,7 @@
 #include "../../includes/server/Request.hpp"
 #include "../../includes/utils/Utils.hpp"
 
-/* TO DO NOTE:
-1. upload file can save to another temp directory OR download to the same directory
-2. have to test download the uploaded file
-*/
-
-
-
-
 Post::Post() : AMethods::AMethods() {}
-// Post::Post(const Post& copy) : AMethods::AMethods(copy) {}
-// Post&	Post::operator=(const Post& copy) {return *this;}
 Post::~Post() {}
 
 std::string Post::extractFileContent(std::string& rawBody) const
@@ -43,7 +33,6 @@ std::string Post::extractFileContent(std::string& rawBody) const
 
     return content;
 }
-
 
 void Post::execute(Request& request, Response& response, Server& server)
 {

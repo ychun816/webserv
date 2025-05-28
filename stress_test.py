@@ -54,7 +54,15 @@ def send_request(url, method="GET", data=None, headers=None, keep_alive=False, r
         elif method == "DELETE":
             response = requests.delete(url, headers=headers, timeout=10)
         else:
-            raise ValueError(f"Méthode non supportée: {method}")
+            raise ValueEr_argument("url", help="URL du serveur à tester")
+    parser.add_argument("-n", "--requests", type=int, default=1000, help="Nombre de requêtes à envoyer")
+    parser.add_argument("-c", "--concurrency", type=int, default=10, help="Niveau de concurrence")
+    parser.add_argument("-m", "--method", default="GET", choices=["GET", "POST", "PUT", "DELETE"], help="Méthode HTTP")
+    parser.add_argument("-p", "--processes", type=int, default=1, help="Nombre de processus à utiliser")
+    parser.add_argument("-s", "--payload-size", type=int, default=0, help="Taille du payload en KB pour POST/PUT")
+    parser.add_argument("-r", "--ramp-up", action="store_true", help="Activer la montée en charge progressive")
+    parser.add_argument("-k", "--keep-alive", action="store_true", help="Activer les connexions persistantes")
+    parser.addror(f"Méthode non supportée: {method}")
             
         end_time = time.time()
         elapsed = (end_time - start_time) * 1000  # en ms
@@ -108,7 +116,15 @@ def run_stress_test(url, num_requests, concurrency, method="GET", processes=1,
     print(f"Keep-Alive: {'Oui' if keep_alive else 'Non'}, Params aléatoires: {'Oui' if random_params else 'Non'}")
     
     if ramp_up:
-        print("Mode montée en charge: augmentation progressive de la charge")
+        print("Mode montée_argument("url", help="URL du serveur à tester")
+    parser.add_argument("-n", "--requests", type=int, default=1000, help="Nombre de requêtes à envoyer")
+    parser.add_argument("-c", "--concurrency", type=int, default=10, help="Niveau de concurrence")
+    parser.add_argument("-m", "--method", default="GET", choices=["GET", "POST", "PUT", "DELETE"], help="Méthode HTTP")
+    parser.add_argument("-p", "--processes", type=int, default=1, help="Nombre de processus à utiliser")
+    parser.add_argument("-s", "--payload-size", type=int, default=0, help="Taille du payload en KB pour POST/PUT")
+    parser.add_argument("-r", "--ramp-up", action="store_true", help="Activer la montée en charge progressive")
+    parser.add_argument("-k", "--keep-alive", action="store_true", help="Activer les connexions persistantes")
+    parser.add en charge: augmentation progressive de la charge")
     
     results = []
     start_time = time.time()

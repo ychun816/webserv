@@ -472,3 +472,14 @@ void Request::parseChunkedBody() {
 }
 
 bool Request::isChunked() const { return _isChunked; }
+
+
+//Added for get upload directory name
+std::string Request::getUploadDirectory(const std::string& uri) const
+{
+    // Assuming the upload directory is the last part of the URI
+    size_t lastSlash = uri.find_last_of('/');
+    if (lastSlash != std::string::npos && lastSlash + 1 < uri.length())
+        return uri.substr(lastSlash + 1);
+    return "";
+}

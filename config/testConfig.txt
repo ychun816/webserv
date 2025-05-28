@@ -3,9 +3,9 @@ server {
     server_name localhost;
     root /www/simplesite;
     client_max_body_size 10M;
-    error_page 404 /errors/404.html;
-    error_page 500 /errors/500.html
-
+    error_page 404 /errors/404_Not-Found.html;
+    error_page 500 /errors/500_Internal-Server-Error.html;
+    error_page 403 /errors/403_Forbidden.html;
 
     location / {
         methods GET POST;
@@ -15,11 +15,24 @@ server {
     }
 
     location /upload {
+        methods GET POST;
+        upload_dir /user_upload;
+        client_max_body_size 10M;
+        autoindex on;
+    }
+
+    location /user_upload {
         methods GET POST DELETE;
         upload_dir /user_upload;
         client_max_body_size 10M;
         autoindex on;
-		return 301 http://localhost:8080;
+    }
+
+
+#redirection works when the directory exists
+#redirection doesn't work when the directory no exist
+    location /test {
+        return 301 http://localhost:8080;
     }
 
     #Optional: redirect /upload to /upload/index.html if you want a redirect page

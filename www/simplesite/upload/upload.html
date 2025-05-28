@@ -18,6 +18,7 @@
       background-size: cover;
       overflow: hidden;
       color: #fff;
+      position: relative;
     }
 
     body::before {
@@ -130,6 +131,7 @@
       border: 1px solid #bbdbf8;
       border-radius: 8px;
       transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.3);
     }
 
     .nav-links a:hover {
@@ -145,7 +147,7 @@
 
     <div id="status" class="status-message"></div>
 
-    <form method="POST" action="/user_upload" enctype="multipart/form-data">
+    <form id="upload-form" enctype="multipart/form-data">
       <label for="file-upload">Choose a file to upload</label>
       <input id="file-upload" type="file" name="file" required />
       <br />
@@ -171,6 +173,26 @@
       statusEl.textContent = '❌ Failed to upload the file.';
       statusEl.classList.add('error');
     }
+
+    document.getElementById('upload-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+
+      fetch('/user_upload', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = '?status=success';
+        } else {
+          window.location.href = '?status=fail';
+        }
+      })
+      .catch(() => {
+        window.location.href = '?status=fail';
+      });
+    });
   </script>
 </body>
 </html>
