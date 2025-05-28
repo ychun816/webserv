@@ -16,7 +16,7 @@ private:
 	std::string _index;
 	std::map<size_t, std::string> _error_page;
 	std::vector<std::string> _methods;
-	std::map<size_t, std::string> _redirections;
+	std::pair<int, std::string> _return;  // Pour stocker le code et l'URL de redirection
 
 
 public:
@@ -34,7 +34,9 @@ public:
 	void setIndex(const std::string& index) {_index = index;};
 	void setErrorPage(const std::map<size_t, std::string>& error_page) {_error_page = error_page;};
 	void setMethods(const std::vector<std::string>& methods) {_methods = methods;};
-	void setRedirections(const std::map<size_t, std::string>& redirections) {_redirections = redirections;};
+	void setReturn(int code, const std::string& returnUrl) { 
+		_return = std::make_pair(code, returnUrl); 
+	}
 	// Getters
 	std::string getPath() const {return _path;};
 	std::string getRoot() const {return _root;};
@@ -45,7 +47,7 @@ public:
 	std::string getIndex() const {return _index;};
 	std::vector<std::string> getMethods() const {return _methods;};
 	std::map<size_t, std::string> getErrorPage() const {return _error_page;};
-	std::map<size_t, std::string> getRedirections() const {return _redirections;};
+	std::pair<int, std::string> getReturn() const {return _return;};
 
 	// Operators
 	Location& operator=(const Location& other);

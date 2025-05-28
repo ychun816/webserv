@@ -56,7 +56,7 @@ Request::Request(std::string request, Server& server) :
 
 		std::cout << std::endl;
 	}
-    if (_currentLocation->getRedirections().size() > 0) {
+    if (_currentLocation->getReturn().first != 0) {
         setIsRedirection(true);
     }
 }
@@ -100,7 +100,7 @@ void Request::handleResponse()
     }
 
     response.setResponse(response.formatResponse());
-    std::cout << BLUE << "Sending response: [" << response.getResponse() << "]" << RESET << std::endl;
+    std::cout << BLUE << "Sending response: \n" << response.getResponse() << RESET << std::endl;
 
 }
 
@@ -111,16 +111,13 @@ void Request::openErrorPage(size_t code, Response& response)
     std::map<std::string, std::string> headers = this->getHeaders();
     Location* loc = _server.getCurrentLocation(_path);
 
-    // Vérifier si loc est NULL avant d'accéder à ses méthodes
     if (loc) {
-        // std::cout << "loc->getRedirections().size() : " << loc->getRedirections().find(301)->second.c_str() << std::endl;
         std::cout << "loc->getErrorPage().find(code)->second.c_str() : " << loc->getErrorPage().find(code)->second.c_str() << std::endl;
         if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
             _uri = loc->getErrorPage().find(code)->second.c_str();
         else
             _uri = _server.getErrorPages().find(code)->second.c_str();
     } else {
-        // Si pas de location trouvée, utiliser les pages d'erreur du serveur
         _uri = _server.getErrorPages().find(code)->second.c_str();
     }
 

@@ -16,6 +16,34 @@ void Get::execute(Request& request, Response& response, Server& server)
 	std::cout << "URI: " << request.getUri() << std::endl;
 	std::cout << "Chemin absolu: " << request.getAbspath() << std::endl;
 
+	// Vérifier si une redirection est définie pour cette location
+	Location* currentLocation = request.getCurrentLocation();
+	if (currentLocation && currentLocation->getReturn().first != 0) {
+		std::pair<int, std::string> redirectInfo = currentLocation->getReturn();
+		int redirectCode = redirectInfo.first;
+		std::string redirectUrl = redirectInfo.second;
+
+		std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  // Debug
+
+		// Créer un corps HTML pour la redirection
+		std::string htmlBody = "<html><head><title>Redirection</title>";
+		htmlBody += "<meta http-equiv=\"refresh\" content=\"0;url=" + redirectUrl + "\">";
+		htmlBody += "</head><body>";
+		htmlBody += "<h1>Redirection</h1>";
+		htmlBody += "<p>Si vous n'êtes pas redirigé automatiquement, <a href=\"" + redirectUrl + "\">cliquez ici</a>.</p>";
+		htmlBody += "</body></html>";
+
+		response.setStatus(redirectCode);
+		response.setStatusMessage(response.getStatusMessage(redirectCode));
+		std::map<std::string, std::string> headers;
+		headers["Location"] = redirectUrl;
+		headers["Content-Type"] = "text/html";
+		response.setHeaders(headers);
+		request.fillResponse(response, redirectCode, htmlBody);
+		request.setIsRedirection(true);
+		return;
+	}
+
 	if (!request.validateQueryParams())
 	{
 		std::cout << "Paramètres de requête invalides" << std::endl;
@@ -179,8 +207,6 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		finalIndex = server.getIndex();
 	else
 		finalIndex = loc->getIndex();
-	std::cout << "finalIndex : " << finalIndex << std::endl;
-	std::cout << "indexFile + finalIndex : " << indexFile + "/" + finalIndex << std::endl;
 	if (stat((indexFile + "/" + finalIndex).c_str(), &buffer) == 0 && autoindex != "on")
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;

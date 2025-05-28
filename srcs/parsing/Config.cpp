@@ -1,5 +1,6 @@
 #include "../../includes/parsing/Config.hpp"
 #include <sstream>
+#include <string>
 #include <sys/wait.h> // For waitpid
 #include <sys/select.h> // For select
 #include <sys/epoll.h> // For epoll
@@ -110,16 +111,24 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
         }
         else if ((*it).find("return") != std::string::npos)
         {
-            size_t pos = (*it).find("return") + 6;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            std::map<size_t, std::string> redirections;
-            std::stringstream ss(value);
-            std::string code, path;
-            while (ss >> code >> path) {
-                redirections[atoi(code.c_str())] = path;
+            std::istringstream lineStream(*it);
+            std::string directive;
+            int code;
+            std::string url;
+            lineStream >> directive >> code >> url;
+            
+            // Nettoyer l'URL de redirection
+            url = trim(url, " \t;");  // Enlever les espaces et points-virgules
+            
+            // Validation du code de redirection
+            if (code != 301 && code != 302 && code != 303 && 
+                code != 307 && code != 308) {
+                std::ostringstream oss;
+                oss << code;
+                throw std::runtime_error("Code de redirection invalide: " + oss.str());
             }
-            NewLocation.setRedirections(redirections);
+            
+            NewLocation.setReturn(code, url);
         }
         else if ((*it).find("error_page") != std::string::npos)
         {
