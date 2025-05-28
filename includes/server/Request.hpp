@@ -24,6 +24,7 @@ private:
 	std::map<std::string, std::string> _queryParams;
 	Location* _currentLocation;
 	bool _isChunked;
+	bool _isRedirection;
 	// std::string _response;
 public:
 	Request(std::string request, Server& server);
@@ -43,7 +44,7 @@ public:
 	std::string getPath() const { return _path; };
 	std::string getFilename() const ; //added for POST
 	Location* getCurrentLocation() const { return _currentLocation; }
-
+	bool getIsRedirection() const { return _isRedirection; }
 
 	// Setters
 	void setRequest(const std::string& request) { _request = request; }
@@ -51,6 +52,7 @@ public:
 	void setPathQueryString();
 	void setServer(Server& server);
 	void setCurrentLocation(Location* location) { _currentLocation = location; }
+	void setIsRedirection(bool isRedirection) { _isRedirection = isRedirection; }
 
 	// Methods
 	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?

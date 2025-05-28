@@ -22,7 +22,8 @@ Request::Request(std::string request, Server& server) :
 	_headers(),
 	_body(""),
 	_currentLocation(NULL),
-	_isChunked(false)
+	_isChunked(false),
+	_isRedirection(false)
 {
 	parseRequest();
 	// Ne continuer que si la requête est valide
@@ -55,6 +56,9 @@ Request::Request(std::string request, Server& server) :
 
 		std::cout << std::endl;
 	}
+    if (_currentLocation->getRedirections().size() > 0) {
+        setIsRedirection(true);
+    }
 }
 
 Request::~Request()

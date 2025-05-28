@@ -179,13 +179,14 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		finalIndex = server.getIndex();
 	else
 		finalIndex = loc->getIndex();
-
-	if (stat((indexFile + finalIndex).c_str(), &buffer) == 0)
+	std::cout << "finalIndex : " << finalIndex << std::endl;
+	std::cout << "indexFile + finalIndex : " << indexFile + "/" + finalIndex << std::endl;
+	if (stat((indexFile + "/" + finalIndex).c_str(), &buffer) == 0 && autoindex != "on")
 	{
 		std::cout << GREEN << "Index file found" << RESET << std::endl;
 
 		std::cout << "Final index file: " << finalIndex << std::endl;
-		std::ifstream file((indexFile + finalIndex).c_str());
+		std::ifstream file((indexFile + "/" + finalIndex).c_str());
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;
@@ -209,7 +210,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		headers["Content-Type"] = "text/html";
 		response.setHeaders(headers);
 	}
-	else if (autoindex == "on")
+	else if (autoindex == "on" && !request.getIsRedirection())
 	{
 		std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
 		std::string dirPath = request.getAbspath();
@@ -257,7 +258,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		headers["Content-Type"] = "text/html";
 		response.setHeaders(headers);
 	}
-	else
+	else if (autoindex == "off")
 	{
 		std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
 		request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
