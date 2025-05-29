@@ -42,8 +42,12 @@ server {
 
 #redirection works when the directory exists
 #redirection doesn't work when the directory no exist
-    location /test {
+    location /redirection {
         return 301 http://localhost:8080;
+    }
+
+    location /redirection2 {
+        return 302 http://localhost:8080/errors/400_Bad-Request.html;
     }
 
 #Optional: redirect /upload to /upload/index.html if you want a redirect page
