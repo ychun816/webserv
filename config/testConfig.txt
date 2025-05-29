@@ -28,6 +28,17 @@ server {
         autoindex on;
     }
 
+    location /errors {
+        methods GET;
+        client_max_body_size 10M;
+        autoindex on;
+    }
+
+    location /cgi {
+        methods GET;
+        client_max_body_size 10M;
+        autoindex on;
+    }
 
 #redirection works when the directory exists
 #redirection doesn't work when the directory no exist
@@ -35,7 +46,7 @@ server {
         return 301 http://localhost:8080;
     }
 
-    #Optional: redirect /upload to /upload/index.html if you want a redirect page
+#Optional: redirect /upload to /upload/index.html if you want a redirect page
     location = /upload {
         return 301 http://localhost:8080;
     }
