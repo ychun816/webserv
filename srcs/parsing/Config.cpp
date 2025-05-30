@@ -530,3 +530,21 @@ Server* Config::findServerByLocation(const std::string& path, int port)
     }
     return NULL;
 }
+
+Server* Config::findServerByHost(const std::string& host, int port) {
+    // Extraire le nom d'hôte sans le port
+    std::string hostName = host;
+    size_t colonPos = hostName.find(':');
+    if (colonPos != std::string::npos) {
+        hostName = hostName.substr(0, colonPos);
+    }
+
+    for (size_t i = 0; i < _servers.size(); i++) {
+        if (_servers[i].getPort() == port && _servers[i].isServerNameMatch(hostName)) {
+            return &_servers[i];
+        }
+    }
+    return NULL;
+}
+
+

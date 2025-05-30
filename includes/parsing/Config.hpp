@@ -45,7 +45,7 @@ public:
 
     bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
-
+    Server* findServerByHost(const std::string& host, int port);
     class ConfigException : public std::exception
     {
         public:

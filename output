@@ -1,0 +1,97 @@
+Début des tests de stress...
+Test 1: Requête vide
+Test 2: Méthode invalide
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:00 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 3: URI très longue
+ 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:00 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html> 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:00 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 4: Headers malformés
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:00 2025
+Invalid: Header
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 5: Content-Length invalide
+HTTP/1.1 413 Payload Too Large
+Connection: close
+Content-Length: -1
+Content-Type: text/html
+Date: Fri May 30 10:51:01 2025
+
+<html><body><h1>Error 413: Payload Too Large</h1></body></html>Test 6: Transfer-Encoding chunked malformé
+HTTP/1.1 400 Bad Request
+Connection: close
+Content-Type: text/html
+Date: Fri May 30 10:51:01 2025
+Transfer-Encoding: chunked
+
+39
+<html><body><h1>Error 400: Bad Request</h1></body></html>
+0
+
+Test 7: Plusieurs Content-Length
+Test 8: Caractères spéciaux dans l'URI
+HTTP/1.1 404 Not Found
+Connection: close
+Content-Length: 54
+Date: Fri May 30 10:51:01 2025
+
+<html><body><h1>403 Not a Directory</h1></body></html>Test 9: Méthode très longue
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:01 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 10: Version HTTP invalide
+HTTP/999.999 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:01 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 11: Headers très longs
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:02 2025
+X-Test: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 12: Body très long
+HTTP/1.1 400 Bad Request
+Connection: close
+Content-Length: 1000000
+Content-Type: text/html
+Date: Fri May 30 10:51:04 2025
+
+<html><body><h1>Error 400: Bad Request</h1></body></html>Test 13: Plusieurs méthodes
+DELETE 404 Not Found
+Connection: close
+Content-Length: 54
+Date: Fri May 30 10:51:04 2025
+
+<html><body><h1>403 Not a Directory</h1></body></html>Test 14: Caractères de contrôle
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Length: 314
+Date: Fri May 30 10:51:04 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Test 15: Encodage invalide
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Encoding: invalid
+Content-Length: 314
+Date: Fri May 30 10:51:05 2025
+
+<html><head><title>Redirection</title><meta http-equiv="refresh" content="0;url=https://dpm.lol/esport/leagues/lec/2025/Spring/teams"></head><body><h1>Redirection</h1><p>Si vous n'êtes pas redirigé automatiquement, <a href="https://dpm.lol/esport/leagues/lec/2025/Spring/teams">cliquez ici</a>.</p></body></html>Tests terminés

@@ -67,6 +67,33 @@ Request::~Request()
 
 void Request::handleResponse()
 {
+    std::string hostHeader = getHeader("Host");
+    if (hostHeader.empty()) {
+        // Si pas de Host header, utiliser l'adresse IP par défaut
+        hostHeader = "127.0.0.1";
+    }
+
+    if (!_server.isServerNameMatch(hostHeader)) {
+        // Si le server_name ne correspond pas, chercher le bon serveur
+        Config* config = Config::getInstance();
+        if (config) {
+            Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
+            if (appropriateServer) {
+                _server = *appropriateServer;
+            } else {
+                // Si aucun serveur ne correspond, renvoyer une erreur 400
+                Response response(*this);
+                if (!errorPageExist(400)) {
+                    buildErrorPageHtml(400, response);
+                } else {
+                    openErrorPage(400, response);
+                }
+                _response = response;
+                return;
+            }
+        }
+    }
+    
     Response response(*this);
 
     if (!isContentLengthValid()) {

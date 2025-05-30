@@ -45,6 +45,7 @@ class Server
 				void    addConnexion(int fd);
 				void    removeConnexion(int fd);
 				bool    errorPageExist(size_t code);
+				bool	isServerNameMatch(const std::string& host) const;
 
 				// Getters
 				const std::string& getConfigFile() const { return _configFile; }

@@ -1,9 +1,9 @@
-
 #include "../../includes/server/Server.hpp"
 #include "../../includes/methods/Get.hpp" // added to execute methods
 #include "../../includes/methods/Post.hpp" // added to execute methods
 #include "../../includes/methods/Delete.hpp" // added to execute methods
 #include <algorithm> // std::find
+#include <arpa/inet.h>  // Ajout de cet en-tête pour inet_addr
 
 // Constructors
 Server::Server()
@@ -42,7 +42,7 @@ Server::~Server() { std::cout << this->_configFile << std::endl; }
 void    Server::createSocket() {
 	if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) // Socket creation, returns its FD
 				throw std::runtime_error("Error while creating the socket");
-		// Used to reuse the port (here 8080) and thus avoid the "address already in use" error
+		// Used to reuse the port  and thus avoid the "address already in use" error
 		const int enable = 1;
 		if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 				std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
@@ -58,7 +58,17 @@ void    Server::createSocket() {
 		// IPV4 INTERNET PROTOCOL
 		this->_address.sin_family = AF_INET;
 		// _address IP OF THE SOCKET (INADDR_ANY = the OS handles it)
-		this->_address.sin_addr.s_addr = htonl(INADDR_ANY);
+		if (this->_host.empty()) {
+			this->_address.sin_addr.s_addr = INADDR_ANY;
+		} else {
+			in_addr_t addr = inet_addr(this->_host.c_str());
+			if (addr == INADDR_NONE) {
+				this->_address.sin_addr.s_addr = INADDR_ANY;
+			} else {
+				this->_address.sin_addr.s_addr = addr;
+			}
+		}
+
 		 // Bind the socket to the network interface, links it. It can then be connected to using the correct port and receive incoming connections. Essentially, it's its address
 		if (bind(this->_socketFd, (struct sockaddr *)&this->_address, sizeof(this->_address)) < 0)
 		{
@@ -325,6 +335,20 @@ Location* Server::getCurrentLocation(const std::string& path) {
         }
     }
     return bestMatch;
+}
+
+bool Server::isServerNameMatch(const std::string& hostHeader) const {
+    if (_host.empty()) return true;  // Si pas de server_name configuré
+    
+    // Extraire le nom d'hôte sans le port
+    std::string host = hostHeader;
+    size_t colonPos = host.find(':');
+    if (colonPos != std::string::npos) {
+        host = host.substr(0, colonPos);
+    }
+    
+    // Vérification stricte
+    return host == _host;
 }
 
 /* TO FIX?
