@@ -108,6 +108,8 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
 			if (!request.errorPageExist(403)) {
 				response.setStatus(403);
+				//DEBUG//
+				std::cout << "🍦🍦HERE IS GET-403TYPE Error page 403 not found, building default error pageNO PERMISSION" << std::endl;
 				request.buildErrorPageHtml(403, response);
 			} else {
 				request.openErrorPage(403, response);
