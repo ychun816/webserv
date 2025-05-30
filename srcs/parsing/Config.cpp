@@ -254,6 +254,27 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
             }
             server.setErrorPages(errorPages);
         }
+        else if ((*it).find("return") != std::string::npos)
+        {
+            std::istringstream lineStream(*it);
+            std::string directive;
+            int code;
+            std::string url;
+            lineStream >> directive >> code >> url;
+            
+            // Nettoyer l'URL de redirection
+            url = trim(url, " \t;");  // Enlever les espaces et points-virgules
+            
+            // Validation du code de redirection
+            if (code != 301 && code != 302 && code != 303 && 
+                code != 307 && code != 308) {
+                std::ostringstream oss;
+                oss << code;
+                throw std::runtime_error("Code de redirection invalide: " + oss.str());
+            }
+            
+            server.setReturn(code, url);
+        }
 
 }
 

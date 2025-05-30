@@ -56,7 +56,7 @@ Request::Request(std::string request, Server& server) :
 
 		std::cout << std::endl;
 	}
-    if (_currentLocation->getReturn().first != 0) {
+    if (_currentLocation && _currentLocation->getReturn().first != 0) {
         setIsRedirection(true);
     }
 }

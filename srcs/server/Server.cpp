@@ -32,6 +32,7 @@ Server::Server(const Server& other) {
 	_address = other._address;
 	_errorPages = other._errorPages;
 	_locations = other._locations;
+	_return = other._return;
 }
 
 // Destructor
@@ -248,6 +249,7 @@ Server & Server::operator=(const Server &assign)
 		_connexions = assign._connexions;
 		_address = assign._address;
 		_locations = assign._locations;
+		_return = assign._return;
 	}
 	return *this;
 }

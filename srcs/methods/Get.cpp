@@ -43,7 +43,32 @@ void Get::execute(Request& request, Response& response, Server& server)
 		request.setIsRedirection(true);
 		return;
 	}
+	else if (server.getReturn().first != 0)
+	{
+		std::pair<int, std::string> redirectInfo = server.getReturn();
+		int redirectCode = redirectInfo.first;
+		std::string redirectUrl = redirectInfo.second;
 
+		std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  // Debug
+
+		// Créer un corps HTML pour la redirection
+		std::string htmlBody = "<html><head><title>Redirection</title>";
+		htmlBody += "<meta http-equiv=\"refresh\" content=\"0;url=" + redirectUrl + "\">";
+		htmlBody += "</head><body>";
+		htmlBody += "<h1>Redirection</h1>";
+		htmlBody += "<p>Si vous n'êtes pas redirigé automatiquement, <a href=\"" + redirectUrl + "\">cliquez ici</a>.</p>";
+		htmlBody += "</body></html>";
+
+		response.setStatus(redirectCode);
+		response.setStatusMessage(response.getStatusMessage(redirectCode));
+		std::map<std::string, std::string> headers;
+		headers["Location"] = redirectUrl;
+		headers["Content-Type"] = "text/html";
+		response.setHeaders(headers);
+		request.fillResponse(response, redirectCode, htmlBody);
+		request.setIsRedirection(true);
+		return;
+	}
 	if (!request.validateQueryParams())
 	{
 		std::cout << "Paramètres de requête invalides" << std::endl;

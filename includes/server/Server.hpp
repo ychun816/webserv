@@ -62,6 +62,7 @@ class Server
 				const std::list<std::string>& getAllowMethods() const { return _allowMethods; }
 				const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
 				const std::list<Location>& getLocations() const { return _locations; }
+				const std::pair<size_t, std::string>& getReturn() const { return _return; }
 				// Setters
 				void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 				void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }
@@ -77,6 +78,7 @@ class Server
 				void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }
 				void setAllowMethods(const std::list<std::string>& allowMethods) { _allowMethods = allowMethods; }
 				void setLocations(const std::list<Location>& locations) { _locations = locations; }
+				void setReturn(int code, const std::string& url) { _return = std::make_pair(code, url); }
 				//added to exec methods
 				  void executeMethods(Request& request, Response& response);//change to server class?
 				Location* getCurrentLocation(const std::string& path);
@@ -98,6 +100,7 @@ class Server
 				struct sockaddr_in                      _address;
 				std::map<size_t, std::string>           _errorPages; // key: error code, value: page path
 				std::list<Location>                     _locations;
+				std::pair<size_t, std::string>          _return;
 				class configError : public std::exception
 				{
 						public:
