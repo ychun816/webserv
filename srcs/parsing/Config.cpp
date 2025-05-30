@@ -173,6 +173,9 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
+        //DEBUG ////
+        std::cout << "🍦CONFIG | LISTEN: " << value << std::endl;
+
         server.setPort(atoi(value.c_str()));
     }
     else if (directive == "server_name")
@@ -180,6 +183,8 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
+        //DEBUG ////
+        std::cout << "🍦CONFIG | SEVER NAME: " << value << std::endl;
         server.setHost(value);
     }
     else if (directive == "methods")

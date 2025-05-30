@@ -78,6 +78,9 @@ void Request::handleResponse()
         Config* config = Config::getInstance();
         if (config) {
             Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
+            //DEBUG 
+            std::cout << "🍦HANDLE RESPONSE | Host header: " << hostHeader << std::endl;
+            std::cout << "🍦HANDLE RESPONSE | Server port: " << _server.getPort() << std::endl;
             if (appropriateServer) {
                 _server = *appropriateServer;
             } else {

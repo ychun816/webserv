@@ -77,13 +77,3 @@ server {
         return 301 http://localhost:8080;
     }
 }
-
-
-
-# TO TRY WITH LISTING
-location /upload/ {
-    methods GET POST;
-    cgi_ext .py .php;
-    cgi_dir /www/simplesite/cgi-bin;
-    index list.py index.html;
-}

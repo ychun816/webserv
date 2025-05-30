@@ -291,16 +291,28 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 
 		// Créer une page HTML pour afficher le contenu du répertoire
 		std::string directoryListing = "<html><head><title>Directory Listing</title>";
-		directoryListing += "<style>body{font-family:Arial,sans-serif;margin:20px;}h1{color:#333;}";
-		directoryListing += "ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}";
-		directoryListing += "a{text-decoration:none;color:#0066cc;}</style></head>";
+		// directoryListing += "<style>body{font-family:Arial,sans-serif;margin:20px;}h1{color:#333;}";
+		// directoryListing += "ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}";
+		// directoryListing += "a{text-decoration:none;color:#0066cc;}</style></head>";
+
+		////CHANGED FONT TO BE COHERENT DESIGN
+		directoryListing += "<head>"
+                    "<link href=\"https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap\" rel=\"stylesheet\">"
+                    "<style>"
+                    "body{font-family:'Josefin Sans',Arial,sans-serif;margin:20px;}"
+                    "h1{color:#333;}"
+					"ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}"
+					"a{text-decoration:none;color:#0066cc;}"
+                    "</style></head>";
+		////
 		directoryListing += "<body><h1>Directory listing for " + request.getUri() + "</h1><ul>";
 
-		for (size_t i = 0; i < dirFiles.size(); i++) {
+		for (size_t i = 2; i < dirFiles.size(); i++) //FIXED TO RID OF . and .. 
+		{
 			directoryListing += "<li><a href=\"" + request.getUri();
 			if (request.getUri()[request.getUri().length() - 1] != '/')
 				directoryListing += "/";
-			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>";
+			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>"; 
 		}
 
 		directoryListing += "</ul></body></html>";

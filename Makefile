@@ -55,6 +55,7 @@ TOTAL_FILES := $(words $(SRCS))
 CURRENT_FILE = 0
 
 all: create_dirs $(NAME)
+				 $(print_flag)
 
 # Création des dossiers nécessaires (maintenant une cible plutôt qu'une directive shell)
 create_dirs:
@@ -161,3 +162,37 @@ re: fclean all
 -include $(DEPS)
 
 .PHONY: all clean fclean re
+
+
+# **************************************************************************** #
+#                              COLOR SETTING                                   #
+# **************************************************************************** #
+
+COLOR_RESET = \033[0m
+PINKB = \033[1;95m
+REDB = \033[1;91m
+ROSEB = \033[1;38;5;225m
+BLUEB = \033[1;34m
+BABEBLUEB = \033[1;38;5;153m
+GREENB = \033[1;38;5;85m
+PURPLEB = \033[1;38;5;55m
+PSTL_YELLOWB = \033[1;38;2;255;253;208m
+PSTL_ORGB = \033[1;38;2;255;179;102m
+PSTL_PURPLEB =\033[1;38;2;204;153;255m
+
+GREEN_BBG = \033[1;42m
+BLUE_BBG = \033[1;44m
+YELLOW_BBG = \033[1;43m
+ORANGE_BBG = \033[1;48;5;214m
+
+# **************************************************************************** #
+#                               PRINT FLAG                                     #
+# **************************************************************************** #
+
+define print_flag
+	@echo "$(PSTL_ORGB).☆.｡.:*・°･.｡*･.｡* .☆.｡.:*.☆.｡.:*・°･.｡*･.｡*.☆.｡.:*.☆.｡.:*.☆.｡.:*.｡.:*$(COLOR_RESET)"
+	@echo "$(BABEBLUEB)"
+	@cat getlucky_banner.txt
+	@echo "$(COLOR_RESET)"
+	@echo "$(PSTL_ORGB).☆.｡.:*・°･.｡*･.｡* .☆.｡.:*.☆.｡.:*・°･.｡*･.｡*.☆.｡.:*.☆.｡.:*.☆.｡.:*.｡.:*$(COLOR_RESET)"
+endef
