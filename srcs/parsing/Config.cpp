@@ -34,13 +34,11 @@ Config::~Config()
 }
 Location Config::parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it)
 {
-    // std::string path = trim(location, " }");
     std::cout << "Path: " << location << std::endl;
     Location NewLocation;
     NewLocation.setPath(location);
-    // Move to the end of the location block
-    int braceCount = 1; // We start after the opening brace
-    it++; // Move to the next line after "location xxx {"
+    int braceCount = 1;
+    it++;
 
     while (it != lines.end() && braceCount > 0)
     {
@@ -51,15 +49,19 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             braceCount--;
 
         if (braceCount == 0)
-            break; // We found the corresponding closing brace
+            break;
 
-        // Process location parameters
-        if ((*it).find("methods") != std::string::npos)
+        std::string line = *it;
+        std::istringstream iss(line);
+        std::string directive;
+        iss >> directive;
+
+        if (directive == "methods")
         {
-            size_t pos = (*it).find("methods") + 7;
-            std::string value = (*it).substr(pos);
-            std::vector<std::string> methodsVector;
+            std::string value;
+            std::getline(iss, value);
             value = trim(value, " \t;");
+            std::vector<std::string> methodsVector;
             std::stringstream ss(value);
             std::string method;
             while (ss >> method) {
@@ -67,60 +69,55 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             }
             NewLocation.setMethods(methodsVector);
         }
-        else if ((*it).find("index") != std::string::npos && (*it).find("autoindex") == std::string::npos)
+        else if (directive == "index")
         {
-            size_t pos = (*it).find("index") + 5;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setIndex(value);
         }
-        else if ((*it).find("root") != std::string::npos)
+        else if (directive == "root")
         {
-            size_t pos = (*it).find("root") + 4;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setRoot(value);
         }
-        else if ((*it).find("cgi_ext") != std::string::npos)
+        else if (directive == "cgi_ext")
         {
-            size_t pos = (*it).find("cgi_ext") + 7;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setCgiExt(value);
         }
-        else if ((*it).find("client_max_body_size") != std::string::npos)
+        else if (directive == "client_max_body_size")
         {
-            size_t pos = (*it).find("client_max_body_size") + 20;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setClientMaxBodySize(value);
         }
-        else if ((*it).find("autoindex") != std::string::npos)
+        else if (directive == "autoindex")
         {
-            size_t pos = (*it).find("autoindex") + 9;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setAutoindex(value);
         }
-        else if ((*it).find("upload_path") != std::string::npos)
+        else if (directive == "upload_path")
         {
-            size_t pos = (*it).find("upload_path") + 11;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            iss >> value;
             value = trim(value, " \t;");
             NewLocation.setUploadPath(value);
         }
-        else if ((*it).find("return") != std::string::npos)
+        else if (directive == "return")
         {
-            std::istringstream lineStream(*it);
-            std::string directive;
             int code;
             std::string url;
-            lineStream >> directive >> code >> url;
+            iss >> code >> url;
+            url = trim(url, " \t;");
             
-            // Nettoyer l'URL de redirection
-            url = trim(url, " \t;");  // Enlever les espaces et points-virgules
-            
-            // Validation du code de redirection
             if (code != 301 && code != 302 && code != 303 && 
                 code != 307 && code != 308) {
                 std::ostringstream oss;
@@ -130,10 +127,10 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             
             NewLocation.setReturn(code, url);
         }
-        else if ((*it).find("error_page") != std::string::npos)
+        else if (directive == "error_page")
         {
-            size_t pos = (*it).find("error_page") + 11;
-            std::string value = (*it).substr(pos);
+            std::string value;
+            std::getline(iss, value);
             value = trim(value, " \t;");
             std::map<size_t, std::string> errorPages;
             std::stringstream ss(value);
@@ -165,117 +162,114 @@ void	printLocation(Location& loc)
 
 void Config::findParameters(std::vector<std::string>::iterator& it, Server& server, std::vector<std::string>& lines)
 {
- std::cout << "Checking line: [" << *it << "]" << std::endl;
-        if ((*it).find("listen") != std::string::npos)
-        {
-            size_t pos = (*it).find("listen") + 6;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setPort(atoi(value.c_str()));
-        }
-        else if ((*it).find("server_name") != std::string::npos)
-        {
-            size_t pos = (*it).find("server_name") + 11;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setHost(value);
-        }
-        else if ((*it).find("methods") != std::string::npos)
-        {
-            size_t pos = (*it).find("methods") + 7;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            std::list<std::string> methods;
-            std::stringstream ss(value);
-            std::string method;
-            while (ss >> method) {
-                methods.push_back(method);
-            }
-            server.setAllowMethods(methods);
-        }
-        else if ((*it).find("root") != std::string::npos)
-        {
-            size_t pos = (*it).find("root") + 4;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setRoot(value);
-        }
-        else if ((*it).find("index") != std::string::npos && (*it).find("autoindex") == std::string::npos)
-        {
-            size_t pos = (*it).find("index") + 5;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setIndex(value);
-        }
-        else if ((*it).find("client_max_body_size") != std::string::npos)
-        {
-            size_t pos = (*it).find("client_max_body_size") + 20;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setClientMaxBodySize(value);
-        }
-        else if ((*it).find("location") != std::string::npos)
-        {
-            std::cout << "Found location in line: [" << *it << "]" << std::endl;
-            size_t pos = (*it).find("location") + 8;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;{");
-            std::cout << "Location: " << value << std::endl;
+    std::cout << "Checking line: [" << *it << "]" << std::endl;
+    std::string line = *it;
+    std::istringstream iss(line);
+    std::string directive;
+    iss >> directive;  // Lit le premier mot de la ligne
 
-            // parseLocation advances the iterator to the end of the block then we push the location into the server
-            Location loc = parseLocation(value, lines, it);
-			//printLocation(loc);
-            server.pushLocation(loc);
+    if (directive == "listen")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setPort(atoi(value.c_str()));
+    }
+    else if (directive == "server_name")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setHost(value);
+    }
+    else if (directive == "methods")
+    {
+        std::string value;
+        std::getline(iss, value);
+        value = trim(value, " \t;");
+        std::list<std::string> methods;
+        std::stringstream ss(value);
+        std::string method;
+        while (ss >> method) {
+            methods.push_back(method);
         }
-        else if ((*it).find("autoindex") != std::string::npos)
-        {
-            size_t pos = (*it).find("autoindex") + 9;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setAutoIndex(value);
-        }
-        else if ((*it).find("cgi") != std::string::npos)
-        {
-            size_t pos = (*it).find("cgi") + 4;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            server.setCgi(value);
-        }
-        else if ((*it).find("error_page") != std::string::npos)
-        {
-            size_t pos = (*it).find("error_page") + 11;
-            std::string value = (*it).substr(pos);
-            value = trim(value, " \t;");
-            std::map<size_t, std::string> errorPages;
-            std::stringstream ss(value);
-            std::string code, path;
-            while (ss >> code >> path) {
-                errorPages[atoi(code.c_str())] = path;
-            }
-            server.setErrorPages(errorPages);
-        }
-        else if ((*it).find("return") != std::string::npos)
-        {
-            std::istringstream lineStream(*it);
-            std::string directive;
-            int code;
-            std::string url;
-            lineStream >> directive >> code >> url;
-            
-            // Nettoyer l'URL de redirection
-            url = trim(url, " \t;");  // Enlever les espaces et points-virgules
-            
-            // Validation du code de redirection
-            if (code != 301 && code != 302 && code != 303 && 
-                code != 307 && code != 308) {
-                std::ostringstream oss;
-                oss << code;
-                throw std::runtime_error("Code de redirection invalide: " + oss.str());
-            }
-            
-            server.setReturn(code, url);
-        }
+        server.setAllowMethods(methods);
+    }
+    else if (directive == "root")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setRoot(value);
+    }
+    else if (directive == "index")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setIndex(value);
+    }
+    else if (directive == "client_max_body_size")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setClientMaxBodySize(value);
+    }
+    else if (directive == "location")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;{");
+        std::cout << "Location: " << value << std::endl;
 
+        Location loc = parseLocation(value, lines, it);
+        server.pushLocation(loc);
+    }
+    else if (directive == "autoindex")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setAutoIndex(value);
+    }
+    else if (directive == "cgi")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        server.setCgi(value);
+    }
+    else if (directive == "error_page")
+    {
+        std::string value;
+        std::getline(iss, value);
+        value = trim(value, " \t;");
+        std::map<size_t, std::string> errorPages;
+        std::stringstream ss(value);
+        std::string code, path;
+        while (ss >> code >> path) {
+            errorPages[atoi(code.c_str())] = path;
+        }
+        server.setErrorPages(errorPages);
+    }
+    else if (directive == "return")
+    {
+        int code;
+        std::string url;
+        iss >> code >> url;
+        
+        url = trim(url, " \t;");
+        
+        if (code != 301 && code != 302 && code != 303 && 
+            code != 307 && code != 308) {
+            std::ostringstream oss;
+            oss << code;
+            throw std::runtime_error("Code de redirection invalide: " + oss.str());
+        }
+        
+        server.setReturn(code, url);
+    }
 }
 
 Server Config::fillServer(std::vector<std::string>& lines)
