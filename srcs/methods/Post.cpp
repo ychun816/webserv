@@ -37,8 +37,12 @@ std::string Post::extractFileContent(std::string& rawBody) const
 void Post::execute(Request& request, Response& response, Server& server)
 {
     if (!request.isBodySizeValid()) {
-        response.setStatus(413);
-        request.buildErrorPageHtml(response.getStatus(), response);
+        if (!request.errorPageExist(413)) {
+            response.setStatus(413);
+            request.buildErrorPageHtml(response.getStatus(), response);
+        } else {
+            request.openErrorPage(413, response);
+        }
         return;
     }
     
@@ -51,15 +55,23 @@ void Post::execute(Request& request, Response& response, Server& server)
         // Change the path to the upload_path in the configfile
         uploadPath = request.getAbspath();
         if (uploadPath.empty()) {
-            response.setStatus(400);
-            request.buildErrorPageHtml(response.getStatus(), response);
+            if (!request.errorPageExist(400)) {
+                response.setStatus(400);
+                request.buildErrorPageHtml(response.getStatus(), response);
+            } else {
+                request.openErrorPage(400, response);
+            }
             return;
         }
 
         filename = request.getFilename();
         if (filename.empty()) {
-            response.setStatus(400);
-            request.buildErrorPageHtml(response.getStatus(), response);
+            if (!request.errorPageExist(400)) {
+                response.setStatus(400);
+                request.buildErrorPageHtml(response.getStatus(), response);
+            } else {
+                request.openErrorPage(400, response);
+            }
             return;
         }
         
@@ -88,8 +100,12 @@ void Post::execute(Request& request, Response& response, Server& server)
         /////////////////////////////////////////////////
 
         if (!output.is_open()) {
-            response.setStatus(500);
-            request.buildErrorPageHtml(response.getStatus(), response);
+            if (!request.errorPageExist(500)) {
+                response.setStatus(500);
+                request.buildErrorPageHtml(response.getStatus(), response);
+            } else {
+                request.openErrorPage(500, response);
+            }
             return;
         }
 
@@ -103,8 +119,12 @@ void Post::execute(Request& request, Response& response, Server& server)
     catch (const std::exception& e) {
         // Safely handle any exceptions that might occur
         std::cerr << "Exception in POST handler: " << e.what() << std::endl;
-        response.setStatus(500);
-        request.buildErrorPageHtml(response.getStatus(), response);
+        if (!request.errorPageExist(500)) {
+            response.setStatus(500);
+            request.buildErrorPageHtml(response.getStatus(), response);
+        } else {
+            request.openErrorPage(500, response);
+        }
     }
 }
 
