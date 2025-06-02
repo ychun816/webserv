@@ -14,10 +14,13 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "../../includes/server/Response.hpp"
+
 
 void timestamp(std::string str, std::string color);
 std::string trim(const std::string& str, const std::string& chars = WHITESPACES_WITH_SPACE);
 size_t convertSizeToBytes(const std::string& size);
 std::string readChunkedData(int client_fd);
 size_t hexToSizeT(const std::string& hexStr);
+void debugString(Response& response);
 #endif

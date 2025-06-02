@@ -1,5 +1,4 @@
 #include "../../includes/webserv.hpp"
-
 #include "../../includes/utils/Utils.hpp"
 
 std::string readChunkedData(int client_fd) {
@@ -103,3 +102,21 @@ size_t hexToSizeT(const std::string& hexStr) {
     return result;
 }
 
+void debugString(Response &response)
+{
+    // Choisir la couleur selon le code de réponse
+    int code = response.getStatus();
+    std::string color;
+    if (code >= 200 && code < 300)
+        color = "\033[1;32m"; // Vert pour succès
+    else if (code >= 300 && code < 400)
+        color = "\033[1;36m"; // Cyan pour redirection
+    else if (code >= 400 && code < 500)
+        color = "\033[1;33m"; // Jaune pour erreur client
+    else if (code >= 500)
+        color = "\033[1;31m"; // Rouge pour erreur serveur
+    else
+        color = "\033[0m";    // Couleur par défaut
+
+    std::cout << color << "[Response] Code: " << code << " - " << response.getStatusMessage(code) << "\033[0m" << std::endl;
+}

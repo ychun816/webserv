@@ -549,14 +549,14 @@ Server* Config::findServerByHost(const std::string& host, int port) {
 
     // Chercher d'abord par server_name
     for (size_t i = 0; i < _servers.size(); i++) {
-        std::cout << "🍦FIND SERVER BY SERVER_NAME | Server port: " << _servers[i].getPort() << std::endl;
+        // std::cout << "🍦FIND SERVER BY SERVER_NAME | Server port: " << _servers[i].getPort() << std::endl;
         if (_servers[i].getPort() == port && _servers[i].isServerNameMatch(hostName)) {
             return &_servers[i];
         }
     }
     // Si aucun server_name ne correspond, chercher par host direct
     for (size_t i = 0; i < _servers.size(); i++) {
-        std::cout << "🍦FIND SERVER BY HOST | HostName: " << hostName << std::endl;
+        // std::cout << "🍦FIND SERVER BY HOST | HostName: " << hostName << std::endl;
         std::cout << _servers[i].getServerName() << std::endl;
         if (_servers[i].getPort() == port && _servers[i].getServerName() == hostName) {
             return &_servers[i];

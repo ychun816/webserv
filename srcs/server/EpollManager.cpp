@@ -243,6 +243,21 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 							// std::cout << req.getResponse() << std::endl;
 
 							send(current_fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+
+							if (req.getHeader("Connection") != "keep-alive") {
+								// Close connection if not keep-alive
+								close(current_fd);
+								removeSocket(current_fd);
+								servers[server_index].removeConnexion(current_fd);
+								std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
+								// std::string response = req.getResponse();
+								    // std::cout << "\033[1;32m[Response] Code: " <<  << " - " << _statusMessage << "\033[0m" << std::endl;
+
+							}
+							else {
+								// Keep the connection open for further requests
+								std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
+							}
 						} else {
 							// Send 413 Request Entity Too Large
 							std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"

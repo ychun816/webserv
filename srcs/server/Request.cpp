@@ -25,6 +25,7 @@ Request::Request(std::string request, Server& server) :
 	_isChunked(false),
 	_isRedirection(false)
 {
+
 	parseRequest();
 	// Ne continuer que si la requête est valide
 	if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
@@ -92,6 +93,8 @@ void Request::handleResponse()
                     openErrorPage(400, response);
                 }
                 _response = response;
+        
+
                 return;
             }
         }
@@ -130,7 +133,9 @@ void Request::handleResponse()
     }
 
     response.setResponse(response.formatResponse());
-    std::cout << BLUE << "Sending response: \n" << response.getResponse() << RESET << std::endl;
+
+
+    debugString(response);
 
 }
 
@@ -259,8 +264,9 @@ void Request::parseRequest()
         }
         _body = body;
     }
-    std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
+    // std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
     //handleResponse();
+
 
 }
 
