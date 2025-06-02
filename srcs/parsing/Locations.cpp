@@ -24,9 +24,7 @@ Location::Location(const Location& other)
 }
 
 
-Location::~Location()
-{
-}
+Location::~Location(){}
 
 
 Location& Location::operator=(const Location& other)

@@ -51,13 +51,4 @@ public:
 
 	// Operators
 	Location& operator=(const Location& other);
-
-
-
-	// //added to debug segfault
-	// void printLOCATIONUploadPath() 
-	// {
-	// 	std::cout << "Upload path: " << _upload_path << std::endl;
-	// };
-
 };

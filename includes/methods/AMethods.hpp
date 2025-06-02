@@ -40,8 +40,6 @@ class AMethods
 {
 	public :
 		AMethods();
-		// AMethods(const AMethods& copy);
-		// AMethods&	operator=(const AMethods& copy);
 		virtual ~AMethods();
 
 		virtual void execute(Request& request, Response& response, Server& server) = 0;

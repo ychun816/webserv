@@ -157,10 +157,12 @@ std::string CGIhandler::execute()
 	}
 	close(inputPipe[0]);
 	close(outputPipe[1]);
+
 	// Si c'est une requête POST, écrire les données dans le pipe d'entrée
 	if (_request->getMethod() == "POST" && !_postData.empty())
 		write(inputPipe[1], _postData.c_str(), _postData.length());
 	close(inputPipe[1]);
+
 	// Lire la sortie du script CGI
 	char buffer[4096];
 	ssize_t bytesRead;
@@ -171,9 +173,11 @@ std::string CGIhandler::execute()
 		output += buffer;
 	}
 	close(outputPipe[0]);
+
 	// Attendre que le processus CGI se termine
 	int status;
 	waitpid(pid, &status, 0);
+	
 	// Vérifier le statut de fin
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 		std::cerr << "CGI script exited with status " << WEXITSTATUS(status) << std::endl;

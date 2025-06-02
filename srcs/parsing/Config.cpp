@@ -1,9 +1,9 @@
 #include "../../includes/parsing/Config.hpp"
 #include <sstream>
 #include <string>
-#include <sys/wait.h> // For waitpid
+#include <sys/wait.h>   // For waitpid
 #include <sys/select.h> // For select
-#include <sys/epoll.h> // For epoll
+#include <sys/epoll.h>  // For epoll
 #include "../../includes/server/EpollManager.hpp"
 
 // Initialisation de l'instance statique
@@ -156,6 +156,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
     return (NewLocation);
 }
 
+//DEBUGGER? //////////////////////////////////////////////////////////////////
 void	printLocation(Location& loc)
 {
 	std::cout << std::endl;
@@ -170,6 +171,7 @@ void	printLocation(Location& loc)
 	std::cout << "===========END PRINT LOCATION===========" << std::endl;
 	std::cout << std::endl;
 }
+//////////////////////////////////////////////////////////////////
 
 void Config::findParameters(std::vector<std::string>::iterator& it, Server& server, std::vector<std::string>& lines)
 {
@@ -184,9 +186,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
-        //DEBUG ////
-        std::cout << "🍦CONFIG | LISTEN: " << value << std::endl;
-
+        // std::cout << "🍦CONFIG | LISTEN: " << value << std::endl; //DEBUG//
         server.setPort(atoi(value.c_str()));
     }
     else if (directive == "server_name")
@@ -194,8 +194,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
-        //DEBUG ////
-        std::cout << "🍦CONFIG | SEVER NAME: " << value << std::endl;
+        // std::cout << "🍦CONFIG | SEVER NAME: " << value << std::endl; //DEBUG//
         server.setHost(value);
     }
     else if (directive == "host")
@@ -203,8 +202,7 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
-        //DEBUG ////
-        std::cout << "🍦CONFIG | HOST: " << value << std::endl;
+        // std::cout << "🍦CONFIG | HOST: " << value << std::endl; //DEBUG//
         server.setServerName(value);
     }
     else if (directive == "methods")
@@ -316,12 +314,14 @@ Server Config::fillServer(std::vector<std::string>& lines)
     {
         findParameters(it, server, lines);
     }
-    // DEBUG
-    for (size_t i = 0; i < lines.size(); i++) {
-            std::cout << "Server Line " << i << ": [" << lines[i] << "]" << std::endl;
-        }
+    //DEBUG ///////////////////////////
+    // for (size_t i = 0; i < lines.size(); i++) {
+    //         std::cout << "Server Line " << i << ": [" << lines[i] << "]" << std::endl;
+    //     }
+    //////////////////////////////////
     return (server);
 }
+
 void Config::parseServer(std::vector<std::string>& lines)
 {
     if (lines.empty())
@@ -360,6 +360,7 @@ void Config::parseServer(std::vector<std::string>& lines)
 
                 // Create a new vector with the remaining lines
                 std::vector<std::string> remainingLines(it + 1, lines.end());
+
                 // Clean empty lines at the beginning of the vector
                 while (!remainingLines.empty() && trim(remainingLines[0], WHITESPACES_WITH_SPACE).empty())
                     remainingLines.erase(remainingLines.begin());
@@ -409,81 +410,6 @@ void Config::runServers() {
     // Déléguer le traitement des événements au singleton
     epollManager->processEvents(_servers);
 }
-
-// void Config::runServers()
-// {
-//     if (_servers.empty()) {
-//         std::cerr << "No servers to start" << std::endl;
-//         return;
-//     }
-
-//     std::cout << "Starting " << _servers.size() << " servers..." << std::endl;
-
-//     // Initialize all servers
-//     for (size_t i = 0; i < _servers.size(); i++) {
-//         std::cout << "Configuring server " << i << " on port " << _servers[i].getPort() << std::endl;
-//         _servers[i].createSocket();
-//         _servers[i].configSocket();
-//     }
-
-//     // Create a single epoll instance for all servers
-//     int epoll_fd = epoll_create(1);
-//     if (epoll_fd < 0) {
-//         std::cerr << "Epoll Error" << std::endl;
-//         return;
-//     }
-
-//     // Add all server sockets to epoll
-//     for (size_t i = 0; i < _servers.size(); i++) {
-//         struct epoll_event event;
-//         event.events = EPOLLIN;
-//         event.data.fd = _servers[i].getSocketFd();
-//         _servers[i].setEpollFd(epoll_fd);  // Set epoll_fd for each server
-//         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event) == -1) {
-//             std::cerr << "Fail to add Socket to epoll" << std::endl;
-//             continue;
-//         }
-//     }
-
-//     // Main loop with epoll
-//     struct epoll_event events[MAX_EVENTS];
-//     while (true) {
-//         int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-//         if (event_count == -1) {
-//             std::cerr << "epoll_wait error" << std::endl;
-//             continue;
-//         }
-
-//         for (int i = 0; i < event_count; i++) {
-//             // Trouver le serveur correspondant
-//             for (size_t j = 0; j < _servers.size(); j++) {
-//                 if (events[i].data.fd == _servers[j].getSocketFd()) {
-//                     // Nouvelle connexion
-//                     _servers[j].handleNewConnection();
-//                 } else {
-//                     // Connexion client existante
-//                     char buffer[1024] = {0};
-//                     int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
-//                     if (bytes_read > 0) {
-//                         std::string request(buffer, bytes_read);
-//                         Request req(request, _servers[j]);
-//                         req.handleResponse();
-//                         send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-
-//                     } else {
-//                         // Client déconnecté
-//                         close(events[i].data.fd);
-//                         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     // Cleanup
-//     close(epoll_fd);
-// }
-
 
 void Config::initParsing(std::ifstream& file)
 {
@@ -562,7 +488,8 @@ Server* Config::findServerByLocation(const std::string& path, int port)
     return NULL;
 }
 
-Server* Config::findServerByHost(const std::string& host, int port) {
+Server* Config::findServerByHost(const std::string& host, int port) 
+{
     // Extraire le nom d'hôte sans le port
     std::string hostName = host;
     size_t colonPos = hostName.find(':');
@@ -572,14 +499,14 @@ Server* Config::findServerByHost(const std::string& host, int port) {
 
     // Chercher d'abord par server_name
     for (size_t i = 0; i < _servers.size(); i++) {
-        // std::cout << "🍦FIND SERVER BY SERVER_NAME | Server port: " << _servers[i].getPort() << std::endl;
+        // std::cout << "🍦FIND SERVER BY SERVER_NAME | Server port: " << _servers[i].getPort() << std::endl; //DEBUG//
         if (_servers[i].getPort() == port && _servers[i].isServerNameMatch(hostName)) {
             return &_servers[i];
         }
     }
     // Si aucun server_name ne correspond, chercher par host direct
     for (size_t i = 0; i < _servers.size(); i++) {
-        // std::cout << "🍦FIND SERVER BY HOST | HostName: " << hostName << std::endl;
+        // std::cout << "🍦FIND SERVER BY HOST | HostName: " << hostName << std::endl; //DEBUG//
         std::cout << _servers[i].getServerName() << std::endl;
         if (_servers[i].getPort() == port && _servers[i].getServerName() == hostName) {
             return &_servers[i];
@@ -589,3 +516,77 @@ Server* Config::findServerByHost(const std::string& host, int port) {
 }
 
 
+
+// void Config::runServers()
+// {
+//     if (_servers.empty()) {
+//         std::cerr << "No servers to start" << std::endl;
+//         return;
+//     }
+
+//     std::cout << "Starting " << _servers.size() << " servers..." << std::endl;
+
+//     // Initialize all servers
+//     for (size_t i = 0; i < _servers.size(); i++) {
+//         std::cout << "Configuring server " << i << " on port " << _servers[i].getPort() << std::endl;
+//         _servers[i].createSocket();
+//         _servers[i].configSocket();
+//     }
+
+//     // Create a single epoll instance for all servers
+//     int epoll_fd = epoll_create(1);
+//     if (epoll_fd < 0) {
+//         std::cerr << "Epoll Error" << std::endl;
+//         return;
+//     }
+
+//     // Add all server sockets to epoll
+//     for (size_t i = 0; i < _servers.size(); i++) {
+//         struct epoll_event event;
+//         event.events = EPOLLIN;
+//         event.data.fd = _servers[i].getSocketFd();
+//         _servers[i].setEpollFd(epoll_fd);  // Set epoll_fd for each server
+//         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event) == -1) {
+//             std::cerr << "Fail to add Socket to epoll" << std::endl;
+//             continue;
+//         }
+//     }
+
+//     // Main loop with epoll
+//     struct epoll_event events[MAX_EVENTS];
+//     while (true) {
+//         int event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+//         if (event_count == -1) {
+//             std::cerr << "epoll_wait error" << std::endl;
+//             continue;
+//         }
+
+//         for (int i = 0; i < event_count; i++) {
+//             // Trouver le serveur correspondant
+//             for (size_t j = 0; j < _servers.size(); j++) {
+//                 if (events[i].data.fd == _servers[j].getSocketFd()) {
+//                     // Nouvelle connexion
+//                     _servers[j].handleNewConnection();
+//                 } else {
+//                     // Connexion client existante
+//                     char buffer[1024] = {0};
+//                     int bytes_read = read(events[i].data.fd, buffer, sizeof(buffer));
+//                     if (bytes_read > 0) {
+//                         std::string request(buffer, bytes_read);
+//                         Request req(request, _servers[j]);
+//                         req.handleResponse();
+//                         send(events[i].data.fd, req.getResponse().c_str(), req.getResponse().size(), 0);
+
+//                     } else {
+//                         // Client déconnecté
+//                         close(events[i].data.fd);
+//                         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     // Cleanup
+//     close(epoll_fd);
+// }

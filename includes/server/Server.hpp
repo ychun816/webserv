@@ -1,10 +1,7 @@
 #pragma once
 #include "../parsing/Locations.hpp"
 #include "../utils/Utils.hpp"
-// #include "../../includes/methods/Get.hpp" //added to exec methods
-// #include "../../includes/methods/Post.hpp" //added to exec methods
-// #include "../../includes/methods/Delete.hpp" //added to exec methods
-#include "../methods/AMethods.hpp" //added to exec methods
+#include "../methods/AMethods.hpp"
 
 
 
@@ -29,7 +26,7 @@ class Server
 		public:
 				// Constructors
 				Server();
-				Server(const Server& other); // Constructeur de copie
+				Server(const Server& other);
 				// Destructor
 				~Server();
 
@@ -67,6 +64,7 @@ class Server
 				const std::list<Location>& getLocations() const { return _locations; }
 				const std::pair<size_t, std::string>& getReturn() const { return _return; }
 				const std::string& getServerName() const { return _serverName; }
+
 				// Setters
 				void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 				void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }
@@ -84,8 +82,9 @@ class Server
 				void setLocations(const std::list<Location>& locations) { _locations = locations; }
 				void setReturn(int code, const std::string& url) { _return = std::make_pair(code, url); }
 				void setServerName(const std::string& serverName) { _serverName = serverName; }
-				  void executeMethods(Request& request, Response& response);//change to server class?
+				void executeMethods(Request& request, Response& response);
 				Location* getCurrentLocation(const std::string& path);
+
 		private:
 				int                                     _epoll_fd;
 				std::string                             _configFile;
@@ -106,6 +105,7 @@ class Server
 				std::map<size_t, std::string>           _errorPages;
 				std::list<Location>                     _locations;
 				std::pair<size_t, std::string>          _return;
+
 				class configError : public std::exception
 				{
 						public:
@@ -119,7 +119,8 @@ class Server
 };
 
 // Surcharge de l'opérateur << pour afficher les informations du serveur
-inline std::ostream& operator<<(std::ostream& os, const Server& server) {
+inline std::ostream& operator<<(std::ostream& os, const Server& server) 
+{
 		os << "Server Configuration:" << std::endl;
 		os << "  Port: " << server.getPort() << std::endl;
 		os << "  Host: " << server.getHost() << std::endl;
@@ -138,10 +139,3 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server) {
 		os << std::endl;
 		return os;
 }
-
-
-
-
-
-
-// #endif

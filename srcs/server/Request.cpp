@@ -187,8 +187,7 @@ void Request::openErrorPage(size_t code, Response& response)
 
 void Request::buildErrorPageHtml(size_t code, Response& response)
 {
-    //DEBUG//
-    std::cout << "🍦🍦HERE IS buildErrorPageHtml" << code << std::endl;
+    // std::cout << "🍦🍦HERE IS buildErrorPageHtml" << code << std::endl; //DEBUGG//
     
     response.setStatus(code);
 
@@ -197,11 +196,6 @@ void Request::buildErrorPageHtml(size_t code, Response& response)
     std::string codeStr = oss.str();
 
     response.setBody("<html><body><h1>Error " + codeStr + ": " + response.getStatusMessage(code) + "</h1></body></html>");
-
-    //TRY TO USE ERROR PAGE DESGIN
-    // std::string filePath = "errors/" + codeStr + ".html";
-    // std::string errorHtml = loadErrorTemplate(filePath);
-    // response.setBody(errorHtml);
 
     // Ajouter Content-Type pour HTML
     std::map<std::string, std::string> headers = this->getHeaders();
@@ -229,7 +223,7 @@ void Request::parseRequest()
     if (std::getline(ss, line) && !line.empty()) {
         parseRequestLine(line);
         if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
-            std::cout << "👻 Invalid request line - missing method, URI or HTTP version" << std::endl;
+            // std::cout << "👻 Invalid request line - missing method, URI or HTTP version" << std::endl; //DEBUG//
             Response response(*this);
             buildErrorPageHtml(400, response);
             _method = ""; // Marquer la requête comme invalide
@@ -239,7 +233,7 @@ void Request::parseRequest()
         std::cout << "uri: " << _uri << std::endl;
         std::cout << "http version: " << _httpVersion << std::endl;
     } else {
-        std::cout << "👻 Empty request line" << std::endl;
+        // std::cout << "👻 Empty request line" << std::endl; //DEBUG//
         Response response(*this);
         buildErrorPageHtml(400, response);
         _method = ""; // Marquer la requête comme invalide
@@ -266,14 +260,13 @@ void Request::parseRequest()
     }
     // std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
     //handleResponse();
-
-
 }
 
 void Request::parseRequestLine(const std::string& line)
 {
 	std::istringstream iss(line);
 	iss >> _method >> _uri >> _httpVersion;
+
 	// Remove "\r" if present in the HTTP version
 	if (!_httpVersion.empty() && _httpVersion[_httpVersion.length() - 1] == '\r')
 		_httpVersion = _httpVersion.substr(0, _httpVersion.length() - 1);
@@ -285,6 +278,7 @@ void Request::parseHeader(const std::string& line)
 	if (colonPos != std::string::npos) {
 		std::string key = line.substr(0, colonPos);
 		std::string value = line.substr(colonPos + 1);
+
 		// Remove spaces at the beginning of the value
 		while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
 			value.erase(0, 1);
@@ -420,34 +414,34 @@ bool Request::isValidEmail(const std::string& value)
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
 {
 	response.setStatus(statusCode);
+	response.setBody(body);
+	response.setHeaders(this->getHeaders());
+	response.setHttpVersion(this->getHttpVersion());
+
+    //DEBUG ///////////////////////////////////////////////////////////////////////
 	//std::cout << "response.getStatusMessage() : "<< response.getStatusMessage() << std::endl;
 	//response.setResponse(response.formatResponse());
 	//std::cout << "response.getResponse() : "<< response.getResponse() << std::endl;
-	response.setBody(body);
 	//std::cout << "response.getBody() : "<< response.getBody() << std::endl;
-	response.setHeaders(this->getHeaders());
-	response.setHttpVersion(this->getHttpVersion());
 	//std::cout << "response.getHttpVersion() : " << response.getHttpVersion() << std::endl;
+    /////////////////////////////////////////////////////////////////////////////
+
 	_response = response;
 }
 
 std::string Request::getFilename() const
 {
     std::string filename;
-    size_t pos = _body.find("filename=\""); //std::string::size_type pos
-	// std::cout << ">>>FILENAME POS : " << pos << std::endl; //DEBUG
+    size_t pos = _body.find("filename=\"");
 
     if (pos != std::string::npos)
     {
-        //found
-        pos += 10; //skip filename="
-        size_t endPos = _body.find("\"", pos);//start find frm pos
 
-		// std::cout << ">>>FILENAME ENDPOS : " << pos << std::endl; //DEBUG
+        pos += 10; //skip filename="
+        size_t endPos = _body.find("\"", pos); //start find frm pos
 
         if (endPos != std::string::npos)
 		    filename = _body.substr(pos, endPos - pos);
-		// std::cout << ">>>FILENAME  : " << filename << std::endl; //DEBUG
     }
     return filename;
 }

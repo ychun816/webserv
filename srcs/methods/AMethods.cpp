@@ -1,17 +1,6 @@
 #include "../../includes/methods/AMethods.hpp"
 
 AMethods::AMethods() {}
-
-// AMethods::AMethods(const AMethods& copy) {
-// 	if (this != &copy)
-// 	{
-// 		// Copie des attributs si nécessaire
-// 	}
-// 	return;
-// };
-
-// AMethods&	AMethods::operator=(const AMethods& copy) {return *this;}
-
 AMethods::~AMethods() {}
 
 // Converti le path en minuscules
@@ -149,11 +138,11 @@ FileType AMethods::getFileType(const std::string& path)
 	if (stat(path.c_str(), &file_info) != 0) {
 		// Analyse de l'erreur
 		if (errno == ENOENT) {
-			return TYPE_NOT_FOUND;      // Fichier non trouvé
+			return TYPE_NOT_FOUND;
 		} else if (errno == EACCES) {
-			return TYPE_NO_PERMISSION;  // Pas de permission
+			return TYPE_NO_PERMISSION;
 		} else {
-			return TYPE_OTHER;          // Autre erreur
+			return TYPE_OTHER;
 		}
 	}
 	// Analyse du type

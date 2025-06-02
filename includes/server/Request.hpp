@@ -26,6 +26,7 @@ private:
 	bool _isChunked;
 	bool _isRedirection;
 	// std::string _response;
+	
 public:
 	Request(std::string request, Server& server);
 	~Request();
@@ -42,7 +43,7 @@ public:
 	std::string getQueryString() const { return _queryString; };
 	std::string getHeader(const std::string& name) const;
 	std::string getPath() const { return _path; };
-	std::string getFilename() const ; //added for POST
+	std::string getFilename() const ;
 	Location* getCurrentLocation() const { return _currentLocation; }
 	bool getIsRedirection() const { return _isRedirection; }
 
@@ -55,7 +56,6 @@ public:
 	void setIsRedirection(bool isRedirection) { _isRedirection = isRedirection; }
 
 	// Methods
-	// void executeMethods(Request& request, Response& response, Server& server);//change to server class?
 	void parseRequest();
 	void parseRequestLine(const std::string& line);
 	void parseHeader(const std::string& line);
@@ -74,9 +74,4 @@ public:
 	bool errorPageExist(size_t code);
 	void buildErrorPageHtml(size_t code, Response& response);
 	void openErrorPage(size_t code, Response& response);
-
-	//Added for get upload directory name    //SAVED HERE FOR FUTRE USE
-	// std::string getUploadDirectory(const std::string& uri) const;
-
-
 };

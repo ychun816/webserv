@@ -117,6 +117,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 			}
 
 			if (is_server_socket) {
+				
 				// Nouvelle connexion - accepter et associer au bon serveur
 				struct sockaddr_in client_addr;
 				socklen_t client_addrlen = sizeof(client_addr);
@@ -208,6 +209,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 									// 		;
 									// 	}
 									// }
+
 									// Find where headers end and body begins
 									size_t body_start = current_request.find("\r\n\r\n");
 									if (body_start != std::string::npos) {
@@ -239,8 +241,10 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 						if (req.isBodySizeValid()) {
 							// Process request and send response
 							req.handleResponse();
+							//DEBUG ////////////////////////////////////
 							// std::cout << "=========SEND RESPONSE EPOLL==========" << std::endl;
 							// std::cout << req.getResponse() << std::endl;
+							//////////////////////////////////////////
 
 							send(current_fd, req.getResponse().c_str(), req.getResponse().size(), 0);
 
@@ -251,8 +255,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 								servers[server_index].removeConnexion(current_fd);
 								std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
 								// std::string response = req.getResponse();
-								    // std::cout << "\033[1;32m[Response] Code: " <<  << " - " << _statusMessage << "\033[0m" << std::endl;
-
+								// std::cout << "\033[1;32m[Response] Code: " <<  << " - " << _statusMessage << "\033[0m" << std::endl; //DEBUG//
 							}
 							else {
 								// Keep the connection open for further requests
@@ -264,8 +267,10 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 														  "Content-Type: text/html\r\n"
 														  "Content-Length: 67\r\n\r\n"
 														  "<html><body><h1>Error: File too large.</h1></body></html>";
-							std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-							std::cout << error_response << std::endl;
+							//DEBUG ////////////////////////////////////
+							// std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
+							// std::cout << error_response << std::endl;
+							//////////////////////////////////////////
 							// Send error response
 							send(current_fd, error_response.c_str(), error_response.size(), 0);
 						}

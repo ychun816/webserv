@@ -23,26 +23,20 @@ std::string Post::extractFileContent(std::string& rawBody) const
     // Trim trailing \r\n
     content.erase(content.find_last_not_of("\r\n") + 1);
 
-    //CHECK DEBUG
-    // std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
-    // std::cout << "HEADER DELIMITER : " << headerDelimiter << std::endl;
-    // std::cout << "CONTENT START : " << contentStart << std::endl;
-    // std::cout << "CONTENT END : " << contentEnd << std::endl;
-    // std::cout << "CONTENT : " << content << std::endl;
-    // std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
-
     return content;
 }
 
 void Post::execute(Request& request, Response& response, Server& server)
 {
-    if (!request.isBodySizeValid()) {
-        if (!request.errorPageExist(413)) {
+    if (!request.isBodySizeValid()) 
+    {
+        if (!request.errorPageExist(413)) 
+        {
             response.setStatus(413);
             request.buildErrorPageHtml(response.getStatus(), response);
-        } else {
-            request.openErrorPage(413, response);
         }
+        else 
+            request.openErrorPage(413, response);
         return;
     }
     
@@ -52,52 +46,43 @@ void Post::execute(Request& request, Response& response, Server& server)
         std::string body;
 
         (void)server;
+
         // Change the path to the upload_path in the configfile
         uploadPath = request.getAbspath();
-        if (uploadPath.empty()) {
-            if (!request.errorPageExist(400)) {
+        if (uploadPath.empty()) 
+        {
+            if (!request.errorPageExist(400)) 
+            {
                 response.setStatus(400);
                 request.buildErrorPageHtml(response.getStatus(), response);
-            } else {
+            } 
+            else 
                 request.openErrorPage(400, response);
-            }
             return;
         }
 
         filename = request.getFilename();
-        if (filename.empty()) {
-            if (!request.errorPageExist(400)) {
+        if (filename.empty()) 
+        {
+            if (!request.errorPageExist(400)) 
+            {
                 response.setStatus(400);
                 request.buildErrorPageHtml(response.getStatus(), response);
-            } else {
+            } 
+            else 
                 request.openErrorPage(400, response);
-            }
             return;
         }
         
         body = request.getBody();
-        if (!body.empty()) {
+        if (!body.empty())
             body = extractFileContent(body);
-        }
 
-        //test with change /uplaoad to /user_upload
-        std::string uri = request.getUri();
-        // std::string newSavePath = "/user_upload";
-
+        // std::string uri = request.getUri(); //test with change /uplaoad to /user_upload
+        // // std::string newSavePath = "/user_upload";
 
         std::string savePath = uploadPath + PATH_SEPARATOR + filename;
         std::ofstream output(savePath.c_str());
-
-        //DEBUG /////////////////////////////////////////////////
-        std::cout << "=== ♦️DEBUG POST EXECUTE ===" << std::endl;
-        // std::cout << "UPLOAD DIRECTORY : " << request.getUploadDirectory(uri) << std::endl; //SAVED HERE FOR FUTRE USE
-        std::cout << "♦️UPLOAD PATH : " << uploadPath << std::endl;
-        std::cout << "♦️FILENAME : " << filename << std::endl;
-        std::cout << "♦️SAVE PATH : " << savePath << std::endl;
-	    std::cout << "♦️URI: " << uri << std::endl;
-        std::cout << "♦️BODY : " << body << std::endl;
-        std::cout << "=== ♦️END | DEBUG POST EXECUTE ===" << std::endl;
-        /////////////////////////////////////////////////
 
         if (!output.is_open()) {
             if (!request.errorPageExist(500)) {
@@ -108,7 +93,6 @@ void Post::execute(Request& request, Response& response, Server& server)
             }
             return;
         }
-
         output << body;
         output.close();
 
@@ -116,7 +100,8 @@ void Post::execute(Request& request, Response& response, Server& server)
         response.setBody("Success: File uploaded.\n");
         request.fillResponse(response, 201, "<html><body><h1>Success: File uploaded.</h1></body></html>");
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e) 
+    {
         // Safely handle any exceptions that might occur
         std::cerr << "Exception in POST handler: " << e.what() << std::endl;
         if (!request.errorPageExist(500)) {
@@ -129,8 +114,15 @@ void Post::execute(Request& request, Response& response, Server& server)
 }
 
 
-/*
-
+/* ERROR PAGE CODES
+ * 
+ * HTTP status codes are grouped into five classes:
+ * 1xx: Informational
+ * 2xx: Success
+ * 3xx: Redirection
+ * 4xx: Client Error
+ * 5xx: Server Error
+ * 
 | Code    | Type        | Meaning (EN)                         | 中文說明 |
 | ------- | ----------- | ------------------------------------ | ------- |
 | **200** | Success     | OK — The request has succeeded       | 請求成功，伺服器已回應資料 |
@@ -151,15 +143,30 @@ void Post::execute(Request& request, Response& response, Server& server)
 | **503** | Server Err. | Service Unavailable                  | 服務暫停 |
 | **504** | Server Err. | Gateway Timeout                      | 網關逾時 |
 
+*/
 
-    error_page=404 error/404.html V
-    error_page=500 error/500.html V
-    error_page=403 error/403.html V
-    error_page=504 error/504.html V
-    error_page=405 error/405.html V
-    error_page=400 error/400.html V
-    error_page=408 error/408.html V
-    error_page=413 error/413.html
-    error_page=501 error/501.html
+/* DEBUGGER
+
+//EXTRACT FILE CONTENT
+    //CHECK DEBUG /////////////////////////////////////////////////
+    // std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
+    // std::cout << "HEADER DELIMITER : " << headerDelimiter << std::endl;
+    // std::cout << "CONTENT START : " << contentStart << std::endl;
+    // std::cout << "CONTENT END : " << contentEnd << std::endl;
+    // std::cout << "CONTENT : " << content << std::endl;
+    // std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
+    /////////////////////////////////////////////////
+
+//POST EXECUTE
+        //DEBUG 
+        std::cout << "=== ♦️DEBUG POST EXECUTE ===" << std::endl;
+        // std::cout << "UPLOAD DIRECTORY : " << request.getUploadDirectory(uri) << std::endl; //SAVED HERE FOR FUTRE USE
+        std::cout << "♦️UPLOAD PATH : " << uploadPath << std::endl;
+        std::cout << "♦️FILENAME : " << filename << std::endl;
+        std::cout << "♦️SAVE PATH : " << sa//////////////vePath << std::endl;
+	    std::cout << "♦️URI: " << uri << std::endl;
+        std::cout << "♦️BODY : " << body << std::endl;
+        std::cout << "=== ♦️END | DEBUG POST EXECUTE ===" << std::endl;
+        /////////////////////////////////////////////////
 
 */

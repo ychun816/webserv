@@ -3,7 +3,6 @@
 #include "../../includes/utils/Utils.hpp"
 
 Get::Get() : AMethods::AMethods() {}
-
 Get::~Get() {}
 
 //Integrer verification des types de donnees (sert aussi au POST)
@@ -23,7 +22,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 		int redirectCode = redirectInfo.first;
 		std::string redirectUrl = redirectInfo.second;
 
-		std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  // Debug
+		// std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  //DEBUG//
 
 		// Créer un corps HTML pour la redirection
 		std::string htmlBody = "<html><head><title>Redirection</title>";
@@ -49,7 +48,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 		int redirectCode = redirectInfo.first;
 		std::string redirectUrl = redirectInfo.second;
 
-		std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  // Debug
+		// std::cout << "URL de redirection avant envoi: " << redirectUrl << std::endl;  //DEBUG//
 
 		// Créer un corps HTML pour la redirection
 		std::string htmlBody = "<html><head><title>Redirection</title>";
@@ -108,8 +107,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
 			if (!request.errorPageExist(403)) {
 				response.setStatus(403);
-				//DEBUG//
-				std::cout << "🍦🍦HERE IS GET-403TYPE Error page 403 not found, building default error pageNO PERMISSION" << std::endl;
+				// std::cout << "🍦🍦HERE IS GET-403TYPE Error page 403 not found, building default error pageNO PERMISSION" << std::endl; //DEBUG//
 				request.buildErrorPageHtml(403, response);
 			} else {
 				request.openErrorPage(403, response);
@@ -314,10 +312,10 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		{
 			std::cerr << "Error opening file" << std::endl;
 			if (request.errorPageExist(404)) {
-				std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl;
+				// std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl; //DEBUG//
 				request.openErrorPage(404, response);
 			} else {
-				std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl;
+				// std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl; //DEBUG//
 				response.setStatus(404);
 				request.buildErrorPageHtml(404, response);
 				// request.fillResponse(response, 404, "<html><body><h1>404 Not Found</h1></body></html>");
@@ -364,13 +362,8 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		}
 		closedir(current);
 
-		// Créer une page HTML pour afficher le contenu du répertoire
+		// Créer une page HTML pour afficher le contenu du répertoire //CHANGED FONT TO BE COHERENT DESIGN
 		std::string directoryListing = "<html><head><title>Directory Listing</title>";
-		// directoryListing += "<style>body{font-family:Arial,sans-serif;margin:20px;}h1{color:#333;}";
-		// directoryListing += "ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}";
-		// directoryListing += "a{text-decoration:none;color:#0066cc;}</style></head>";
-
-		////CHANGED FONT TO BE COHERENT DESIGN
 		directoryListing += "<head>"
 					"<link href=\"https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap\" rel=\"stylesheet\">"
 					"<style>"
@@ -379,17 +372,16 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 					"ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}"
 					"a{text-decoration:none;color:#0066cc;}"
 					"</style></head>";
-		////
 		directoryListing += "<body><h1>Directory listing for " + request.getUri() + "</h1><ul>";
 
-		for (size_t i = 2; i < dirFiles.size(); i++) //FIXED TO RID OF . and ..
+		//print out listing files
+		for (size_t i = 2; i < dirFiles.size(); i++)
 		{
 			directoryListing += "<li><a href=\"" + request.getUri();
 			if (request.getUri()[request.getUri().length() - 1] != '/')
 				directoryListing += "/";
 			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>";
 		}
-
 		directoryListing += "</ul></body></html>";
 		request.fillResponse(response, 200, directoryListing);
 		std::map<std::string, std::string> headers;
@@ -413,6 +405,7 @@ std::string Get::getMimeType(const std::string& path)
 		return "application/octet-stream";  // Type par défaut
 
 	std::string ext = path.substr(dotPos);
+
 	// Convertir l'extension en minuscules
 	for (size_t i = 0; i < ext.length(); i++)
 		ext[i] = tolower(ext[i]);
