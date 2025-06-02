@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-print("Content-Type: text/html\n")
+print("Content-Type: text/html\r\n")
 
 print("""
 <!DOCTYPE html>
