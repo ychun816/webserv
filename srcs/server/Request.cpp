@@ -467,12 +467,12 @@ bool Request::isBodySizeValid() const {
 bool Request::isMethodAllowed() const {
 	if (_currentLocation) {
 		std::vector<std::string> allowedMethods = _currentLocation->getMethods();
-		std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl;
+		// std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl; //DEBUG//
 		return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end() ;
 	}
     else if (!_server.getAllowMethods().empty()) {
         std::list<std::string> allowedMethods = _server.getAllowMethods();
-        std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl;
+        // std::cout << "👻 allowedMethods: " << allowedMethods.size() << std::endl; //DEBUG//
         return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end();
     }
     else {
@@ -524,18 +524,3 @@ void Request::parseChunkedBody() {
 }
 
 bool Request::isChunked() const { return _isChunked; }
-
-
-//Added for get upload directory name -> SAVED HERE FOR FUTRE USE
-// std::string Request::getUploadDirectory(const std::string& uri) const
-// {
-//     // Assuming the upload directory is the last part of the URI
-//     std::cout << "🍓Request::getUploadDirectory called with uri: " << uri << std::endl;
-//     if (uri == "/upload")
-//     {
-//         size_t lastSlash = uri.find_last_of('/');
-//         if (lastSlash != std::string::npos && lastSlash + 1 < uri.length())
-//             return uri.substr(lastSlash + 1);
-//     }
-//     return "";
-// }

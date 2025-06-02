@@ -25,9 +25,7 @@ Response::Response(const Request& request) :
     _request(&request)
 {}
 
-Response::~Response()
-{
-}
+Response::~Response(){}
 
 void Response::setStatus(int code)
 {

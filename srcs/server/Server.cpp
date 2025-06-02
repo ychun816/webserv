@@ -280,22 +280,6 @@ void Server::executeMethods(Request& request, Response& response)
 
 	AMethods*       exec = NULL;
 	
-	//ADDED TO GET UPLOAD DIRECTORY ///SAVED HERE FOR FUTRE USE
-	// if (request.getMethod() == "GET" && request.getUploadDirectory(request.getUri()) != "")
-	// {
-	// 	response.setStatus(200);
-	// 	// response.setHeaders("Content-Type", "application/json");
-	// 	response.setHeaders(request.getHeaders());
-	// 	// response.setHttpVersion(request.getHttpVersion());
-
-	// 	std::string uploadDir = request.getUploadDirectory(request.getUri());
-	// 	response.setBody("{" + uploadDir + "\"}");
-
-	// 	std::cout << "🍓SEVER | Upload directory: " << uploadDir << std::endl; //DEBUG ////
-	// 	return;
-	// }
-
-	//general methods
 	if (method == "GET")
 	{
 		std::cout << "SEVER-GET" << std::endl;
@@ -352,17 +336,3 @@ bool Server::isServerNameMatch(const std::string& hostHeader) const {
     // Vérification stricte
     return host == _host;
 }
-
-/* TO FIX?
-2. Incorrect _connexions.pop_back() Use
-
-You are calling pop_back() regardless of which client FD is being closed. This will remove the wrong connection in most cases.
-
-Fix: Use removeConnexion(fd); instead:
-
-close(events[i].data.fd);
-epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-removeConnexion(events[i].data.fd); // FIXED
-
-
-*/
