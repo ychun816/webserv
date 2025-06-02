@@ -128,10 +128,88 @@ void Get::execute(Request& request, Response& response, Server& server)
 	std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
 }
 
-void	Get::serveFile(Request& request, Response& response, Server& server)
+void Get::serveFile(Request& request, Response& response, Server& server)
 {
-	std::ifstream file(request.getAbspath().c_str());
-	std::cout << request.getAbspath().c_str() << std::endl;
+	std::string filepath = request.getAbspath();
+
+	// Vérifier d'abord si c'est un script CGI
+	if (checkIfCgi(filepath)) {
+		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
+		Request* requestPtr = new Request(request);
+		Server* serverPtr = new Server(server);
+		CGIhandler execCgi(requestPtr, serverPtr);
+
+		try {
+			std::string CGIoutput = execCgi.execute();
+
+			// Séparer les headers et le body de la sortie CGI
+			std::string sep = "\r\n";
+			size_t headerEnd = CGIoutput.find(sep);
+			if (headerEnd != std::string::npos) {
+				std::string headers = CGIoutput.substr(0, headerEnd);
+				std::string body = CGIoutput.substr(headerEnd + sep.length());
+
+				// Parser les headers CGI
+				std::map<std::string, std::string> cgiHeaders;
+				std::istringstream headerStream(headers);
+				std::string line;
+
+				while (std::getline(headerStream, line) && !line.empty()) {
+					if (!line.empty() && line[line.length() - 1] == '\r')
+						line = line.substr(0, line.length() - 1);
+					size_t colonPos = line.find(':');
+					if (colonPos != std::string::npos) {
+						std::string key = line.substr(0, colonPos);
+						std::string value = line.substr(colonPos + 1);
+
+						// Trim whitespace au début
+						while (!value.empty() && value[0] == ' ') {
+							value = value.substr(1);
+						}
+
+						cgiHeaders[key] = value;
+					}
+				}
+				response.setHeaders(cgiHeaders);
+				request.fillResponse(response, 200, body);
+
+			} else {
+				// Pas de headers séparés, essayer de détecter si c'est du HTML pur
+				if (CGIoutput.find("<html>") != std::string::npos ||
+					CGIoutput.find("<!DOCTYPE") != std::string::npos) {
+					// C'est du HTML sans headers CGI
+					std::map<std::string, std::string> headers;
+					headers["Content-Type"] = "text/html";
+					response.setHeaders(headers);
+					request.fillResponse(response, 200, CGIoutput);
+				} else {
+					// Traiter comme sortie brute avec headers par défaut
+					std::map<std::string, std::string> headers;
+					headers["Content-Type"] = "text/plain";
+					response.setHeaders(headers);
+					request.fillResponse(response, 200, CGIoutput);
+				}
+			}
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Erreur lors de l'exécution CGI: " << e.what() << std::endl;
+			if (!request.errorPageExist(500)) {
+				response.setStatus(500);
+				request.buildErrorPageHtml(500, response);
+			} else {
+				request.openErrorPage(500, response);
+			}
+		}
+
+		//delete requestPtr;
+		//delete serverPtr;
+		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
+		return;
+	}
+
+	// Si ce n'est pas un script CGI, traiter comme un fichier statique
+	std::ifstream file(filepath.c_str());
+	std::cout << filepath.c_str() << std::endl;
 	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
 		if (request.errorPageExist(404)) {
@@ -145,7 +223,7 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 
 	// Vérifier la taille du fichier avant de l'envoyer
 	file.seekg(0, std::ios::end);
-	size_t fileSize = file.tellg();
+	std::streampos fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 
 	// Vérifier si la taille du fichier dépasse la limite
@@ -156,39 +234,29 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 		maxSize = convertSizeToBytes(server.getClientMaxBodySize());
 	}
 
-	if (fileSize > maxSize) {
+	if (static_cast<size_t>(fileSize) > maxSize) {
+		file.close();
 		if (!request.errorPageExist(413)) {
 			response.setStatus(413);
 			request.buildErrorPageHtml(413, response);
-			return;
 		} else {
 			request.openErrorPage(413, response);
 		}
+		return;
 	}
 
-	if (checkIfCgi(request.getAbspath())) {
-		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
-		Request* requestPtr = new Request(request);
-		Server* serverPtr = new Server(server);
-		CGIhandler execCgi(requestPtr, serverPtr);
-		std::string CGIoutput = execCgi.execute();
-		request.fillResponse(response, 200, CGIoutput);
-		//delete requestPtr;
-		//delete serverPtr;
-		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
-	} else {
-		std::stringstream buffer;
-		buffer << file.rdbuf();
-		request.fillResponse(response, 200, buffer.str());
-		file.close();
+	// Lire et servir le fichier statique
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	request.fillResponse(response, 200, buffer.str());
+	file.close();
 
-		// Définir le type MIME correct
-		std::string contentType = getMimeType(request.getAbspath());
-		std::map<std::string, std::string> headers;
-		headers["Content-Type"] = contentType;
-		response.setHeaders(headers);
-		std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
-	}
+	// Définir le type MIME correct
+	std::string contentType = getMimeType(filepath);
+	std::map<std::string, std::string> headers;
+	headers["Content-Type"] = contentType;
+	response.setHeaders(headers);
+	std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
 }
 
 void Get::serveDirectory(Request& request, Response& response, Server& server)
@@ -299,22 +367,22 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 
 		////CHANGED FONT TO BE COHERENT DESIGN
 		directoryListing += "<head>"
-                    "<link href=\"https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap\" rel=\"stylesheet\">"
-                    "<style>"
-                    "body{font-family:'Josefin Sans',Arial,sans-serif;margin:20px;}"
-                    "h1{color:#333;}"
+					"<link href=\"https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap\" rel=\"stylesheet\">"
+					"<style>"
+					"body{font-family:'Josefin Sans',Arial,sans-serif;margin:20px;}"
+					"h1{color:#333;}"
 					"ul{list-style-type:none;padding:0;}li{margin:5px 0;padding:5px;border-bottom:1px solid #eee;}"
 					"a{text-decoration:none;color:#0066cc;}"
-                    "</style></head>";
+					"</style></head>";
 		////
 		directoryListing += "<body><h1>Directory listing for " + request.getUri() + "</h1><ul>";
 
-		for (size_t i = 2; i < dirFiles.size(); i++) //FIXED TO RID OF . and .. 
+		for (size_t i = 2; i < dirFiles.size(); i++) //FIXED TO RID OF . and ..
 		{
 			directoryListing += "<li><a href=\"" + request.getUri();
 			if (request.getUri()[request.getUri().length() - 1] != '/')
 				directoryListing += "/";
-			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>"; 
+			directoryListing += dirFiles[i] + "\">" + dirFiles[i] + "</a></li>";
 		}
 
 		directoryListing += "</ul></body></html>";

@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
-# This is a basic CGI script that returns a simple HTML page
-import os
-
-print("Content-Type: text/html\n")  # Header specifying the content type
-print("Set-Cookie: session=abc123")
-print("<html><body><h1>Hello from Python CGI!</h1></body></html>")  # Output HTML content
+print("Content-Type: text/html\r\n")
+print("<html>")
+print("<head><title>Hello CGI</title></head>")
+print("<body>")
+print("<h1>Hello from Python CGI!</h1>")
+print("<p>This is a basic CGI script working correctly!</p>")
+print("</body>")
+print("</html>")

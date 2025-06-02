@@ -43,20 +43,20 @@ std::string	normalizePath(const std::string& path)
 // Verifie si le path existe
 bool pathExist(Request& request, Server& server)
 {
-    struct stat buffer;
-    std::string root = server.getRoot();
+	struct stat buffer;
+	std::string root = server.getRoot();
 	std::cout << "ROOT : " << root << std::endl;
-    std::string path = request.getPath();
+	std::string path = request.getPath();
 	std::cout << "Path : " << path << std::endl;
-    std::string finalPath;
-    if (root.length() >= 2 && root.substr(0, 2) == "./") {
-        finalPath = root + path;
-    } else {
-        finalPath = "." + root + path;
-    }
-    request.setAbspath(normalizePath(finalPath));
-    std::cout << "Exist path : " << request.getAbspath() << std::endl;
-    return (stat(request.getAbspath().c_str(), &buffer) == 0);
+	std::string finalPath;
+	if (root.length() >= 2 && root.substr(0, 2) == "./") {
+		finalPath = root + path;
+	} else {
+		finalPath = "." + root + path;
+	}
+	request.setAbspath(normalizePath(finalPath));
+	std::cout << "Exist path : " << request.getAbspath() << std::endl;
+	return (stat(request.getAbspath().c_str(), &buffer) == 0);
 }
 
 // Rempli le vecteur des path sensibles
@@ -175,7 +175,7 @@ FileType AMethods::getFileType(const std::string& path)
 	}
 }
 
-bool	AMethods::checkIfCgi(std::string filepath)
+bool AMethods::checkIfCgi(std::string filepath)
 {
 	std::vector<std::string> cgiExt;
 	cgiExt.push_back(".php");
@@ -186,11 +186,22 @@ bool	AMethods::checkIfCgi(std::string filepath)
 	size_t lastDot = filepath.find_last_of('.');
 	if (lastDot == std::string::npos)
 		return (false);
-	std::string	extension = filepath.substr(lastDot);
+
+	std::string extension = filepath.substr(lastDot);
+
+	// Convertir en minuscules pour comparaison
+	for (size_t i = 0; i < extension.length(); i++)
+		extension[i] = tolower(extension[i]);
+
 	for (size_t i = 0; i < cgiExt.size(); i++)
 	{
 		if (extension == cgiExt[i])
-			return (true);
+		{
+			// Vérifier que le fichier existe et est exécutable
+			struct stat file_stat;
+			if (stat(filepath.c_str(), &file_stat) == 0 && S_ISREG(file_stat.st_mode))
+				return true;
+		}
 	}
-	return (false);
+	return false;
 }
