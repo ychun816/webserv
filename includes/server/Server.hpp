@@ -6,6 +6,8 @@
 // #include "../../includes/methods/Delete.hpp" //added to exec methods
 #include "../methods/AMethods.hpp" //added to exec methods
 
+
+
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -64,6 +66,7 @@ class Server
 				const std::map<size_t, std::string>& getErrorPages() const { return _errorPages; }
 				const std::list<Location>& getLocations() const { return _locations; }
 				const std::pair<size_t, std::string>& getReturn() const { return _return; }
+				const std::string& getServerName() const { return _serverName; }
 				// Setters
 				void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 				void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }
@@ -80,7 +83,7 @@ class Server
 				void setAllowMethods(const std::list<std::string>& allowMethods) { _allowMethods = allowMethods; }
 				void setLocations(const std::list<Location>& locations) { _locations = locations; }
 				void setReturn(int code, const std::string& url) { _return = std::make_pair(code, url); }
-				//added to exec methods
+				void setServerName(const std::string& serverName) { _serverName = serverName; }
 				  void executeMethods(Request& request, Response& response);//change to server class?
 				Location* getCurrentLocation(const std::string& path);
 		private:
@@ -90,6 +93,7 @@ class Server
 				int                                     _socketFd;
 				int                                     _port;
 				std::string                             _host;
+				std::string                             _serverName; //added to exec methods
 				std::string                             _root;
 				std::string                             _index;
 				std::string                             _autoIndex;
@@ -99,7 +103,7 @@ class Server
 				std::string                             _clientMaxBodySize;
 				std::list<std::string>                  _allowMethods;
 				struct sockaddr_in                      _address;
-				std::map<size_t, std::string>           _errorPages; // key: error code, value: page path
+				std::map<size_t, std::string>           _errorPages;
 				std::list<Location>                     _locations;
 				std::pair<size_t, std::string>          _return;
 				class configError : public std::exception

@@ -187,6 +187,15 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::cout << "🍦CONFIG | SEVER NAME: " << value << std::endl;
         server.setHost(value);
     }
+    else if (directive == "host")
+    {
+        std::string value;
+        iss >> value;
+        value = trim(value, " \t;");
+        //DEBUG ////
+        std::cout << "🍦CONFIG | HOST: " << value << std::endl;
+        server.setServerName(value);
+    }
     else if (directive == "methods")
     {
         std::string value;
@@ -538,8 +547,18 @@ Server* Config::findServerByHost(const std::string& host, int port) {
         hostName = hostName.substr(0, colonPos);
     }
 
+    // Chercher d'abord par server_name
     for (size_t i = 0; i < _servers.size(); i++) {
+        std::cout << "🍦FIND SERVER BY SERVER_NAME | Server port: " << _servers[i].getPort() << std::endl;
         if (_servers[i].getPort() == port && _servers[i].isServerNameMatch(hostName)) {
+            return &_servers[i];
+        }
+    }
+    // Si aucun server_name ne correspond, chercher par host direct
+    for (size_t i = 0; i < _servers.size(); i++) {
+        std::cout << "🍦FIND SERVER BY HOST | HostName: " << hostName << std::endl;
+        std::cout << _servers[i].getServerName() << std::endl;
+        if (_servers[i].getPort() == port && _servers[i].getServerName() == hostName) {
             return &_servers[i];
         }
     }
