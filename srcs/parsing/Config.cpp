@@ -127,18 +127,29 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             
             NewLocation.setReturn(code, url);
         }
-        else if (directive == "error_page")
+        else if ((*it).find("error_page") != std::string::npos)
         {
-            std::string value;
-            std::getline(iss, value);
+            size_t pos = (*it).find("error_page") + 11;
+            std::string value = (*it).substr(pos);
             value = trim(value, " \t;");
-            std::map<size_t, std::string> errorPages;
-            std::stringstream ss(value);
-            std::string code, path;
-            while (ss >> code >> path) {
-                errorPages[atoi(code.c_str())] = path;
+            
+            // Extraire le code et le chemin
+            size_t spacePos = value.find(' ');
+            if (spacePos != std::string::npos) {
+                std::string code = value.substr(0, spacePos);
+                std::string path = value.substr(spacePos + 1);
+                path = trim(path, " \t;");
+                
+                // Nettoyer le chemin
+                if (!path.empty() && path[0] == '"') {
+                    path = path.substr(1);
+                }
+                if (!path.empty() && path[path.length()-1] == '"') {
+                    path = path.substr(0, path.length()-1);
+                }
+                
+                NewLocation.setErrorPage(std::make_pair(atoi(code.c_str()), path));
             }
-            NewLocation.setErrorPage(errorPages);
         }
         it++;
     }
@@ -254,18 +265,30 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         value = trim(value, " \t;");
         server.setCgi(value);
     }
-    else if (directive == "error_page")
+    else if ((*it).find("error_page") != std::string::npos)
     {
-        std::string value;
-        std::getline(iss, value);
-        value = trim(value, " \t;");
-        std::map<size_t, std::string> errorPages;
-        std::stringstream ss(value);
-        std::string code, path;
-        while (ss >> code >> path) {
-            errorPages[atoi(code.c_str())] = path;
+            size_t pos = (*it).find("error_page") + 11;
+            std::string value = (*it).substr(pos);
+            value = trim(value, " \t;");
+            
+            // Extraire le code et le chemin
+            size_t spacePos = value.find(' ');
+            if (spacePos != std::string::npos) {
+                std::string code = value.substr(0, spacePos);
+                std::string path = value.substr(spacePos + 1);
+                path = trim(path, " \t;");
+                
+                // Nettoyer le chemin
+                if (!path.empty() && path[0] == '"') {
+                    path = path.substr(1);
+                }
+                if (!path.empty() && path[path.length()-1] == '"') {
+                    path = path.substr(0, path.length()-1);
+                }
+                
+                std::cout << "error page path: " << path << std::endl;
+                server.setErrorPages(std::make_pair(atoi(code.c_str()), path));
         }
-        server.setErrorPages(errorPages);
     }
     else if (directive == "return")
     {

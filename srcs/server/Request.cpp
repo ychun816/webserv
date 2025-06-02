@@ -171,18 +171,18 @@ void Request::openErrorPage(size_t code, Response& response)
     _response = response;
 }
 
-static std::string loadErrorTemplate(const std::string& filePath)
-{
-    std::ifstream file(filePath.c_str());    
+// static std::string loadErrorTemplate(const std::string& filePath)
+// {
+//     std::ifstream file(filePath.c_str());    
 
-    // if (!file.is_open()) 
-    // {
-    //     return "<html><body><h1>Error page not found</h1></body></html>";
-    // }
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    return ss.str();
-}
+//     // if (!file.is_open()) 
+//     // {
+//     //     return "<html><body><h1>Error page not found</h1></body></html>";
+//     // }
+//     std::ostringstream ss;
+//     ss << file.rdbuf();
+//     return ss.str();
+// }
 
 
 void Request::buildErrorPageHtml(size_t code, Response& response)
@@ -196,12 +196,12 @@ void Request::buildErrorPageHtml(size_t code, Response& response)
     oss << code;
     std::string codeStr = oss.str();
 
-    // response.setBody("<html><body><h1>Error " + codeStr + ": " + response.getStatusMessage(code) + "</h1></body></html>");
+    response.setBody("<html><body><h1>Error " + codeStr + ": " + response.getStatusMessage(code) + "</h1></body></html>");
 
     //TRY TO USE ERROR PAGE DESGIN
-    std::string filePath = "errors/" + codeStr + ".html";
-    std::string errorHtml = loadErrorTemplate(filePath);
-    response.setBody(errorHtml);
+    // std::string filePath = "errors/" + codeStr + ".html";
+    // std::string errorHtml = loadErrorTemplate(filePath);
+    // response.setBody(errorHtml);
 
     // Ajouter Content-Type pour HTML
     std::map<std::string, std::string> headers = this->getHeaders();

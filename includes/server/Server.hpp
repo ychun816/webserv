@@ -76,7 +76,7 @@ class Server
 				void setRoot(const std::string& root) { _root = root; }
 				void setIndex(const std::string& index) { _index = index; }
 				void setAutoIndex(const std::string& autoIndex) { _autoIndex = autoIndex; }
-				void setErrorPages(const std::map<size_t, std::string>& errorPages) { _errorPages = errorPages; }
+				void setErrorPages(const std::pair<size_t, std::string>& errorPage) { _errorPages.insert(errorPage); }
 				void setCgi(const std::string& cgi) { _cgi = cgi; }
 				void setUpload(const std::string& upload) { _upload = upload; }
 				void setClientMaxBodySize(const std::string& clientMaxBodySize) { _clientMaxBodySize = clientMaxBodySize; }

@@ -135,8 +135,10 @@ void	Get::serveFile(Request& request, Response& response, Server& server)
 	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
 		if (request.errorPageExist(404)) {
+			std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl;
 			request.openErrorPage(404, response);
 		} else {
+			std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl;
 			response.setStatus(404);
 			request.buildErrorPageHtml(404, response);
 		}
@@ -244,10 +246,13 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		{
 			std::cerr << "Error opening file" << std::endl;
 			if (request.errorPageExist(404)) {
+				std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl;
 				request.openErrorPage(404, response);
 			} else {
+				std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl;
 				response.setStatus(404);
 				request.buildErrorPageHtml(404, response);
+				// request.fillResponse(response, 404, "<html><body><h1>404 Not Found</h1></body></html>");
 			}
 			return;
 		}
