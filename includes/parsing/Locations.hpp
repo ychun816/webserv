@@ -32,7 +32,7 @@ public:
 	void setClientMaxBodySize(const std::string& client_max_body_size) {_client_max_body_size = client_max_body_size;};
 	void setUploadPath(const std::string& upload_path) {_upload_path = upload_path;};
 	void setIndex(const std::string& index) {_index = index;};
-	void setErrorPage(const std::map<size_t, std::string>& error_page) {_error_page = error_page;};
+	void setErrorPage(const std::pair<size_t, std::string>& error_page) {_error_page.insert(error_page);};
 	void setMethods(const std::vector<std::string>& methods) {_methods = methods;};
 	void setReturn(int code, const std::string& returnUrl) { 
 		_return = std::make_pair(code, returnUrl); 

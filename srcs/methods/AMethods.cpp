@@ -122,7 +122,7 @@ bool AMethods::checkPath(Request& request, Server& server, Response& response)
 	// 	return true;
 	if (!pathExist(request, server))
 	{
-		request.fillResponse(response, 404, "<html><body><h1>403 Not a Directory</h1></body></html>");
+		request.fillResponse(response, 404, "<html><body><h1>404 Not a Directory</h1></body></html>");
 		return (false);
 	}
 	if (!isPathSafe(request.getAbspath()))
