@@ -96,11 +96,19 @@ void Get::execute(Request& request, Response& response, Server& server)
 			break;
 		case (TYPE_NOT_FOUND) :
 			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
-			if (!request.errorPageExist(404)) {
-				response.setStatus(404);
-				request.buildErrorPageHtml(404, response);
-			} else {
-				request.openErrorPage(404, response);
+			if (!request.getHavePriority())
+			{
+				std::cout << "priority: " << request.getHavePriority() << std::endl;
+				if (!request.errorPageExist(404)) {
+					response.setStatus(404);
+					request.buildErrorPageHtml(404, response);
+				} else {
+					request.openErrorPage(404, response);
+				}
+			}
+			else
+			{
+				std::cout << " I dont have priority, so I will not handle this error" << std::endl;
 			}
 			break;
 		case (TYPE_NO_PERMISSION) :

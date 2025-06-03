@@ -111,12 +111,40 @@ bool AMethods::checkPath(Request& request, Server& server, Response& response)
 	// 	return true;
 	if (!pathExist(request, server))
 	{
-		request.fillResponse(response, 404, "<html><body><h1>404 Not a Directory</h1></body></html>");
+		if (!request.getHavePriority())
+		{
+			std::cout << "Path not found: " << request.getAbspath() << std::endl;
+			if (!request.errorPageExist(404)) {
+				response.setStatus(404);
+				request.buildErrorPageHtml(404, response);
+			} else {
+				request.openErrorPage(404, response);
+			}
+		}
+		else {
+
+			std::cout << " I dont have priority, so I will not handle this error" << std::endl;
+		}
+		// request.fillResponse(response, 404, "<html><body><h1>404 Not a Directory</h1></body></html>");
 		return (false);
 	}
 	if (!isPathSafe(request.getAbspath()))
 	{
-		request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory not safe</h1></body></html>");
+		if (!request.getHavePriority())
+		{
+			std::cout << "Path not safe: " << request.getAbspath() << std::endl;
+			if (!request.errorPageExist(403)) {
+				response.setStatus(403);
+				request.buildErrorPageHtml(403, response);
+			} else {
+				request.openErrorPage(403, response);
+			}
+		}
+		else
+		{
+			std::cout << " I dont have priority, so I will not handle this error" << std::endl;
+		}
+		// request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory not safe</h1></body></html>");
 		return (false);
 	}
 	return (true);

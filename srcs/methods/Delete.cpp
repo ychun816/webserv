@@ -18,17 +18,39 @@ void Delete::execute(Request& request, Response& response, Server& server)
 
     if (getFileType(absPath) != TYPE_REGULAR_FILE) 
     {
-        response.setStatus(403);
-        response.setBody("Error: Not a regular file.");
-        request.fillResponse(response, 403, "<html><body><h1>Error: Not a regular file.</h1></body></html>");
+        if (!request.getHavePriority())
+        {
+            std::cout << "Path not safe: " << absPath << std::endl;
+            if (!request.errorPageExist(403)) {
+                response.setStatus(403);
+                request.buildErrorPageHtml(403, response);
+            } else {
+                request.openErrorPage(403, response);
+            }
+        }
+        else
+        {
+            std::cout << " I dont have priority, so I will not handle this error" << std::endl;
+        }
         return;
     }
 
     if (std::remove(absPath.c_str()) != 0) 
     {
-        response.setStatus(500);
-        response.setBody("Error: Failed to delete file.");
-        request.fillResponse(response, 500, "<html><body><h1>Error: Failed to delete file.</h1></body></html>");
+        if (!request.getHavePriority())
+        {
+            std::cout << "Failed to delete file: " << absPath << std::endl;
+            if (!request.errorPageExist(500)) {
+                response.setStatus(500);
+                request.buildErrorPageHtml(500, response);
+            } else {
+                request.openErrorPage(500, response);
+            }
+        }
+        else
+        {
+            std::cout << " I dont have priority, so I will not handle this error" << std::endl;
+        }
         return;
 
     } 

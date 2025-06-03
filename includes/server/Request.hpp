@@ -25,6 +25,7 @@ private:
 	Location* _currentLocation;
 	bool _isChunked;
 	bool _isRedirection;
+	bool _havePriority;
 	// std::string _response;
 	
 public:
@@ -32,6 +33,7 @@ public:
 	~Request();
 
 	// Getters
+	bool getHavePriority() const { return _havePriority; }
 	std::string getRequest() const { return _request; }
 	std::string getResponse() { return _response.formatResponse(); }
 	std::string getMethod() const { return _method; }
@@ -54,7 +56,7 @@ public:
 	void setServer(Server& server);
 	void setCurrentLocation(Location* location) { _currentLocation = location; }
 	void setIsRedirection(bool isRedirection) { _isRedirection = isRedirection; }
-
+	void setHavePriority(bool havePriority) { _havePriority = havePriority; }
 	// Methods
 	void parseRequest();
 	void parseRequestLine(const std::string& line);

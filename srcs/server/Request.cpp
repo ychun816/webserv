@@ -23,7 +23,8 @@ Request::Request(std::string request, Server& server) :
 	_body(""),
 	_currentLocation(NULL),
 	_isChunked(false),
-	_isRedirection(false)
+	_isRedirection(false),
+    _havePriority(false)
 {
 
 	parseRequest();
@@ -104,6 +105,7 @@ void Request::handleResponse()
 
     if (!isContentLengthValid()) {
         std::cout << "👻 Content-Length is not valid" << std::endl;
+        this->setHavePriority(true);
         if (!errorPageExist(413)) {
 			response.setStatusMessage(response.getStatusMessage(413));
             buildErrorPageHtml(413, response);
@@ -112,15 +114,21 @@ void Request::handleResponse()
         }
     }
     else if (!isMethodAllowed()) {
+        Response responses(*this);
+        this->setHavePriority(true);
         std::cout << "👻 Method not allowed" << std::endl;
         if (!errorPageExist(405)) {
 			std::cout << "👻 Error page not exist" << std::endl;
-			response.setStatusMessage(response.getStatusMessage(405));
-            buildErrorPageHtml(405, response);
+			responses.setStatusMessage(responses.getStatusMessage(405));
+            buildErrorPageHtml(405, responses);
         } else {
 			std::cout << "👻 Error page exist" << std::endl;
-            openErrorPage(405, response);
+            responses.setStatus(405);
+            std::cout << responses.getStatus() << std::endl;
+            openErrorPage(405, responses);
         }
+        debugString(responses);
+        return;
     }
     else {
         Config* config = Config::getInstance();
@@ -334,6 +342,22 @@ bool Request::errorPageExist(size_t code)
 	// std::map<size_t, std::string> errorPages = _currentLocation->getErrorPage().find(code);
 	// std::map<size_t, std::string>::iterator it = errorPages.find(code);
 	std::map<size_t, std::string> errorPages = _server.getErrorPages();
+    std::map<size_t, std::string>locationErrorPages = _currentLocation ? _currentLocation->getErrorPage() : std::map<size_t, std::string>();
+    if (_currentLocation && !locationErrorPages.empty())
+    {
+        std::cout << "locationErrorPages: " << locationErrorPages.size() << std::endl;
+        for (std::map<size_t, std::string>::const_iterator it = locationErrorPages.begin(); it != locationErrorPages.end(); ++it)
+        {
+            std::cout << "printing location error pages" << std::endl;
+            std::cout << "Location Error page: " << it->first << " : " << it->second << std::endl;
+            if (it->first == code)
+            {
+                std::cout << "Location Error page exist: " << it->second << std::endl;
+                this->setHavePriority(true);
+                return true;
+            }
+        }
+    }
 	std::cout << "errorPages: " << errorPages.size() << std::endl;
 	for (std::map<size_t, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
 	{
@@ -344,6 +368,7 @@ bool Request::errorPageExist(size_t code)
 		if (it->first == code)
 		{
 			std::cout << "Error page exist: " << it->second << std::endl;
+            this->setHavePriority(true);
 			return true;
 		}
 	}
@@ -412,8 +437,13 @@ bool Request::isValidEmail(const std::string& value)
 }
 
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
-{
-	response.setStatus(statusCode);
+{   
+    std::cout << "👻 fillResponse called with statusCode: " << statusCode << std::endl;
+    if (!this->getHavePriority())
+    {
+        std::cout << "👻 Request has no priority, setting status to " << statusCode << std::endl;
+        response.setStatus(statusCode);
+    }
 	response.setBody(body);
 	response.setHeaders(this->getHeaders());
 	response.setHttpVersion(this->getHttpVersion());

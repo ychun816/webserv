@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hello Universe - Webserv Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Josefin Sans', sans-serif;
+      color: #fff;
+      background: #000;
+      position: relative;
+    }
+
+    /* Main cosmic background */
+    .universe-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* background: #000 url('/api/placeholder/1920/1080') center center; */
+      background-size: cover;
+      z-index: -3;
+    }
+
+    /* Animated star layers */
+    .stars-layer-1, .stars-layer-2 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      opacity: 0.6;
+    }
+
+    .stars-layer-1 {
+      background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+      animation: drift 40s linear infinite;
+    }
+
+    .stars-layer-2 {
+      background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+      animation: drift-reverse 60s linear infinite;
+      opacity: 0.4;
+    }
+
+    /* Cosmic dust effect */
+    .cosmic-dust {
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at center,
+                  rgba(63, 25, 150, 0.2) 0%,
+                  rgba(33, 5, 65, 0.1) 40%,
+                  rgba(10, 10, 30, 0) 70%);
+      animation: rotate-slowly 180s linear infinite;
+      z-index: -1;
+    }
+
+    /* Nebula glow effect */
+    .nebula-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 70% 65%,
+                  rgba(89, 38, 205, 0.15) 0%,
+                  rgba(126, 25, 255, 0.05) 40%,
+                  rgba(0, 0, 30, 0) 70%);
+      filter: blur(5px);
+      animation: pulse 15s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    /* Animation keyframes */
+    @keyframes drift {
+      from { background-position: 0 0; }
+      to { background-position: 100% 100%; }
+    }
+
+    @keyframes drift-reverse {
+      from { background-position: 100% 100%; }
+      to { background-position: 0 0; }
+    }
+
+    @keyframes rotate-slowly {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+      100% { opacity: 0.3; }
+    }
+
+    /* Floating stars effect */
+    .stars {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      background-color: #fff;
+      border-radius: 50%;
+      filter: blur(1px);
+      opacity: 0;
+      animation: twinkle var(--duration) ease-in-out infinite var(--delay);
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Planet effect */
+    .planet {
+      position: fixed;
+      bottom: -180px;
+      right: -180px;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%,
+                  #4b3c99 0%,
+                  #2a1b5e 50%,
+                  #1a0f3c 100%);
+      box-shadow:
+        0 0 50px rgba(75, 60, 153, 0.5),
+        inset 10px -10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 0;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(3deg); }
+    }
+
+    /* Content styling */
+    .container {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 4.5em;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #fff;
+      text-shadow:
+        0 0 10px rgba(200, 220, 255, 0.8),
+        0 0 20px rgba(100, 160, 255, 0.5),
+        0 0 30px rgba(50, 100, 255, 0.3);Webserv project created by team GET LUCKY
+      animation: pulse-text 4s ease-in-out infinite alternate;
+      margin-bottom: 15px;
+    }
+
+    @keyframes pulse-text {
+      0% { text-shadow:
+        0 0 10px rgba(200, 220, 255, 0.8),
+        0 0 20px rgba(100, 160, 255, 0.5),
+        0 0 30px rgba(50, 100, 255, 0.3);
+      }
+      100% { text-shadow:
+        0 0 15px rgba(200, 220, 255, 0.9),
+        0 0 25px rgba(100, 160, 255, 0.6),
+        0 0 35px rgba(50, 100, 255, 0.4),
+        0 0 45px rgba(0, 50, 200, 0.2);
+      }
+    }
+
+    .subcaption {
+      font-size: 1.8em;
+      font-weight: 300;
+      margin-top: 0.5rem;
+      color: #c2d6ff;
+      text-shadow: 0 0 8px rgba(150, 180, 255, 0.8);
+    }
+
+    .team {
+      font-size: 1.3em;
+      margin-top: 0.8rem;
+      color: #ffcaca;
+    }
+
+    .links {
+      margin-top: 3.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+    }
+
+    .links a {
+      text-decoration: none;
+      color: #bbdbf8;
+      font-size: 1.2em;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      padding: 5px 10px;
+    }
+
+    .links a:hover {
+      color: #fdd281;
+      transform: translateY(-5px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Universe background layers -->
+  <div class="universe-background"></div>
+  <div class="stars-layer-1"></div>
+  <div class="stars-layer-2"></div>
+  <div class="cosmic-dust"></div>
+  <div class="nebula-glow"></div>
+
+  <!-- Dynamic stars -->
+  <div class="stars" id="starField"></div>
+
+  <!-- Remove planet decoration -->
+
+  <!-- Content container -->
+  <div class="container">
+    <h1>Hello Universe</h1>
+    <div class="subcaption">Webserv project created by team GET LUCKY</div>
+    <div class="team">jopfeiff & agiliber & yilin</div>
+    <div class="links">
+      <!-- <a href="/get.html">GET</a> -->
+      <a href="/upload/upload.html">File Upload</a>
+      <a href="/upload/download.html">File Download</a>
+      <a href="/upload/delete.html">File Delete</a>
+      <a href="/cgi/yolo.py">CGI Scripts</a>
+      <a href="/errors/404.html">Error Pages</a>
+    </div>
+  </div>
+
+  <!-- Script for dynamic stars -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const starField = document.getElementById('starField');
+      const numStars = 150;
+
+      // Create stars
+      for (let i = 0; i < numStars; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+
+        // Random star properties
+        const size = Math.random() * 3 + 1;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 5;
+
+        // Apply star properties
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.left = `${x}%`;
+        star.style.top = `${y}%`;
+        star.style.setProperty('--duration', `${duration}s`);
+        star.style.setProperty('--delay', `${delay}s`);
+
+        starField.appendChild(star);
+      }
+    });
+  </script>
+</body>
+</html>
+		autoindex off;
+        index index.html;'/cgi/yolo.py': [Errno 2] No such file or directory
+CGI script exited with status 2
+Fin Exec CGI

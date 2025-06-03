@@ -106,6 +106,7 @@ void debugString(Response &response)
 {
     // Choisir la couleur selon le code de réponse
     int code = response.getStatus();
+    std::cout << "Code de réponse : " << code << std::endl;
     std::string color;
     if (code >= 200 && code < 300)
         color = "\033[1;32m"; // Vert pour succès

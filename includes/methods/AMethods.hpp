@@ -52,6 +52,7 @@ class AMethods
 			{
 				std::cout << "uri : " << request.getUri() << std::endl;
 				std::cerr << "Path error" << std::endl;
+				std::cout << "Code d'erreur : " << response.getStatus() << std::endl;
 				return ;
 			}
 			try
