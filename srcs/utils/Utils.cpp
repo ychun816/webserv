@@ -5,6 +5,7 @@
 
 int g_signal = 0;
 
+
 std::string readChunkedData(int client_fd) {
     std::string completeData;
     char buffer[BUFFER_SIZE];
@@ -108,19 +109,20 @@ size_t hexToSizeT(const std::string& hexStr) {
 
 void debugString(Response &response)
 {
+    // Choisir la couleur selon le code de réponse
     int code = response.getStatus();
     std::cout << "Code de réponse : " << code << std::endl;
     std::string color;
     if (code >= 200 && code < 300)
-        color = "\033[1;32m"; 
+        color = "\033[1;32m"; // Vert pour succès
     else if (code >= 300 && code < 400)
-        color = "\033[1;36m"; 
+        color = "\033[1;36m"; // Cyan pour redirection
     else if (code >= 400 && code < 500)
-        color = "\033[1;33m"; 
+        color = "\033[1;33m"; // Jaune pour erreur client
     else if (code >= 500)
-        color = "\033[1;31m"; 
+        color = "\033[1;31m"; // Rouge pour erreur serveur
     else
-        color = "\033[0m";   
+        color = "\033[0m";    // Couleur par défaut
 
     std::cout << color << "[Response] Code: " << code << " - " << response.getStatusMessage(code) << "\033[0m" << std::endl;
 }
@@ -150,6 +152,7 @@ void setupSignalHandler() {
     }
 }
 
+
 void cleanupResources() {
     // Freeing resources, closing sockets
     std::cout << "Nettoyage des ressources..." << std::endl;
@@ -162,8 +165,6 @@ void cleanupResources() {
     if (config) {
         std::cout << "Arrêt des serveurs..." << std::endl;
         config->stopServers();
-        config->clearConfigPath();
-        // Config::cleanup();
         delete config; 
     }
 }

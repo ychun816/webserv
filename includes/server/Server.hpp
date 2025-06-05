@@ -2,6 +2,9 @@
 #include "../parsing/Locations.hpp"
 #include "../utils/Utils.hpp"
 #include "../methods/AMethods.hpp"
+
+
+
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -40,16 +43,15 @@ class Server
 				void    setEpollFd(int epoll_fd);
 				void    addConnexion(int fd);
 				void    removeConnexion(int fd);
-				void 	removeAllConnexions();
 				bool    errorPageExist(size_t code);
 				bool	isServerNameMatch(const std::string& host) const;
+				void    removeAllConnexions();
 
 				// Getters
 				const std::string& getConfigFile() const { return _configFile; }
 				const std::deque<int>& getConnexions() const { return _connexions; }
 				int   getSocketFd() const { return _socketFd; }
 				int   getPort() const { return _port; }
-				int   getEpollFd() const { return _epoll_fd; }
 				const std::string& getHost() const { return _host; }
 				const std::string& getRoot() const { return _root; }
 				const std::string& getIndex() const { return _index; }
@@ -63,7 +65,7 @@ class Server
 				const std::list<Location>& getLocations() const { return _locations; }
 				const std::pair<size_t, std::string>& getReturn() const { return _return; }
 				const std::string& getServerName() const { return _serverName; }
-
+				int getEpollFd() const { return _epoll_fd; }
 				// Setters
 				void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 				void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }

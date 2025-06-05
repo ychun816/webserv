@@ -2,8 +2,6 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include <signal.h>
-
 
 #define GREEN "\033[32m"
 #define RED "\033[31m"

@@ -154,8 +154,7 @@ void Request::openErrorPage(size_t code, Response& response)
     std::map<std::string, std::string> headers = this->getHeaders();
     Location* loc = _server.getCurrentLocation(_path);
 
-    if (loc) {
-        std::cout << "loc->getErrorPage().find(code)->second.c_str() : " << loc->getErrorPage().find(code)->second.c_str() << std::endl;
+    if (loc && loc->getErrorPage().find(code) != loc->getErrorPage().end()) {
         if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
             _uri = loc->getErrorPage().find(code)->second.c_str();
         else

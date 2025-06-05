@@ -7,8 +7,17 @@
 
 // Constructors
 Server::Server()
-	: _epoll_fd(-1), _configFile(""), _socketFd(-1), _port(0), _host(""), _root(""), _index(""), _cgi(""), _upload(""),  _clientMaxBodySize("")
-	,  _allowMethods(std::list<std::string>()), _errorPages(std::map<size_t, std::string>())
+	: _epoll_fd(-1)
+	, _socketFd(-1)
+	, _port(0)
+	, _host("")
+	, _root("")
+	, _index("")
+	, _cgi("")
+	, _upload("")
+	, _clientMaxBodySize("")
+	, _allowMethods()
+	, _errorPages()
 {
 	_allowMethods.push_back("GET");
 	_allowMethods.push_back("POST");
@@ -17,43 +26,29 @@ Server::Server()
 
 // Copy constructor
 Server::Server(const Server& other) {
-    _epoll_fd = other._epoll_fd;
-    _configFile = other._configFile;
-    _socketFd = other._socketFd;
-    _port = other._port;
-    _host = other._host;
-    _root = other._root;
-    _index = other._index;
-    _cgi = other._cgi;
-    _upload = other._upload;
-    _clientMaxBodySize = other._clientMaxBodySize;
-    _allowMethods = other._allowMethods;
-    _connexions = other._connexions;
-    _address = other._address;
-    _errorPages = other._errorPages; // Only one assignment
-    _locations = other._locations;
-    _return = other._return;
-    _serverName = other._serverName;
+	_epoll_fd = other._epoll_fd;
+	_socketFd = other._socketFd;
+	_configFile = other._configFile;
+	_socketFd = other._socketFd;
+	_port = other._port;
+	_host = other._host;
+	_root = other._root;
+	_index = other._index;
+	_errorPages = other._errorPages;
+	_cgi = other._cgi;
+	_upload = other._upload;
+	_clientMaxBodySize = other._clientMaxBodySize;
+	_allowMethods = other._allowMethods;
+	_connexions = other._connexions;
+	_address = other._address;
+	_errorPages = other._errorPages;
+	_locations = other._locations;
+	_return = other._return;
+	_serverName = other._serverName;
 }
 
 // Destructor
-Server::~Server() { 
-    // Close open file descriptors if they're valid
-    if (_socketFd >= 0) {
-        close(_socketFd);
-    }
-    
-    if (_epoll_fd >= 0) {
-        close(_epoll_fd);
-    }
-    
-    // Clear any remaining connections
-    removeAllConnexions();
-    
-    // If you have any other dynamically allocated resources, free them here
-    
-    std::cout << "Server with config file " << this->_configFile << " destroyed" << std::endl;
-}
+Server::~Server() { std::cout << this->_configFile << std::endl; }
 
 
 void    Server::createSocket() {
@@ -262,7 +257,6 @@ void Server::removeConnexion(int fd)
 Server & Server::operator=(const Server &assign)
 {
 	if (this != &assign) {
-		_epoll_fd = assign._epoll_fd;
 		_configFile = assign._configFile;
 		_socketFd = assign._socketFd;
 		_port = assign._port;
@@ -321,6 +315,18 @@ void Server::executeMethods(Request& request, Response& response)
 	}
 }
 
+void Server::removeAllConnexions() {
+	for (std::deque<int>::iterator it = _connexions.begin(); it != _connexions.end(); ++it) {
+		if (*it < 0) {
+			std::cerr << "Invalid file descriptor: " << *it << std::endl;
+			continue; // Skip invalid file descriptors
+		}
+		std::cout << "Closing connection: " << *it << std::endl;
+		close(*it);
+	}
+	_connexions.clear();
+}
+
 Location* Server::getCurrentLocation(const std::string& path) {
     std::list<Location>::iterator it = _locations.begin();
     Location* bestMatch = NULL;
@@ -352,16 +358,4 @@ bool Server::isServerNameMatch(const std::string& hostHeader) const {
     
     // Vérification stricte
     return host == _host;
-}
-
-void Server::removeAllConnexions() {
-	for (std::deque<int>::iterator it = _connexions.begin(); it != _connexions.end(); ++it) {
-		if (*it < 0) {
-			std::cerr << "Invalid file descriptor: " << *it << std::endl;
-			continue; // Skip invalid file descriptors
-		}
-		std::cout << "Closing connection: " << *it << std::endl;
-		close(*it);
-	}
-	_connexions.clear();
 }

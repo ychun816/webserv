@@ -32,26 +32,22 @@ public:
     // Method to start servers
     void runServers();
     void stopServers();
+
+
     // Getters
     const std::vector<Server>& getServers() const { return _servers; }
     Server& getServer(size_t index) { return _servers.at(index); }
     size_t getServerCount() const { return _servers.size(); }
 
     // Utility methods
-    void addServer(const Server& server) { _servers.push_back(server); }
+    void addServer(const Server& server) ;
     void removeServer(size_t index) { _servers.erase(_servers.begin() + index); }
     bool hasServer(size_t index) const { return index < _servers.size(); }
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
-    void clearConfigPath() { _configFile.clear(); }
+
     bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
     Server* findServerByHost(const std::string& host, int port);
-    static void cleanup() {
-        if (_instance) {
-            delete _instance;
-            _instance = NULL;
-        }
-    }
     class ConfigException : public std::exception
     {
         public:

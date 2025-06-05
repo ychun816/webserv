@@ -62,9 +62,9 @@ std::vector<std::string>& getDangerousPath()
 		dangerous_path.push_back("c:\\program files");
 		dangerous_path.push_back("c:\\program files (x86)");
 		dangerous_path.push_back("c:\\pagefile.sys");
-		dangerous_path->push_back("c:\\hiberfil.sys");
-		dangerous_path->push_back("c:\\boot.ini");
-		dangerous_path->push_back("\\\\");  // Partages réseau UNC
+		dangerous_path.push_back("c:\\hiberfil.sys");
+		dangerous_path.push_back("c:\\boot.ini");
+		dangerous_path.push_back("\\\\");  // Partages réseau UNC
 		#else
 		// Chemins Unix/Linux sensibles
 		dangerous_path.push_back("/etc");

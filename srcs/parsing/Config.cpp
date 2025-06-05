@@ -5,20 +5,27 @@
 #include <sys/select.h> // For select
 #include <sys/epoll.h>  // For epoll
 #include "../../includes/server/EpollManager.hpp"
-// #include "Config.hpp"
 
 // Initialisation de l'instance statique
-Config* Config::_instance = NULL;
+Config* Config::_instance = 0;
 
 Config* Config::getInstance(const std::string& filename)
 {
-    if (_instance == NULL)
+    if (_instance == 0)
     {
         if (filename.empty())
             throw ConfigException("Cannot create Config instance without filename");
         _instance = new Config(filename);
     }
     return (_instance);
+}
+
+void Config::addServer(const Server& server)
+{
+    Server newServer = server;
+    newServer.setEpollFd(-1);   
+    newServer.setSocketFd(-1);  
+    _servers.push_back(newServer);
 }
 
 Config::Config(const std::string& filename) : _configFile(filename)
@@ -412,22 +419,7 @@ void Config::runServers() {
     epollManager->processEvents(_servers);
 }
 
-void Config::stopServers()
-{
-    for (size_t i = 0; i < _servers.size(); i++)
-    {
-        _servers[i].removeAllConnexions();
-        if (_servers[i].getSocketFd())
-        {
-            close(_servers[i].getSocketFd());
-
-        }
-        if (_servers[i].getEpollFd())
-            epoll_ctl(_servers[i].getEpollFd(), EPOLL_CTL_DEL, _servers[i].getSocketFd(), NULL);
-    }
-}
-
-void Config::initParsing(std::ifstream &file)
+void Config::initParsing(std::ifstream& file)
 {
     std::string line;
     std::vector<std::string> lines;
@@ -531,7 +523,25 @@ Server* Config::findServerByHost(const std::string& host, int port)
     return NULL;
 }
 
+void Config::stopServers()
+{
+    for (size_t i = 0; i < _servers.size(); i++)
+    {
+        // Vérifier si le serveur est valide avant d'accéder à ses membres
+        if (_servers[i].getSocketFd() > 0)
+        {
+            _servers[i].removeAllConnexions();
+            close(_servers[i].getSocketFd());
+        }
 
+        // Vérifier séparément l'epoll_fd
+        int epoll_fd = _servers[i].getEpollFd();
+        if (epoll_fd > 0 && _servers[i].getSocketFd() > 0)
+        {
+            epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _servers[i].getSocketFd(), NULL);
+        }
+    }
+}
 
 // void Config::runServers()
 // {
