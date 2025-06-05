@@ -71,6 +71,7 @@ void CGIhandler::setupEnvironment()
 	_envVars.push_back("CONTENT_TYPE=" + _request->getHeader("Content-Type"));
 	_envVars.push_back("CONTENT_LENGTH=" + _request->getHeader("Content-Length"));
 	_envVars.push_back("PATH_INFO=" + _request->getPath());
+	_envVars.push_back("REDIRECT_STATUS=200");
 
 	//Informations sur le client
 	_envVars.push_back("REMOTE_ADDR=127.0.0.1");
@@ -104,7 +105,7 @@ std::string CGIhandler::findInterpreter()
 		return (_scriptPath);
 	std::string	extention = _scriptPath.substr(pos);
 	if (extention == ".php")
-		return ("/usr/bin/php");
+		return ("/usr/bin/php-cgi");
 	else if (extention == ".py")
 		return ("/usr/bin/python");
 	else if (extention == ".pl")
@@ -177,7 +178,7 @@ std::string CGIhandler::execute()
 	// Attendre que le processus CGI se termine
 	int status;
 	waitpid(pid, &status, 0);
-	
+
 	// Vérifier le statut de fin
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 		std::cerr << "CGI script exited with status " << WEXITSTATUS(status) << std::endl;

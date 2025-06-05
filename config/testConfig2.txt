@@ -23,7 +23,6 @@ server {
     location /upload/ {
         methods GET POST;
         upload_dir /upload;
-        index list.html;
         autoindex on;
         try_files $uri $uri/list.html =404;
         error_page 404 /errors/404.html;

@@ -149,7 +149,7 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 			std::string CGIoutput = execCgi.execute();
 
 			// Séparer les headers et le body de la sortie CGI
-			std::string sep = "\r\n";
+			std::string sep = "\r\n\r\n";
 			size_t headerEnd = CGIoutput.find(sep);
 			if (headerEnd != std::string::npos) {
 				std::string headers = CGIoutput.substr(0, headerEnd);

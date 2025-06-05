@@ -194,6 +194,8 @@ FileType AMethods::getFileType(const std::string& path)
 
 bool AMethods::checkIfCgi(std::string filepath)
 {
+    std::cout << "=== DEBUG checkIfCgi ===" << std::endl;
+    std::cout << "Checking filepath: " << filepath << std::endl;
 	std::vector<std::string> cgiExt;
 	cgiExt.push_back(".php");
 	cgiExt.push_back(".py");
@@ -201,10 +203,13 @@ bool AMethods::checkIfCgi(std::string filepath)
 	cgiExt.push_back(".pl");
 
 	size_t lastDot = filepath.find_last_of('.');
-	if (lastDot == std::string::npos)
+	if (lastDot == std::string::npos){
+		std::cout << "No extension found" << std::endl;
 		return (false);
+	}
 
 	std::string extension = filepath.substr(lastDot);
+	std::cout << "Extension found: " << extension << std::endl;
 
 	// Convertir en minuscules pour comparaison
 	for (size_t i = 0; i < extension.length(); i++)
@@ -214,11 +219,20 @@ bool AMethods::checkIfCgi(std::string filepath)
 	{
 		if (extension == cgiExt[i])
 		{
-			// Vérifier que le fichier existe et est exécutable
-			struct stat file_stat;
-			if (stat(filepath.c_str(), &file_stat) == 0 && S_ISREG(file_stat.st_mode))
-				return true;
-		}
-	}
+            std::cout << "Extension matches CGI: " << extension << std::endl;
+            // Vérifier que le fichier existe
+            struct stat file_stat;
+            if (stat(filepath.c_str(), &file_stat) == 0) {
+                std::cout << "File exists and is regular" << std::endl;
+                if (S_ISREG(file_stat.st_mode)) {
+                    std::cout << "Confirmed as CGI script" << std::endl;
+                    return true;
+                }
+            } else {
+                std::cout << "File stat failed: " << strerror(errno) << std::endl;
+            }
+        }
+    }
+    std::cout << "Not a CGI script" << std::endl;
 	return false;
 }
