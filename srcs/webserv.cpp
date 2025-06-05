@@ -1,3 +1,11 @@
+/* FINAL TO DO:
+1. cgi-bin root : ./ => unable to go back to the main root 
+
+
+
+*/
+
+
 #include "../includes/webserv.hpp"
 #include "../includes/server/Server.hpp"
 #include "../includes/parsing/Config.hpp"
