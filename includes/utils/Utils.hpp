@@ -15,6 +15,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "../../includes/server/Response.hpp"
+#include <signal.h>
+
+
+extern int g_signal;
+void signalHandler(int signum);
+void setupSignalHandler();
+void cleanupResources();
 
 
 void timestamp(std::string str, std::string color);

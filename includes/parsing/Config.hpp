@@ -31,7 +31,7 @@ public:
     
     // Method to start servers
     void runServers();
-
+    void stopServers();
     // Getters
     const std::vector<Server>& getServers() const { return _servers; }
     Server& getServer(size_t index) { return _servers.at(index); }

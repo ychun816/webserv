@@ -5,6 +5,7 @@
 #include <sys/select.h> // For select
 #include <sys/epoll.h>  // For epoll
 #include "../../includes/server/EpollManager.hpp"
+// #include "Config.hpp"
 
 // Initialisation de l'instance statique
 Config* Config::_instance = 0;
@@ -411,7 +412,22 @@ void Config::runServers() {
     epollManager->processEvents(_servers);
 }
 
-void Config::initParsing(std::ifstream& file)
+void Config::stopServers()
+{
+    for (size_t i = 0; i < _servers.size(); i++)
+    {
+        _servers[i].removeAllConnexions();
+        if (_servers[i].getSocketFd())
+        {
+            close(_servers[i].getSocketFd());
+
+        }
+        if (_servers[i].getEpollFd())
+            epoll_ctl(_servers[i].getEpollFd(), EPOLL_CTL_DEL, _servers[i].getSocketFd(), NULL);
+    }
+}
+
+void Config::initParsing(std::ifstream &file)
 {
     std::string line;
     std::vector<std::string> lines;
