@@ -8,11 +8,11 @@
 // #include "Config.hpp"
 
 // Initialisation de l'instance statique
-Config* Config::_instance = 0;
+Config* Config::_instance = NULL;
 
 Config* Config::getInstance(const std::string& filename)
 {
-    if (_instance == 0)
+    if (_instance == NULL)
     {
         if (filename.empty())
             throw ConfigException("Cannot create Config instance without filename");

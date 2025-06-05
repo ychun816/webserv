@@ -46,6 +46,12 @@ public:
     bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
     Server* findServerByHost(const std::string& host, int port);
+    static void cleanup() {
+        if (_instance) {
+            delete _instance;
+            _instance = NULL;
+        }
+    }
     class ConfigException : public std::exception
     {
         public:

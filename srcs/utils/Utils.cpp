@@ -151,18 +151,19 @@ void setupSignalHandler() {
 }
 
 void cleanupResources() {
-    // Libération des ressources, fermeture des sockets, etc.
+    // Freeing resources, closing sockets
     std::cout << "Nettoyage des ressources..." << std::endl;
     Config* config = Config::getInstance();
     EpollManager* epollManager = EpollManager::getInstance();
     if (epollManager) {
         std::cout << "Fermeture de l'instance EpollManager..." << std::endl;
-        delete epollManager; // Assuming this method cleans up resources
+        delete epollManager;
     }
     if (config) {
         std::cout << "Arrêt des serveurs..." << std::endl;
-        config->stopServers(); // Assuming this method stops the servers
-        config->clearConfigPath(); // Clear the config path if needed
+        config->stopServers();
+        config->clearConfigPath();
+        // Config::cleanup();
         delete config; 
     }
 }
