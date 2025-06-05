@@ -24,7 +24,8 @@ Request::Request(std::string request, Server& server) :
 	_currentLocation(NULL),
 	_isChunked(false),
 	_isRedirection(false),
-    _havePriority(false)
+    _havePriority(false),
+    _originalRoot(server.getRoot())
 {
 
 	parseRequest();
@@ -65,6 +66,7 @@ Request::Request(std::string request, Server& server) :
 
 Request::~Request()
 {
+    _server.setRoot(_originalRoot);
 }
 
 void Request::handleResponse()

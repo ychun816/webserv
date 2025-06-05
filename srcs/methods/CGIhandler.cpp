@@ -107,7 +107,7 @@ std::string CGIhandler::findInterpreter()
 	if (extention == ".php")
 		return ("/usr/bin/php-cgi");
 	else if (extention == ".py")
-		return ("/usr/bin/python");
+		return ("/usr/bin/python3");
 	else if (extention == ".pl")
 		return ("/usr/bin/perl");
 	else if (extention == ".rb")

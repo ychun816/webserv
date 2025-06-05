@@ -26,6 +26,7 @@ private:
 	bool _isChunked;
 	bool _isRedirection;
 	bool _havePriority;
+	std::string _originalRoot;
 	// std::string _response;
 	
 public:
