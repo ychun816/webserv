@@ -2,9 +2,6 @@
 #include "../parsing/Locations.hpp"
 #include "../utils/Utils.hpp"
 #include "../methods/AMethods.hpp"
-
-
-
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -43,6 +40,7 @@ class Server
 				void    setEpollFd(int epoll_fd);
 				void    addConnexion(int fd);
 				void    removeConnexion(int fd);
+				void 	removeAllConnexions();
 				bool    errorPageExist(size_t code);
 				bool	isServerNameMatch(const std::string& host) const;
 
@@ -51,6 +49,7 @@ class Server
 				const std::deque<int>& getConnexions() const { return _connexions; }
 				int   getSocketFd() const { return _socketFd; }
 				int   getPort() const { return _port; }
+				int   getEpollFd() const { return _epoll_fd; }
 				const std::string& getHost() const { return _host; }
 				const std::string& getRoot() const { return _root; }
 				const std::string& getIndex() const { return _index; }

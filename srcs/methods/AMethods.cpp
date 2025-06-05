@@ -51,38 +51,38 @@ bool pathExist(Request& request, Server& server)
 // Rempli le vecteur des path sensibles
 std::vector<std::string>& getDangerousPath()
 {
-	static std::vector<std::string>* dangerous_path = new std::vector<std::string>();
+	static std::vector<std::string> dangerous_path;
 
-	if (dangerous_path->empty()) {
+	if (dangerous_path.empty()) {
 		#ifdef _WIN32
 		// Chemins Windows sensibles
-		dangerous_path->push_back("c:\\windows");
-		dangerous_path->push_back("c:\\windows\\system32");
-		dangerous_path->push_back("c:\\boot");
-		dangerous_path->push_back("c:\\program files");
-		dangerous_path->push_back("c:\\program files (x86)");
-		dangerous_path->push_back("c:\\pagefile.sys");
+		dangerous_path.push_back("c:\\windows");
+		dangerous_path.push_back("c:\\windows\\system32");
+		dangerous_path.push_back("c:\\boot");
+		dangerous_path.push_back("c:\\program files");
+		dangerous_path.push_back("c:\\program files (x86)");
+		dangerous_path.push_back("c:\\pagefile.sys");
 		dangerous_path->push_back("c:\\hiberfil.sys");
 		dangerous_path->push_back("c:\\boot.ini");
 		dangerous_path->push_back("\\\\");  // Partages réseau UNC
 		#else
 		// Chemins Unix/Linux sensibles
-		dangerous_path->push_back("/etc");
-		dangerous_path->push_back("/var");
-		dangerous_path->push_back("/bin");
-		dangerous_path->push_back("/sbin");
-		dangerous_path->push_back("/boot");
-		dangerous_path->push_back("/dev");
-		dangerous_path->push_back("/lib");
-		dangerous_path->push_back("/proc");
-		dangerous_path->push_back("/sys");
-		dangerous_path->push_back("/root");
-		dangerous_path->push_back("/usr");
-		dangerous_path->push_back("/opt");
+		dangerous_path.push_back("/etc");
+		dangerous_path.push_back("/var");
+		dangerous_path.push_back("/bin");
+		dangerous_path.push_back("/sbin");
+		dangerous_path.push_back("/boot");
+		dangerous_path.push_back("/dev");
+		dangerous_path.push_back("/lib");
+		dangerous_path.push_back("/proc");
+		dangerous_path.push_back("/sys");
+		dangerous_path.push_back("/root");
+		dangerous_path.push_back("/usr");
+		dangerous_path.push_back("/opt");
 		#endif
 	}
 
-	return *dangerous_path;
+	return dangerous_path;
 }
 
 // Verifie si la requete ne tente pas d'acceder a un dossier securise.

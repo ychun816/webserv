@@ -207,9 +207,10 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 			}
 		}
 
-		//delete requestPtr;
-		//delete serverPtr;
+		delete requestPtr;
+		delete serverPtr;
 		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
+	
 		return;
 	}
 
@@ -252,19 +253,19 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 		}
 		return;
 	}
-
-	// Lire et servir le fichier statique
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	request.fillResponse(response, 200, buffer.str());
-	file.close();
-
+	
 	// Définir le type MIME correct
 	std::string contentType = getMimeType(filepath);
 	std::map<std::string, std::string> headers;
 	headers["Content-Type"] = contentType;
 	response.setHeaders(headers);
 	std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
+	
+		// Lire et servir le fichier statique
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		file.close();
+		request.fillResponse(response, 200, buffer.str());
 }
 
 void Get::serveDirectory(Request& request, Response& response, Server& server)

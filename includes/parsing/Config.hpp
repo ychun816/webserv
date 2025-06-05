@@ -31,7 +31,7 @@ public:
     
     // Method to start servers
     void runServers();
-
+    void stopServers();
     // Getters
     const std::vector<Server>& getServers() const { return _servers; }
     Server& getServer(size_t index) { return _servers.at(index); }
@@ -42,7 +42,7 @@ public:
     void removeServer(size_t index) { _servers.erase(_servers.begin() + index); }
     bool hasServer(size_t index) const { return index < _servers.size(); }
     Location parseLocation(const std::string& location, std::vector<std::string>& lines, std::vector<std::string>::iterator& it);
-
+    void clearConfigPath() { _configFile.clear(); }
     bool validateServerConfig(const Server& newServer) const;
     Server* findServerByLocation(const std::string& path, int port);
     Server* findServerByHost(const std::string& host, int port);
