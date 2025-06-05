@@ -1,5 +1,8 @@
 #include "../../includes/webserv.hpp"
 #include "../../includes/utils/Utils.hpp"
+#include "../../includes/parsing/Config.hpp"
+
+int g_signal = 0;
 
 std::string readChunkedData(int client_fd) {
     std::string completeData;
@@ -104,20 +107,54 @@ size_t hexToSizeT(const std::string& hexStr) {
 
 void debugString(Response &response)
 {
-    // Choisir la couleur selon le code de réponse
     int code = response.getStatus();
     std::cout << "Code de réponse : " << code << std::endl;
     std::string color;
     if (code >= 200 && code < 300)
-        color = "\033[1;32m"; // Vert pour succès
+        color = "\033[1;32m"; 
     else if (code >= 300 && code < 400)
-        color = "\033[1;36m"; // Cyan pour redirection
+        color = "\033[1;36m"; 
     else if (code >= 400 && code < 500)
-        color = "\033[1;33m"; // Jaune pour erreur client
+        color = "\033[1;33m"; 
     else if (code >= 500)
-        color = "\033[1;31m"; // Rouge pour erreur serveur
+        color = "\033[1;31m"; 
     else
-        color = "\033[0m";    // Couleur par défaut
+        color = "\033[0m";   
 
     std::cout << color << "[Response] Code: " << code << " - " << response.getStatusMessage(code) << "\033[0m" << std::endl;
+}
+
+void signalHandler(int signum) {
+    if (signum == SIGINT || signum == SIGTERM) {
+        std::cout << "\n" << RED << "Signal reçu: " << signum << RESET << std::endl;
+        g_signal = signum;
+        cleanupResources();
+        exit(0);
+    }
+}
+void setupSignalHandler() {
+    struct sigaction sa;
+    sa.sa_handler = signalHandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        std::cerr << RED << "Échec de l'installation du gestionnaire pour SIGINT" << RESET << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    
+    if (sigaction(SIGTERM, &sa, NULL) == -1) {
+        std::cerr << RED << "Échec de l'installation du gestionnaire pour SIGTERM" << RESET << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void cleanupResources() {
+    // Libération des ressources, fermeture des sockets, etc.
+    std::cout << "Nettoyage des ressources..." << std::endl;
+    Config* config = Config::getInstance();
+    if (config) {
+        std::cout << "Arrêt des serveurs..." << std::endl;
+        config->stopServers(); // Assuming this method stops the servers
+    }
 }
