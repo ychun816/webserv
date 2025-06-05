@@ -1,6 +1,7 @@
 #include "../../includes/webserv.hpp"
 #include "../../includes/utils/Utils.hpp"
 #include "../../includes/parsing/Config.hpp"
+#include "../../includes/server/EpollManager.hpp"
 
 int g_signal = 0;
 
@@ -153,8 +154,15 @@ void cleanupResources() {
     // Libération des ressources, fermeture des sockets, etc.
     std::cout << "Nettoyage des ressources..." << std::endl;
     Config* config = Config::getInstance();
+    EpollManager* epollManager = EpollManager::getInstance();
+    if (epollManager) {
+        std::cout << "Fermeture de l'instance EpollManager..." << std::endl;
+        delete epollManager; // Assuming this method cleans up resources
+    }
     if (config) {
         std::cout << "Arrêt des serveurs..." << std::endl;
         config->stopServers(); // Assuming this method stops the servers
+        config->clearConfigPath(); // Clear the config path if needed
+        delete config; 
     }
 }

@@ -18,6 +18,7 @@ int main(int argc, char const *argv[])
 			const std::string configFile = (argc == 1 ? "config/baseConfig.txt" : argv[1]);
 			Config* config = Config::getInstance(configFile);
 			config->runServers();
+
 		}
 		else
 			std::cerr << "Usage: ./webserv  [config file]" << std::endl;
@@ -27,5 +28,6 @@ int main(int argc, char const *argv[])
 		std::cerr << e.what() << '\n';
 	}
 
+	cleanupResources();
 	return 0;
 }
