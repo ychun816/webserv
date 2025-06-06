@@ -8,20 +8,17 @@ Post::~Post() {}
 
 std::string Post::extractFileContent(std::string& rawBody) const
 {
-    // Start after headers
     size_t contentStart = rawBody.find("\r\n\r\n");
     if (contentStart == std::string::npos)
         return "";
-    contentStart += 4; // Skip "\r\n\r\n"
+    contentStart += 4;
 
-    // Find start of the final boundary
     size_t contentEnd = rawBody.rfind("\r\n--");
     if (contentEnd == std::string::npos || contentEnd < contentStart)
         return "";
 
     std::string content = rawBody.substr(contentStart, contentEnd - contentStart);
 
-    // Trim trailing \r\n
     content.erase(content.find_last_not_of("\r\n") + 1);
 
     return content;
@@ -146,10 +143,8 @@ void Post::execute(Request& request, Response& response, Server& server)
         std::string filename;
         std::string body;
 
-        // Change the path to the upload_path in the configfile
 	    Location* _currentLocation = server.getCurrentLocation(request.getPath());
         uploadPath = "." + server.getRoot() + _currentLocation->getUploadPath();
-        std::cout << "Upload path ver" << uploadPath << std::endl;
         if (uploadPath.empty())
         {
             response.setStatus(400);
@@ -167,8 +162,7 @@ void Post::execute(Request& request, Response& response, Server& server)
         if (!body.empty())
             body = extractFileContent(body);
 
-        std::string uri = request.getUri(); //test with change /uplaoad to /user_upload
-        // std::string newSavePath = "/user_upload";
+        std::string uri = request.getUri(); 
 
         std::string savePath = uploadPath + PATH_SEPARATOR + filename;
         std::ofstream output(savePath.c_str());
@@ -186,7 +180,6 @@ void Post::execute(Request& request, Response& response, Server& server)
     }
     catch (const std::exception& e)
     {
-        // Safely handle any exceptions that might occur
         std::cerr << "Exception in POST handler: " << e.what() << std::endl;
         response.setStatus(500);
     }

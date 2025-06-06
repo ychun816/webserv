@@ -10,10 +10,10 @@ Get::~Get() {}
 
 void Get::execute(Request& request, Response& response, Server& server)
 {
-	std::cout << "\n=== DEBUG execute ===" << std::endl;
-	std::cout << "Méthode: " << request.getMethod() << std::endl;
-	std::cout << "URI: " << request.getUri() << std::endl;
-	std::cout << "Chemin absolu: " << request.getAbspath() << std::endl;
+	// std::cout << "\n=== DEBUG execute ===" << std::endl;
+	// std::cout << "Méthode: " << request.getMethod() << std::endl;
+	// std::cout << "URI: " << request.getUri() << std::endl;
+	// std::cout << "Chemin absolu: " << request.getAbspath() << std::endl;
 
 	// Vérifier si une redirection est définie pour cette location
 	Location* currentLocation = request.getCurrentLocation();
@@ -70,38 +70,38 @@ void Get::execute(Request& request, Response& response, Server& server)
 	}
 	if (!request.validateQueryParams())
 	{
-		std::cout << "Paramètres de requête invalides" << std::endl;
+		// std::cout << "Paramètres de requête invalides" << std::endl;
 		response.setStatus(400);
 		return;
 	}
 	std::string path = request.getAbspath();
 	FileType file_type = getFileType(path);
-	std::cout << "Type de fichier détecté: " << file_type << std::endl;
+	// std::cout << "Type de fichier détecté: " << file_type << std::endl;
 
 	switch (file_type)
 	{
 		case (TYPE_REGULAR_FILE) :
-			std::cout << GREEN << "Traitement comme fichier régulier" << RESET << std::endl;
+			// std::cout << GREEN << "Traitement comme fichier régulier" << RESET << std::endl;
 			serveFile(request, response, server);
 			break;
 		case (TYPE_DIRECTORY) :
-			std::cout << GREEN << "Traitement comme répertoire" << RESET << std::endl;
+			// std::cout << GREEN << "Traitement comme répertoire" << RESET << std::endl;
 			serveDirectory(request, response, server);
 			break;
 		case (TYPE_NOT_FOUND) :
-			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
+			// std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
 			response.setStatus(404);
 			break;
 		case (TYPE_NO_PERMISSION) :
-			std::cout << RED << "Permission refusée" << RESET << std::endl;
+			// std::cout << RED << "Permission refusée" << RESET << std::endl;
 			response.setStatus(403);
 			break;
 		default:
-			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
+			// std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
 			response.setStatus(400);
 			break;
 	}
-	std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
+	// std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
 }
 
 void Get::serveFile(Request& request, Response& response, Server& server)

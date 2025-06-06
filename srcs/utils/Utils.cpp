@@ -115,7 +115,7 @@ void debugString(int code)
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
     std::string dateTime = buffer;
 
-    std::cout << "Code de réponse : " << code << std::endl;
+    // std::cout << "Code de réponse : " << code << std::endl;
     std::string color;
     if (code >= 200 && code < 300)
         color = "\033[1;32m"; 

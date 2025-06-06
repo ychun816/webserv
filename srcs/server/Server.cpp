@@ -201,11 +201,9 @@ void Server::setNonBlocking()
 	if (flags == -1) {
 		std::cerr << "Error fcntl(F_GETFL)" << std::endl;
 	}
-		std::cout << "Flag at socket creation: " << flags << std::endl;
 	if (fcntl(this->_socketFd, F_SETFL, flags | O_NONBLOCK) == -1) { // Add the O_NONBLOCK flag (becomes non-blocking)
 		std::cerr << "Error fcntl(F_SETFL)" << std::endl;
 	}
-		std::cout << "Flag at socket creation: " << flags << std::endl;
 
 }
 
