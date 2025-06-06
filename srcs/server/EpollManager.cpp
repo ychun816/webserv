@@ -250,7 +250,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
                         if (trySendResponse(current_fd)) {
                             // Si tout est envoyé et que la connexion doit être fermée
                             if (_connections_to_close.find(current_fd) != _connections_to_close.end()) {
-                                std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
+                                // std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
                                 close(current_fd);
                                 removeSocket(current_fd);
                                 servers[server_index].removeConnexion(current_fd);
