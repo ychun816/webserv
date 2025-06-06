@@ -84,9 +84,9 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 
 	while (true) {
 		int event_count = epoll_wait(_epoll_fd, events, MAX_EVENTS_EPOLL, 1000);
-		
+
 		checkTimeouts(servers);
-		
+
 		if (event_count == -1) {
 			if (errno == EINTR) continue;
 			std::cerr << "Erreur epoll_wait" << std::endl;
@@ -234,25 +234,25 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 
 void EpollManager::checkTimeouts(std::vector<Server>& servers) {
 	time_t current_time = time(NULL);
-	
+
 	std::vector<std::pair<int, int> > to_check;
-	for (std::map<int, int>::const_iterator it = _client_to_server_index.begin(); 
+	for (std::map<int, int>::const_iterator it = _client_to_server_index.begin();
 		 it != _client_to_server_index.end(); ++it) {
 		to_check.push_back(*it);
 	}
-	
-	for (std::vector<std::pair<int, int> >::const_iterator it = to_check.begin(); 
+
+	for (std::vector<std::pair<int, int> >::const_iterator it = to_check.begin();
 		 it != to_check.end(); ++it) {
 		int fd = it->first;
 		int server_index = it->second;
-		
+
 		if (_connection_times.find(fd) == _connection_times.end()) {
 			continue;
 		}
-		
+
 		time_t connection_time = _connection_times[fd];
 		time_t elapsed_time = current_time - connection_time;
-		
+
 		if (elapsed_time > _timeout) {
 			std::cout << "\033[31mConnection " << fd << " timed out after " << elapsed_time << " seconds\033[0m" << std::endl;
 			close(fd);

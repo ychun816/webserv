@@ -29,6 +29,7 @@ Request::Request(std::string request, Server& server) :
     _errorCode(0)
 
 {
+	std::cout << "Hello request" << std::endl;
 	parseRequest();
 	setPathQueryString();
 	parseQuery();
@@ -38,7 +39,7 @@ Request::Request(std::string request, Server& server) :
             std::cout << "Aucune méthode autorisée pour cette location, utilisation des méthodes par défaut." << std::endl;
             std::list<std::string> allowMethodsList = _server.getAllowMethods();
             std::vector<std::string> allowMethodsVec(allowMethodsList.begin(), allowMethodsList.end());
-            _currentLocation->setMethods(allowMethodsVec);            
+            _currentLocation->setMethods(allowMethodsVec);
         }
         else if (_currentLocation->getMethods().size() > 0) {
             std::cout << "Méthodes autorisées pour cette location: ";
@@ -180,7 +181,7 @@ void Request::openErrorPage(size_t code, Response& response)
             errorPagePath = it->second;
         }
     }
-    
+
     if (errorPagePath.empty()) {
         std::map<size_t, std::string>::const_iterator it = _server.getErrorPages().find(code);
         if (it != _server.getErrorPages().end() && !it->second.empty()) {
@@ -195,9 +196,9 @@ void Request::openErrorPage(size_t code, Response& response)
         }
         _uri = errorPagePath;
         _path = errorPagePath;
-        
+
         std::cout << "👻 Chemin de la page d'erreur: " << _path << std::endl;
-        
+
         headers["Content-Type"] = "text/html";
         _method = "GET";
         response.setHeaders(headers);
@@ -243,7 +244,7 @@ void Request::parseRequest()
     // Parse la première ligne
     if (std::getline(ss, line) && !line.empty()) {
         parseRequestLine(line);
-        
+
     }
 
     // Parse les en-têtes
@@ -433,7 +434,7 @@ bool Request::isValidEmail(const std::string& value)
 }
 
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
-{   
+{
     std::cout << "👻 fillResponse appelé avec le code: " << statusCode << std::endl;
     // Toujours définir le code de statut, même si la requête a la priorité
     response.setStatus(statusCode);
@@ -540,4 +541,3 @@ void Request::parseChunkedBody() {
 }
 
 bool Request::isChunked() const { return _isChunked; }
-

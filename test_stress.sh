@@ -8,6 +8,11 @@ send_request() {
 
 echo "Début des tests de stress..."
 
+# 1. Requête avec requete vide
+echo "Test 2: Méthode invalide"
+printf "" | nc localhost 8080
+sleep 1
+
 
 
 # 2. Requête avec méthode invalide
@@ -88,4 +93,4 @@ printf "GET  HTTP/1.1\r\n\r\n" | nc localhost 8080
 sleep 1
 
 echo "Test 18: Requête avec version HTTP invalide"
-echo "Tests terminés" 
+echo "Tests terminés"

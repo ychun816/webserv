@@ -1,7 +1,7 @@
 server {
     listen 8080;
     server_name localhost;
-    host 127.0.0.1;
+    host 127.0.0.1;`
     root /www/simplesite;
     client_max_body_size 10M;
     error_page 500 /errors/500.html;
@@ -18,11 +18,11 @@ server {
     }
 
     location /upload {
-        methods GET POST ;
+        methods GET ;
         index upload.html;
         upload_dir /upload;
         client_max_body_size 10M;
-        
+
     }
 
     location /cgi-bin {
@@ -30,7 +30,7 @@ server {
         cgi_ext .php .py;
         root ./;
         autoindex on;
-    } 
+    }
 
     location /redirection {
         return 301 https://dpm.lol/CRYSTALSITH-CRYST;
