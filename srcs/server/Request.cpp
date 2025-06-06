@@ -147,6 +147,7 @@ void Request::handleResponse()
         errorHandler(response);
         return;
     }
+    debugString(response.getStatus());
     _response = response;
 }
 
