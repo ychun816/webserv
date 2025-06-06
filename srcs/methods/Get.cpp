@@ -121,6 +121,15 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 			// Séparer les headers et le body de la sortie CGI
 			std::string sep = "\r\n\r\n";
 			size_t headerEnd = CGIoutput.find(sep);
+			std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+			if (headerEnd == std::string::npos) {
+				sep = "\n\n";
+				headerEnd = CGIoutput.find(sep);
+				std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+				if (headerEnd != std::string::npos) {
+					std::cout << "Header end position: " << headerEnd << std::endl;
+				}
+			}
 			if (headerEnd != std::string::npos) {
 				std::string headers = CGIoutput.substr(0, headerEnd);
 				std::string body = CGIoutput.substr(headerEnd + sep.length());

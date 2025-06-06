@@ -36,13 +36,28 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 		try {
 			std::string CGIoutput = execCgi.execute();
+			std::cout << "=== DEBUG CGI PARSING ===" << std::endl;
+			std::cout << "CGI raw output length: " << CGIoutput.length() << std::endl;
+			std::cout << "CGI raw output: [" << CGIoutput << "]" << std::endl;
 
 			// Séparer les headers et le body de la sortie CGI
 			std::string sep = "\r\n\r\n";
 			size_t headerEnd = CGIoutput.find(sep);
+			std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+			if (headerEnd == std::string::npos) {
+				sep = "\n\n";
+				headerEnd = CGIoutput.find(sep);
+				std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+				if (headerEnd != std::string::npos) {
+					std::cout << "Header end position: " << headerEnd << std::endl;
+				}
+			}
 			if (headerEnd != std::string::npos) {
 				std::string headers = CGIoutput.substr(0, headerEnd);
 				std::string body = CGIoutput.substr(headerEnd + sep.length());
+				// std::cout << "HEADERS: [" << headers << "]" << std::endl;
+				// std::cout << "BODY: [" << body << "]" << std::endl;
+				// std::cout << "Body length: " << body.length() << std::endl;
 
 				// Parser les headers CGI
 				std::map<std::string, std::string> cgiHeaders;
@@ -65,8 +80,22 @@ void Post::execute(Request& request, Response& response, Server& server)
 						cgiHeaders[key] = value;
 					}
 				}
-				response.setHeaders(cgiHeaders);
 				request.fillResponse(response, 200, body);
+				response.setHeaders(cgiHeaders);
+				// std::cout << "DEBUG: Body length = " << body.length() << std::endl;
+				// std::cout << "DEBUG: Response status = " << response.getStatus() << std::endl;
+				// std::cout << "DEBUG: Response body length = " << response.getBody().length() << std::endl;
+				// std::cout << "=== DEBUG AFTER fillResponse ===" << std::endl;
+				// std::cout << "Response status: " << response.getStatus() << std::endl;
+				// std::cout << "Response body length: " << response.getBody().length() << std::endl;
+
+				// Afficher TOUS les headers de réponse
+				std::map<std::string, std::string> respHeaders = response.getHeaders();
+				std::cout << "Response headers count: " << respHeaders.size() << std::endl;
+				for (std::map<std::string, std::string>::iterator it = respHeaders.begin(); it != respHeaders.end(); ++it) {
+					std::cout << "Response header: " << it->first << " = " << it->second << std::endl;
+				}
+				std::cout << "=== END fillResponse DEBUG ===" << std::endl;
 
 			} else {
 				// Pas de headers séparés, essayer de détecter si c'est du HTML pur
@@ -75,8 +104,8 @@ void Post::execute(Request& request, Response& response, Server& server)
 					// C'est du HTML sans headers CGI
 					std::map<std::string, std::string> headers;
 					headers["Content-Type"] = "text/html";
-					response.setHeaders(headers);
 					request.fillResponse(response, 200, CGIoutput);
+					response.setHeaders(headers);
 				} else {
 					// Traiter comme sortie brute avec headers par défaut
 					std::map<std::string, std::string> headers;
@@ -188,8 +217,8 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 */
 
-/* DEBUGGER 
-   
+/* DEBUGGER
+
         //DEBUG  /////////////////////////////////////////////////
         std::cout << "=== ♦️DEBUG POST EXECUTE ===" << std::endl;
         // std::cout << "UPLOAD DIRECTORY : " << request.getUploadDirectory(uri) << std::endl; //SAVED HERE FOR FUTRE USE
