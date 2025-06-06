@@ -39,6 +39,7 @@ print("""
 <body>
   <div class="message">
     <h1>🐍 Yolo from Python CGI!</h1>
+    <a class="button" href="/index.html">Return to Index</a>
   </div>
 </body>
 </html>

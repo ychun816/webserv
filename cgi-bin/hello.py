@@ -3,7 +3,6 @@ print("Content-Type: text/html\r\n\r\n")
 
 print("""
 <!DOCTYPE html>
-<html lang="en">Add commentMore actions
 <head>
   <meta charset="UTF-8" />
   <title>Hello from Python CGI</title>

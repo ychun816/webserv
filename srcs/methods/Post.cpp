@@ -41,14 +41,15 @@ void Post::execute(Request& request, Response& response, Server& server)
     }
     
     try {
+        (void)server;
         std::string uploadPath;
         std::string filename;
         std::string body;
 
-        (void)server;
-
         // Change the path to the upload_path in the configfile
-        uploadPath = request.getAbspath();
+	    Location* _currentLocation = server.getCurrentLocation(request.getPath());
+        uploadPath = "." + server.getRoot() + _currentLocation->getUploadPath();
+        std::cout << "Upload path ver" << uploadPath << std::endl;
         if (uploadPath.empty()) 
         {
             response.setStatus(400);
@@ -66,8 +67,8 @@ void Post::execute(Request& request, Response& response, Server& server)
         if (!body.empty())
             body = extractFileContent(body);
 
-        // std::string uri = request.getUri(); //test with change /uplaoad to /user_upload
-        // // std::string newSavePath = "/user_upload";
+        std::string uri = request.getUri(); //test with change /uplaoad to /user_upload
+        // std::string newSavePath = "/user_upload";
 
         std::string savePath = uploadPath + PATH_SEPARATOR + filename;
         std::ofstream output(savePath.c_str());
@@ -123,17 +124,19 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 */
 
-/* DEBUGGER
+/* DEBUGGER 
+   
+        //DEBUG  /////////////////////////////////////////////////
+        std::cout << "=== ♦️DEBUG POST EXECUTE ===" << std::endl;
+        // std::cout << "UPLOAD DIRECTORY : " << request.getUploadDirectory(uri) << std::endl; //SAVED HERE FOR FUTRE USE
+        std::cout << "♦️UPLOAD PATH : " << uploadPath << std::endl;
+        std::cout << "♦️FILENAME : " << filename << std::endl;
+        std::cout << "♦️SAVE PATH : " << savePath << std::endl;//////////////vePath << std::endl;
+	    std::cout << "♦️URI: " << uri << std::endl;
+        // std::cout << "♦️BODY : " << body << std::endl;
+        std::cout << "=== ♦️END | DEBUG POST EXECUTE ===" << std::endl;
+        /////////////////////////////////////////////////
 
-//EXTRACT FILE CONTENT
-    //CHECK DEBUG /////////////////////////////////////////////////
-    // std::cout << "=== 🍋DEBUG | EXTRACT FILE CONTENT ===" << std::endl;
-    // std::cout << "HEADER DELIMITER : " << headerDelimiter << std::endl;
-    // std::cout << "CONTENT START : " << contentStart << std::endl;
-    // std::cout << "CONTENT END : " << contentEnd << std::endl;
-    // std::cout << "CONTENT : " << content << std::endl;
-    // std::cout << "=== 🍋END | DEBUG EXTRACT FILE CONTENT ===" << std::endl;
-    /////////////////////////////////////////////////
 
 //POST EXECUTE
         //DEBUG 

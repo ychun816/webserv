@@ -6,9 +6,17 @@ server {
     client_max_body_size 10M;
     error_page 500 /errors/500.html;
 
-    error_page 405 /errors/405_Not-Allowed.html;
+    error_page 405 /errors/405.html;
 
-    location / {
+    location / {exist: 405
+printing error pages
+Error page: 500 : /errors/500.html
+Error page exist: /errors/500.html
+Error page exist: 500
+Code de réponse : 404
+[2025-06-06 17:34:35] [Response] Code: 404
+Connection kept alive for client (fd:7)
+Client déconnec
         methods GET POST;
         index index.html ;
         error_page 405 /errors/405.html;
@@ -20,7 +28,7 @@ server {
     location /upload {
         methods GET POST ;
         index upload.html;
-        upload_dir /upload;
+        upload_path /upload;
         client_max_body_size 10M;
         
     }
