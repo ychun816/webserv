@@ -178,7 +178,7 @@
       event.preventDefault();
       const formData = new FormData(this);
 
-      fetch('/user_upload', {
+      fetch('/upload/', {
         method: 'POST',
         body: formData,
       })
