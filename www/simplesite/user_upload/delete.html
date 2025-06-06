@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delete File - Webserv</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Josefin Sans', sans-serif;
+      background: url('https://4kwallpapers.com/images/wallpapers/stars-galaxy-10307.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #fff;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    .delete-container {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 0 10px #ffcdd8, 0 0 20px #ff8696;
+    }
+
+    .status-message {
+      margin-bottom: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 400px;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem 2rem;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      border: none;
+      font-size: 1em;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: #ccc;
+    }
+
+    button {
+      background-color: #eb6a74;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357ab7;
+    }
+
+    .nav-links {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #bbdbf8;
+      font-size: 1em;
+      padding: 0.5rem 1rem;
+      border: 1px solid #bbdbf8;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-links a:hover {
+      background-color: #fdd281;
+      color: #000;
+      border-color: #fdd281;
+    }
+  </style>
+</head>
+<body>
+  <div class="delete-container">
+    <h1>🗑️ Delete File</h1>
+    <div id="status" class="status-message"></div>
+    <form onsubmit="return handleDelete()">
+      <input type="text" id="filename" placeholder="Enter filename to delete (e.g., report.pdf)" required />
+      <br />
+      <button type="submit">Delete</button>
+    </form>
+    <div class="nav-links">
+      <a href="/upload/upload.html">📤 Back to Upload</a>
+      <a href="/upload/download.html">📥 Go to Download</a>
+      <a href="/index.html">🏠 Back to Index</a>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+
+    if (status === 'success') {
+      statusEl.textContent = '✅ File deleted successfully.';
+      statusEl.classList.add('success');
+    } else if (status === 'fail') {
+      statusEl.textContent = '❌ Failed to delete the file.';
+      statusEl.classList.add('error');
+    }
+
+    function handleDelete() {
+      const filename = document.getElementById('filename').value.trim();
+      if (!filename) {
+        alert('Please enter a filename.');
+        return false;
+      }
+
+      fetch(`/upload/${encodeURIComponent(filename)}`, {
+        method: 'DELETE',
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = '?status=success';
+        } else {
+          window.location.href = '?status=fail';
+        }
+      })
+      .catch(() => {
+        window.location.href = '?status=fail';
+      });
+
+      return false;
+    }
+  </script>
+</body>
+</html>

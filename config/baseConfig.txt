@@ -17,14 +17,6 @@ server {
 
     }
 
-    location /upload {
-        methods GET POST ;
-        index upload.html;
-        upload_path /user_upload;
-        client_max_body_size 10M;
-
-    }
-
     location /cgi-bin {
         methods GET POST;
         cgi_ext .php .py;
@@ -39,11 +31,19 @@ server {
 }
 
 server {
-    listen 8081;
+    listen 8080;
     server_name example.com;
     root /www/simplesite;
 
-    location / {
+    location /upload {
+        methods GET POST ;
+        index upload.html;
+        upload_path /user_upload;
+        client_max_body_size 10M;
+
+    }
+
+    location /hello {
         methods GET;
         index index.html;
         autoindex off;

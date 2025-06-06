@@ -9,7 +9,7 @@ server {
     error_page 403 /errors/403.html;
 
     location / {
-        methods GET POST;
+        methods POST;
 		autoindex off;
         index index.html;
         client_max_body_size 10M

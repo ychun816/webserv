@@ -3,7 +3,11 @@
 #include "../includes/parsing/Config.hpp"
 #include "../includes/utils/Utils.hpp"
 // error codes : 504  / 501
-
+// siege -b -c 255 -t1M http://127.0.0.1:8080/
+// 8081 
+// add debug string for fille too large
+// verifie ti;eout
+// Verifie nginx documentation for multiple ports
 int main(int argc, char const *argv[])
 {
 	(void)argv;

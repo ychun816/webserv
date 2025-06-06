@@ -71,7 +71,7 @@ void Request::handleResponse()
 {
     Response response(*this);
     // std::cout << "👻 handleResponse starting" << std::endl;
-    if (_request.empty() || _method.empty() || _uri.empty() || _httpVersion.empty()) {
+    if (_request.empty() || _method.empty() || _httpVersion.empty()) {
         response.setStatus(400);
         _errorCode = 400;
         errorHandler(response);
@@ -142,7 +142,7 @@ void Request::handleResponse()
         errorHandler(response);
         return;
     }
-    // debugString(response.getStatus());
+    debugString(response.getStatus());
     _response = response;
 }
 
