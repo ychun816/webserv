@@ -82,27 +82,24 @@ bool EpollManager::removeSocket(int fd) {
 
 void EpollManager::queueResponse(int fd, const std::string& response) {
     _pending_responses[fd] += response;
-    _connection_times[fd] = time(NULL);  // Rafraîchir le timeout
+    _connection_times[fd] = time(NULL);
 }
 
 bool EpollManager::trySendResponse(int fd) {
     if (_pending_responses.find(fd) == _pending_responses.end() || 
         _pending_responses[fd].empty()) {
-        return true;  // Rien à envoyer, considéré comme un succès
+        return true;
     }
 
     std::string& response = _pending_responses[fd];
     ssize_t bytes_sent = send(fd, response.c_str(), response.size(), 0);
 
     if (bytes_sent > 0) {
-        // Supprimer les données envoyées du buffer
         response.erase(0, bytes_sent);
-        _connection_times[fd] = time(NULL);  // Rafraîchir le timeout
-        
-        return response.empty();  // True si tout a été envoyé
+        _connection_times[fd] = time(NULL);  
+        return response.empty();
     } 
     
-    // En cas d'erreur ou si aucun octet n'a été envoyé
     return false;
 }
 
@@ -117,7 +114,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 		checkTimeouts(servers);
 
 		if (event_count == -1) {
-			continue;  // Simplement continuer sans vérifier errno
+			continue;
 		}
 
 		for (int i = 0; i < event_count; i++) {
@@ -143,9 +140,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 					continue;
 				}
 
-				std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
-						  << " (fd:" << client_fd << ")" << std::endl;
-
 				servers[server_index].addConnexion(client_fd);
 				addClientSocket(client_fd, server_index);
 			}
@@ -158,7 +152,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 					int bytes_read = read(current_fd, buffer, sizeof(buffer));
 
 					if (bytes_read <= 0) {
-						std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
 						close(current_fd);
 						removeSocket(current_fd);
 						servers[server_index].removeConnexion(current_fd);
@@ -197,8 +190,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 																			  "Content-Type: text/html\r\n"
 																			  "Content-Length: 67\r\n\r\n"
 																			  "<html><body><h1>Error: File too large.</h1></body></html>";
-										std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-										std::cout << error_response << std::endl;
 										debugString(413);
 										send(current_fd, error_response.c_str(), error_response.size(), 0);
 										incomplete_requests.erase(current_fd);
@@ -222,16 +213,13 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 					}
 
 					if (current_request.length() >= expected_sizes[current_fd]) {
-						std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
 
 						Request req(current_request, servers[server_index]);
 						if (req.isBodySizeValid()) {
 							req.handleResponse();
 							
-							// Ajouter la réponse au buffer plutôt que d'envoyer directement
 							queueResponse(current_fd, req.getResponse());
 							
-							// Marquer la connexion pour fermeture si nécessaire
 							if (req.getHeader("Connection") != "keep-alive") {
                                 _connections_to_close.insert(current_fd);
                             }
@@ -240,10 +228,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 														  "Content-Type: text/html\r\n"
 														  "Content-Length: 67\r\n\r\n"
 														  "<html><body><h1>Error: File too large.</h1></body></html>";
-							std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-							std::cout << error_response << std::endl;
 							
-							// Ajouter le message d'erreur au buffer
 							queueResponse(current_fd, error_response);
 							_connections_to_close.insert(current_fd);
 						}
