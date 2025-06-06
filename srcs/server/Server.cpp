@@ -18,6 +18,8 @@ Server::Server()
 	, _clientMaxBodySize("")
 	, _allowMethods()
 	, _errorPages()
+	, _timeout(DEFAULT_TIMEOUT)
+	, _keepAliveTimeout(DEFAULT_KEEP_ALIVE_TIMEOUT)
 {
 	_allowMethods.push_back("GET");
 	_allowMethods.push_back("POST");
@@ -100,90 +102,97 @@ void    Server::configSocket() {
 }
 
 void    Server::runServer() {
-		// We will wait for a new incoming connection with accept(). Accept creates a new socket
-		// specific to this connection and returns its FD
+	// 	// We will wait for a new incoming connection with accept(). Accept creates a new socket
+	// 	// specific to this connection and returns its FD
 
-		struct  epoll_event event, events[MAX_EVENTS];
+	// 	struct  epoll_event event, events[MAX_EVENTS];
 
-		// Create the epoll instance. The parameter is obsolete, so put whatever you want. Prefer Epoll_create1() but it's forbidden in the 42 webserv project
-		if ((this->_epoll_fd = epoll_create(1)) < 0)
-				throw Server::configError("Epoll Error");
-		else
-		{
-				std::cout << "Epoll successfully created with fd: " << this->_epoll_fd << std::endl;
-				event.events = EPOLLIN;
-				event.data.fd = this->_socketFd;
-				if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
-						throw Server::configError("Failed to add Socket to epoll (epoll_ctl)");
-		}
-		std::cout << "Waiting for connections on port " << this->_port << std::endl;
-	while (true) {
-		int event_count = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
-		if (event_count == -1) {
-			throw Server::configError("epoll_wait");
-			break;
-		}
-		for (int i = 0; i < event_count; i++) {
-			if (events[i].data.fd == this->_socketFd) {
-				handleNewConnection();
-			} else {
-				// Handling existing client connections
-				try {
-					std::string request = readChunkedData(events[i].data.fd);
-					if (!request.empty()) {
-						Request req(request, *this);
-						req.handleResponse();
+	// 	// Create the epoll instance. The parameter is obsolete, so put whatever you want. Prefer Epoll_create1() but it's forbidden in the 42 webserv project
+	// 	if ((this->_epoll_fd = epoll_create(1)) < 0)
+	// 			throw Server::configError("Epoll Error");
+	// 	else
+	// 	{
+	// 			std::cout << "Epoll successfully created with fd: " << this->_epoll_fd << std::endl;
+	// 			event.events = EPOLLIN;
+	// 			event.data.fd = this->_socketFd;
+	// 			if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socketFd, &event) == -1)
+	// 					throw Server::configError("Failed to add Socket to epoll (epoll_ctl)");
+	// 	}
+	// 	std::cout << "Waiting for connections on port " << this->_port << std::endl;
+	// while (true) {
+	// 	int event_count = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, 1000); // Timeout de 1 seconde pour epoll_wait
+	// 	if (event_count == -1) {
+	// 		throw Server::configError("epoll_wait");
+	// 		break;
+	// 	}
 
-						// Envoi de la réponse en chunks si nécessaire
-						std::string response = req.getResponse();
-						size_t sent = 0;
-						int chunk_count = 0;
+	// 	// Vérifier les timeouts avant de traiter les événements
+	// 	checkTimeouts();
 
-						std::cout << "\n=== DEBUT ENVOI CHUNKS ===" << std::endl;
-						std::cout << "Taille totale à envoyer: " << response.length() << " bytes" << std::endl;
+	// 	for (int i = 0; i < event_count; i++) {
+	// 		if (events[i].data.fd == this->_socketFd) {
+	// 			handleNewConnection();
+	// 		} else {
+	// 			// Mettre à jour le temps de connexion pour les connexions actives
+	// 			_connectionTimes[events[i].data.fd] = time(NULL);
+				
+	// 			// Handling existing client connections
+	// 			try {
+	// 				std::string request = readChunkedData(events[i].data.fd);
+	// 				if (!request.empty()) {
+	// 					Request req(request, *this);
+	// 					req.handleResponse();
 
-						while (sent < response.length()) {
-							chunk_count++;
-							size_t toSend = std::min<size_t>(BUFFER_SIZE, response.length() - sent);
+	// 					// Envoi de la réponse en chunks si nécessaire
+	// 					std::string response = req.getResponse();
+	// 					size_t sent = 0;
+	// 					int chunk_count = 0;
 
-							std::cout << "CHUNK #" << chunk_count
-									  << " | Taille: " << toSend
-									  << " bytes | Progression: " << sent << "/"
-									  << response.length() << " bytes" << std::endl;
+	// 					std::cout << "\n=== DEBUT ENVOI CHUNKS ===" << std::endl;
+	// 					std::cout << "Taille totale à envoyer: " << response.length() << " bytes" << std::endl;
 
-							ssize_t bytes_sent = send(events[i].data.fd,
-													response.c_str() + sent,
-													toSend,
-													0);
-							if (bytes_sent <= 0) {
-								std::cerr << "ERREUR: Échec envoi chunk" << std::endl;
-								throw std::runtime_error("Error sending response");
-							}
-							sent += bytes_sent;
-						}
+	// 					while (sent < response.length()) {
+	// 						chunk_count++;
+	// 						size_t toSend = std::min<size_t>(BUFFER_SIZE, response.length() - sent);
 
-						std::cout << "=== FIN ENVOI CHUNKS ===" << std::endl;
-						std::cout << "Total chunks envoyés: " << chunk_count
-								  << " | Taille totale: " << sent << " bytes\n" << std::endl;
+	// 						std::cout << "CHUNK #" << chunk_count
+	// 								  << " | Taille: " << toSend
+	// 								  << " bytes | Progression: " << sent << "/"
+	// 								  << response.length() << " bytes" << std::endl;
 
-						// Gestion de keep-alive
-						if (req.getHeader("Connection") != "keep-alive") {
-							close(events[i].data.fd);
-							epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-							removeConnexion(events[i].data.fd);
-						}
-					}
-				} catch (const std::exception& e) {
-					std::cerr << "Error handling request: " << e.what() << std::endl;
-					close(events[i].data.fd);
-					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
-					removeConnexion(events[i].data.fd);
-				}
-			}
-		}
-	}
-	close(this->_socketFd);
-	close(this->_epoll_fd);
+	// 						ssize_t bytes_sent = send(events[i].data.fd,
+	// 												response.c_str() + sent,
+	// 												toSend,
+	// 												0);
+	// 						if (bytes_sent <= 0) {
+	// 							std::cerr << "ERREUR: Échec envoi chunk" << std::endl;
+	// 							throw std::runtime_error("Error sending response");
+	// 						}
+	// 						sent += bytes_sent;
+	// 					}
+
+	// 					std::cout << "=== FIN ENVOI CHUNKS ===" << std::endl;
+	// 					std::cout << "Total chunks envoyés: " << chunk_count
+	// 							  << " | Taille totale: " << sent << " bytes\n" << std::endl;
+
+	// 					// Gestion de keep-alive
+	// 					if (req.getHeader("Connection") != "keep-alive") {
+	// 						close(events[i].data.fd);
+	// 						epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+	// 						removeConnexion(events[i].data.fd);
+	// 					}
+	// 				}
+	// 			} catch (const std::exception& e) {
+	// 				std::cerr << "Error handling request: " << e.what() << std::endl;
+	// 				close(events[i].data.fd);
+	// 				epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+	// 				removeConnexion(events[i].data.fd);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// close(this->_socketFd);
+	// close(this->_epoll_fd);
 }
 
 void Server::setNonBlocking()
@@ -223,6 +232,7 @@ void Server::handleNewConnection()
 
 	std::cout << "New client connection accepted: " << client_fd << std::endl;
 	this->_connexions.push_back(client_fd);
+	this->_connectionTimes[client_fd] = time(NULL); // Enregistrer le temps de connexion
 
 	// Add the client socket to epoll
 	struct epoll_event event;
@@ -231,7 +241,8 @@ void Server::handleNewConnection()
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
 		std::cerr << "Error while adding the client to epoll" << std::endl;
 		close(client_fd);
-		this->_connexions.pop_back(); //removeConnexion(events[i].data.fd); ? use here too?
+		this->_connexions.pop_back();
+		this->_connectionTimes.erase(client_fd);
 		return;
 	}
 }
@@ -358,4 +369,26 @@ bool Server::isServerNameMatch(const std::string& hostHeader) const {
     
     // Vérification stricte
     return host == _host;
+}
+
+void Server::checkTimeouts()
+{
+	time_t current_time = time(NULL);
+	std::deque<int>::iterator it = _connexions.begin();
+	std::cout << "checkTimeouts" << std::endl;
+	while (it != _connexions.end()) {
+		int fd = *it;
+		time_t connection_time = _connectionTimes[fd];
+		time_t elapsed_time = current_time - connection_time;
+
+		if (elapsed_time > _timeout) {
+			std::cout << "Connection " << fd << " timed out after " << elapsed_time << " seconds" << std::endl;
+			close(fd);
+			epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+			_connectionTimes.erase(fd);
+			it = _connexions.erase(it);
+		} else {
+			++it;
+		}
+	}
 }

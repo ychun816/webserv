@@ -25,14 +25,11 @@ Request::Request(std::string request, Server& server) :
 	_isChunked(false),
 	_isRedirection(false),
     _havePriority(false),
-    _originalRoot(server.getRoot())
-{
+    _originalRoot(server.getRoot()),
+    _errorCode(0)
 
+{
 	parseRequest();
-	// Ne continuer que si la requête est valide
-	if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
-		return;
-	}
 	setPathQueryString();
 	parseQuery();
 	_currentLocation = _server.getCurrentLocation(_path);
@@ -71,105 +68,66 @@ Request::~Request()
 
 void Request::handleResponse()
 {
-    std::string hostHeader = getHeader("Host");
-    if (hostHeader.empty()) {
-        // Si pas de Host header, utiliser l'adresse IP par défaut
-        hostHeader = "127.0.0.1";
+    Response response(*this);
+    std::cout << "👻 handleResponse starting" << std::endl;
+    // Basic validation of the request
+    if (_request.empty() || _method.empty() || _uri.empty() || _httpVersion.empty()) {
+        response.setStatus(400);
+        _errorCode = 400;
+        errorHandler(response);
+        return;
+    }
+    else if (_httpVersion != "HTTP/1.1") {
+        response.setStatus(505);
+        _errorCode = 505;
+        errorHandler(response);
+        return;
+    }
+    else if (!isMethodAllowed()) {
+        response.setStatus(405);
+        _errorCode = 405;
+        errorHandler(response);
+        return;
     }
 
+    // Validate the Host header
+    std::string hostHeader = getHeader("Host");
+    if (hostHeader.empty()) {
+        hostHeader = "127.0.0.1";
+    }
     if (!_server.isServerNameMatch(hostHeader)) {
-        // Si le server_name ne correspond pas, chercher le bon serveur
         Config* config = Config::getInstance();
         if (config) {
             Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
-            //DEBUG 
-            std::cout << "🍦HANDLE RESPONSE | Host header: " << hostHeader << std::endl;
-            std::cout << "🍦HANDLE RESPONSE | Server port: " << _server.getPort() << std::endl;
             if (appropriateServer) {
                 _server = *appropriateServer;
             } else {
-                // Si aucun serveur ne correspond, renvoyer une erreur 400
-                Response response(*this);
-                if (!errorPageExist(400)) {
-                    buildErrorPageHtml(400, response);
-                } else {
-                    openErrorPage(400, response);
-                }
-                _response = response;
-        
-
+                response.setStatus(400);
+                _errorCode = 400;
+                errorHandler(response);
                 return;
             }
         }
     }
-    
-    Response response(*this);
 
+    // Validate the content length
     if (!isContentLengthValid()) {
-        std::cout << "👻 Content-Length is not valid" << std::endl;
-        this->setHavePriority(true);
-        if (!errorPageExist(413)) {
-			response.setStatusMessage(response.getStatusMessage(413));
-            buildErrorPageHtml(413, response);
-        } else {
-            openErrorPage(413, response);
-        }
-    }
-    else if (!isMethodAllowed()) {
-        Response responses(*this);
-        this->setHavePriority(true);
-        std::cout << "👻 Method not allowed" << std::endl;
-        if (!errorPageExist(405)) {
-			std::cout << "👻 Error page not exist" << std::endl;
-			responses.setStatusMessage(responses.getStatusMessage(405));
-            buildErrorPageHtml(405, responses);
-        } else {
-			std::cout << "👻 Error page exist" << std::endl;
-            responses.setStatus(405);
-            std::cout << responses.getStatus() << std::endl;
-            openErrorPage(405, responses);
-        }
-        debugString(responses);
+        response.setStatus(413);
+        _errorCode = 413;
+        errorHandler(response);
         return;
     }
-    else {
-        Config* config = Config::getInstance();
-        if (config) {
-            Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
-            if (appropriateServer)
-                _server = *appropriateServer;
-        }
-        _server.executeMethods(*this, response);
+
+    // Validate the method
+    if (!isMethodAllowed()) {
+        std::cout << "👻 Method not allowedsdsdsds" << std::endl;
+        response.setStatus(405);
+        _errorCode = 405;
+        errorHandler(response);
+        return;
     }
 
-    response.setResponse(response.formatResponse());
-
-
-    debugString(response);
-
-}
-
-void Request::openErrorPage(size_t code, Response& response)
-{
-    response.setStatus(code);
-
-    std::map<std::string, std::string> headers = this->getHeaders();
-    Location* loc = _server.getCurrentLocation(_path);
-
-    if (loc && loc->getErrorPage().find(code) != loc->getErrorPage().end()) {
-        if (loc->getErrorPage().find(code) != loc->getErrorPage().end())
-            _uri = loc->getErrorPage().find(code)->second.c_str();
-        else
-            _uri = _server.getErrorPages().find(code)->second.c_str();
-    } else {
-        _uri = _server.getErrorPages().find(code)->second.c_str();
-    }
-
-    headers["Content-Type"] = "text/html";
-    _method = "GET";
-    _path = _uri;
-    response.setHeaders(headers);
-
+    // If everything is valid, execute the method
     Config* config = Config::getInstance();
     if (config) {
         Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
@@ -177,28 +135,87 @@ void Request::openErrorPage(size_t code, Response& response)
             _server = *appropriateServer;
     }
     _server.executeMethods(*this, response);
+    response.setResponse(response.formatResponse());
+    if (response.getStatus() >= 400) {
+        _errorCode = response.getStatus();
+    }
+    std::cout << "👻 response.getStatus(): " << response.getStatus() << std::endl;
+    std::cout << "👻 _errorCode: " << _errorCode << std::endl;
+    if (_errorCode != 0) {
+        std::cout << "👻 _errorCode: " << _errorCode << std::endl;
+        errorHandler(response);
+        return;
+    }
     _response = response;
 }
 
-// static std::string loadErrorTemplate(const std::string& filePath)
-// {
-//     std::ifstream file(filePath.c_str());    
+void Request::errorHandler(Response& response)
+{
+    if (_errorCode != 0) {
+        if (!errorPageExist(_errorCode)) {
+            buildErrorPageHtml(_errorCode, response);
+        } else {
+            openErrorPage(_errorCode, response);
+        }
+    }
+}
 
-//     // if (!file.is_open()) 
-//     // {
-//     //     return "<html><body><h1>Error page not found</h1></body></html>";
-//     // }
-//     std::ostringstream ss;
-//     ss << file.rdbuf();
-//     return ss.str();
-// }
+void Request::openErrorPage(size_t code, Response& response)
+{
+    response.setStatus(code);
+    std::cout << "🔴 Ouverture de la page d'erreur pour le code: " << code << std::endl;
 
+    std::map<std::string, std::string> headers = this->getHeaders();
+    Location* loc = _server.getCurrentLocation(_path);
+    std::string errorPagePath;
+
+    // 1. Chercher d'abord dans la location
+    if (loc && !loc->getErrorPage().empty()) {
+        std::map<size_t, std::string>::const_iterator it = loc->getErrorPage().find(code);
+        if (it != loc->getErrorPage().end() && !it->second.empty()) {
+            errorPagePath = it->second;
+        }
+    }
+    
+    if (errorPagePath.empty()) {
+        std::map<size_t, std::string>::const_iterator it = _server.getErrorPages().find(code);
+        if (it != _server.getErrorPages().end() && !it->second.empty()) {
+            errorPagePath = it->second;
+        }
+    }
+
+    if (!errorPagePath.empty()) {
+
+        if (errorPagePath[0] != '/') {
+            errorPagePath = "/" + errorPagePath;
+        }
+        _uri = errorPagePath;
+        _path = errorPagePath;
+        
+        std::cout << "👻 Chemin de la page d'erreur: " << _path << std::endl;
+        
+        headers["Content-Type"] = "text/html";
+        _method = "GET";
+        response.setHeaders(headers);
+
+        Config* config = Config::getInstance();
+        if (config) {
+            Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
+            if (appropriateServer)
+                _server = *appropriateServer;
+        }
+        _server.executeMethods(*this, response);
+        std::cout << "🟢 Page d'erreur ouverte pour le code: " << code << std::endl;
+        _response = response;
+    } else {
+        buildErrorPageHtml(code, response);
+    }
+}
 
 void Request::buildErrorPageHtml(size_t code, Response& response)
 {
-    // std::cout << "🍦🍦HERE IS buildErrorPageHtml" << code << std::endl; //DEBUGG//
-    
     response.setStatus(code);
+    std::cout << "🔴 Construction de la page d'erreur pour le code: " << code << std::endl;
 
     std::ostringstream oss;
     oss << code;
@@ -206,58 +223,33 @@ void Request::buildErrorPageHtml(size_t code, Response& response)
 
     response.setBody("<html><body><h1>Error " + codeStr + ": " + response.getStatusMessage(code) + "</h1></body></html>");
 
-    // Ajouter Content-Type pour HTML
     std::map<std::string, std::string> headers = this->getHeaders();
     headers["Content-Type"] = "text/html";
     response.setHeaders(headers);
-	response.setResponse(response.formatResponse());
-
-	_response = response;
+    response.setResponse(response.formatResponse());
+    std::cout << "🟢 Page d'erreur construite pour le code: " << code << std::endl;
+    _response = response;
 }
 
 void Request::parseRequest()
 {
-    if (_request.empty()) {
-        std::cout << "👻 Request is empty" << std::endl;
-        Response response(*this);
-        buildErrorPageHtml(400, response);
-        _method = ""; // Marquer la requête comme invalide
-        return;
-    }
-
     std::stringstream ss(_request);
     std::string line;
 
-    // Parse la première ligne (méthode, URL, version)
+    // Parse la première ligne
     if (std::getline(ss, line) && !line.empty()) {
         parseRequestLine(line);
-        if (_method.empty() || _uri.empty() || _httpVersion.empty()) {
-            // std::cout << "👻 Invalid request line - missing method, URI or HTTP version" << std::endl; //DEBUG//
-            Response response(*this);
-            buildErrorPageHtml(400, response);
-            _method = ""; // Marquer la requête comme invalide
-            return;
-        }
-        std::cout << "method: " << _method << std::endl;
-        std::cout << "uri: " << _uri << std::endl;
-        std::cout << "http version: " << _httpVersion << std::endl;
-    } else {
-        // std::cout << "👻 Empty request line" << std::endl; //DEBUG//
-        Response response(*this);
-        buildErrorPageHtml(400, response);
-        _method = ""; // Marquer la requête comme invalide
-        return;
     }
 
     // Parse les en-têtes
     while (std::getline(ss, line) && !line.empty() && line != "\r") {
         if (!line.empty() && line[line.length() - 1] == '\r')
-            line = line.substr(0, line.length() - 1); // Remove CR if present
+            line = line.substr(0, line.length() - 1);
         parseHeader(line);
     }
 
+    // Parse le corps
     _isChunked = (getHeader("Transfer-Encoding") == "chunked");
-
     if (_isChunked) {
         parseChunkedBody();
     } else {
@@ -267,8 +259,6 @@ void Request::parseRequest()
         }
         _body = body;
     }
-    // std::cout << "Received request: [" << this->getBody().substr(0, this->getBody().length()) << "...]" << std::endl;
-    //handleResponse();
 }
 
 void Request::parseRequestLine(const std::string& line)
@@ -439,25 +429,15 @@ bool Request::isValidEmail(const std::string& value)
 
 void Request::fillResponse(Response& response, int statusCode, const std::string& body)
 {   
-    std::cout << "👻 fillResponse called with statusCode: " << statusCode << std::endl;
-    if (!this->getHavePriority())
-    {
-        std::cout << "👻 Request has no priority, setting status to " << statusCode << std::endl;
-        response.setStatus(statusCode);
-    }
-	response.setBody(body);
-	response.setHeaders(this->getHeaders());
-	response.setHttpVersion(this->getHttpVersion());
-
-    //DEBUG ///////////////////////////////////////////////////////////////////////
-	//std::cout << "response.getStatusMessage() : "<< response.getStatusMessage() << std::endl;
-	//response.setResponse(response.formatResponse());
-	//std::cout << "response.getResponse() : "<< response.getResponse() << std::endl;
-	//std::cout << "response.getBody() : "<< response.getBody() << std::endl;
-	//std::cout << "response.getHttpVersion() : " << response.getHttpVersion() << std::endl;
-    /////////////////////////////////////////////////////////////////////////////
-
-	_response = response;
+    std::cout << "👻 fillResponse appelé avec le code: " << statusCode << std::endl;
+    // Toujours définir le code de statut, même si la requête a la priorité
+    response.setStatus(statusCode);
+    response.setBody(body);
+    response.setHeaders(this->getHeaders());
+    response.setHttpVersion(this->getHttpVersion());
+    response.setStatusMessage(response.getStatusMessage(statusCode));
+    std::cout << "🟢 Code de statut défini: " << statusCode << " - " << response.getStatusMessage(statusCode) << std::endl;
+    _response = response;
 }
 
 std::string Request::getFilename() const
@@ -555,3 +535,4 @@ void Request::parseChunkedBody() {
 }
 
 bool Request::isChunked() const { return _isChunked; }
+

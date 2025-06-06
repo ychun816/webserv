@@ -29,5 +29,5 @@ std::string trim(const std::string& str, const std::string& chars = WHITESPACES_
 size_t convertSizeToBytes(const std::string& size);
 std::string readChunkedData(int client_fd);
 size_t hexToSizeT(const std::string& hexStr);
-void debugString(Response& response);
+void debugString(int code);
 #endif

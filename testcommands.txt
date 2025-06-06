@@ -3,3 +3,7 @@ curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt
 
 test sans methode : echo -e " / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080
 stress test siege :  siege -b -c 255 -t1M http://127.0.0.1:8080/
+
+connetion basique : nc localhost 8080 (3 terminals pour tester)
+
+connetion avec timeout : nc -i 5 localhost 8080 (5 secondes de timeout)

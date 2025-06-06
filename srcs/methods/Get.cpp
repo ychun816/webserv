@@ -71,13 +71,7 @@ void Get::execute(Request& request, Response& response, Server& server)
 	if (!request.validateQueryParams())
 	{
 		std::cout << "Paramètres de requête invalides" << std::endl;
-		if (!request.errorPageExist(400)) {
-			response.setStatus(400);
-			response.setStatusMessage(response.getStatusMessage(400));
-			request.buildErrorPageHtml(400, response);
-		} else {
-			request.openErrorPage(400, response);
-		}
+		response.setStatus(400);
 		return;
 	}
 	std::string path = request.getAbspath();
@@ -96,39 +90,15 @@ void Get::execute(Request& request, Response& response, Server& server)
 			break;
 		case (TYPE_NOT_FOUND) :
 			std::cout << RED << "Fichier non trouvé" << RESET << std::endl;
-			if (!request.getHavePriority())
-			{
-				std::cout << "priority: " << request.getHavePriority() << std::endl;
-				if (!request.errorPageExist(404)) {
-					response.setStatus(404);
-					request.buildErrorPageHtml(404, response);
-				} else {
-					request.openErrorPage(404, response);
-				}
-			}
-			else
-			{
-				std::cout << " I dont have priority, so I will not handle this error" << std::endl;
-			}
+			response.setStatus(404);
 			break;
 		case (TYPE_NO_PERMISSION) :
 			std::cout << RED << "Permission refusée" << RESET << std::endl;
-			if (!request.errorPageExist(403)) {
-				response.setStatus(403);
-				// std::cout << "🍦🍦HERE IS GET-403TYPE Error page 403 not found, building default error pageNO PERMISSION" << std::endl; //DEBUG//
-				request.buildErrorPageHtml(403, response);
-			} else {
-				request.openErrorPage(403, response);
-			}
+			response.setStatus(403);
 			break;
 		default:
 			std::cout << RED << "Type de fichier inconnu" << RESET << std::endl;
-			if (!request.errorPageExist(400)) {
-				response.setStatus(400);
-				request.buildErrorPageHtml(400, response);
-			} else {
-				request.openErrorPage(400, response);
-			}
+			response.setStatus(400);
 			break;
 	}
 	std::cout << "=== FIN DEBUG execute ===\n" << std::endl;
@@ -199,12 +169,7 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Erreur lors de l'exécution CGI: " << e.what() << std::endl;
-			if (!request.errorPageExist(500)) {
-				response.setStatus(500);
-				request.buildErrorPageHtml(500, response);
-			} else {
-				request.openErrorPage(500, response);
-			}
+			response.setStatus(500);
 		}
 
 		//delete requestPtr;
@@ -218,14 +183,7 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 	std::cout << filepath.c_str() << std::endl;
 	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
-		if (request.errorPageExist(404)) {
-			std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl;
-			request.openErrorPage(404, response);
-		} else {
-			std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl;
-			response.setStatus(404);
-			request.buildErrorPageHtml(404, response);
-		}
+		response.setStatus(404);
 		return;
 	}
 
@@ -244,12 +202,7 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 
 	if (static_cast<size_t>(fileSize) > maxSize) {
 		file.close();
-		if (!request.errorPageExist(413)) {
-			response.setStatus(413);
-			request.buildErrorPageHtml(413, response);
-		} else {
-			request.openErrorPage(413, response);
-		}
+		response.setStatus(413);
 		return;
 	}
 
@@ -319,15 +272,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		if (!file.is_open())
 		{
 			std::cerr << "Error opening file" << std::endl;
-			if (request.errorPageExist(404)) {
-				// std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, open error page" << std::endl; //DEBUG//
-				request.openErrorPage(404, response);
-			} else {
-				// std::cout << "🍦🍦HERE IS GET-404TYPE Error page 404 not found, building default error page" << std::endl; //DEBUG//
-				response.setStatus(404);
-				request.buildErrorPageHtml(404, response);
-				// request.fillResponse(response, 404, "<html><body><h1>404 Not Found</h1></body></html>");
-			}
+			response.setStatus(404);
 			return;
 		}
 
@@ -353,12 +298,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		if (!current)
 		{
 			std::cerr << "Error opening the directory" << std::endl;
-			if (request.errorPageExist(403)) {
-				request.openErrorPage(403, response);
-			} else {
-				response.setStatus(403);
-				request.buildErrorPageHtml(403, response);
-			}
+			response.setStatus(403);
 			return;
 		}
 

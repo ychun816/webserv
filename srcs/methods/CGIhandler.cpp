@@ -64,7 +64,7 @@ void CGIhandler::setupEnvironment()
 {
 	_envVars.clear();
 
-	//Informations sur la requête
+	//Request information
 	_envVars.push_back("REQUEST_METHOD=" + _request->getMethod());
 	_envVars.push_back("REQUEST_URI=" + _request->getUri());
 	_envVars.push_back("QUERY_STRING=" + _queryString);
@@ -73,7 +73,7 @@ void CGIhandler::setupEnvironment()
 	_envVars.push_back("PATH_INFO=" + _request->getPath());
 	_envVars.push_back("REDIRECT_STATUS=200");
 
-	//Informations sur le client
+	//Client information
 	_envVars.push_back("REMOTE_ADDR=127.0.0.1");
 	_envVars.push_back("REMOTE_HOST=" + _request->getHeader("Host"));
 	_envVars.push_back("HTTP_USER_AGENT=" + _request->getHeader("User-Agent"));
@@ -81,14 +81,14 @@ void CGIhandler::setupEnvironment()
 	_envVars.push_back("HTTP_ACCEPT=" + _request->getHeader("Accept"));
 	_envVars.push_back("HTTP_ACCEPT_LANGUAGE=" + _request->getHeader("Accept-Language"));
 
-	//Informations sur le serveur
+	//Server information
 	_envVars.push_back("SERVER_NAME=" + _server->getHost());
 	_envVars.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	_envVars.push_back("SERVER_PORT=" + intToString(_server->getPort()));
 	_envVars.push_back("DOCUMENT_ROOT=" + _server->getRoot());
 	_envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
-	//Informations sur le script
+	//Script information
 	_envVars.push_back("SCRIPT_FILENAME=" + _scriptPath);
 	_envVars.push_back("SCRIPT_NAME=" + _request->getUri());
 }
@@ -159,12 +159,12 @@ std::string CGIhandler::execute()
 	close(inputPipe[0]);
 	close(outputPipe[1]);
 
-	// Si c'est une requête POST, écrire les données dans le pipe d'entrée
+	// If it's a POST request, write the data into the input pipe
 	if (_request->getMethod() == "POST" && !_postData.empty())
 		write(inputPipe[1], _postData.c_str(), _postData.length());
 	close(inputPipe[1]);
 
-	// Lire la sortie du script CGI
+	// Read the output of the CGI script
 	char buffer[4096];
 	ssize_t bytesRead;
 	std::string output;
@@ -175,11 +175,11 @@ std::string CGIhandler::execute()
 	}
 	close(outputPipe[0]);
 
-	// Attendre que le processus CGI se termine
+	// Wait for the CGI process to finish
 	int status;
 	waitpid(pid, &status, 0);
 
-	// Vérifier le statut de fin
+	// Check the status of the end
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 		std::cerr << "CGI script exited with status " << WEXITSTATUS(status) << std::endl;
 	return output;

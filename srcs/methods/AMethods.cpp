@@ -3,7 +3,6 @@
 AMethods::AMethods() {}
 AMethods::~AMethods() {}
 
-// Converti le path en minuscules
 std::string	to_Lower(const std::string& path)
 {
 	std::string lower_path = path;
@@ -13,7 +12,7 @@ std::string	to_Lower(const std::string& path)
 	return (lower_path);
 }
 
-// Normalise le path en ajustant les '/' et en supprimant les doublons
+// Normalize the path by adjusting the '/' and removing duplicates
 std::string	normalizePath(const std::string& path)
 {
 	std::string	normalize_path = path;
@@ -29,7 +28,7 @@ std::string	normalizePath(const std::string& path)
 	return (normalize_path);
 }
 
-// Verifie si le path existe
+// Check if the path exists
 bool pathExist(Request& request, Server& server)
 {
 	struct stat buffer;
@@ -48,7 +47,7 @@ bool pathExist(Request& request, Server& server)
 	return (stat(request.getAbspath().c_str(), &buffer) == 0);
 }
 
-// Rempli le vecteur des path sensibles
+// Fill the vector of sensitive paths
 std::vector<std::string>& getDangerousPath()
 {
 	static std::vector<std::string> dangerous_path;
@@ -85,7 +84,7 @@ std::vector<std::string>& getDangerousPath()
 	return dangerous_path;
 }
 
-// Verifie si la requete ne tente pas d'acceder a un dossier securise.
+// Check if the request does not try to access a secure folder.
 bool	isPathSafe(const std::string& path)
 {
 	std::string normalize_path = normalizePath(path);
@@ -104,47 +103,21 @@ bool	isPathSafe(const std::string& path)
 	return (true);
 }
 
-// Verifie si l'on a bien acces au path et si il n'y a pas d'enjeux de securite.
+// Check if we have access to the path and if there is no security issues.
 bool AMethods::checkPath(Request& request, Server& server, Response& response)
 {
-	// if (checkIfCgi(request.getPath()))
-	// 	return true;
+
 	if (!pathExist(request, server))
 	{
-		if (!request.getHavePriority())
-		{
 			std::cout << "Path not found: " << request.getAbspath() << std::endl;
-			if (!request.errorPageExist(404)) {
-				response.setStatus(404);
-				request.buildErrorPageHtml(404, response);
-			} else {
-				request.openErrorPage(404, response);
-			}
-		}
-		else {
+		response.setStatus(404);
 
-			std::cout << " I dont have priority, so I will not handle this error" << std::endl;
-		}
-		// request.fillResponse(response, 404, "<html><body><h1>404 Not a Directory</h1></body></html>");
 		return (false);
 	}
 	if (!isPathSafe(request.getAbspath()))
 	{
-		if (!request.getHavePriority())
-		{
-			std::cout << "Path not safe: " << request.getAbspath() << std::endl;
-			if (!request.errorPageExist(403)) {
-				response.setStatus(403);
-				request.buildErrorPageHtml(403, response);
-			} else {
-				request.openErrorPage(403, response);
-			}
-		}
-		else
-		{
-			std::cout << " I dont have priority, so I will not handle this error" << std::endl;
-		}
-		// request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory not safe</h1></body></html>");
+		std::cout << "Path not safe: " << request.getAbspath() << std::endl;
+		response.setStatus(403);
 		return (false);
 	}
 	return (true);
@@ -160,11 +133,10 @@ FileType AMethods::getFileType(const std::string& path)
 {
 	struct stat file_info;
 
-	// Vérification de l'existence et récupération des infos
+		// Vérification de l'existence et récupération des infos
 	if (checkIfCgi(path))
 		return TYPE_REGULAR_FILE;
 	if (stat(path.c_str(), &file_info) != 0) {
-		// Analyse de l'erreur
 		if (errno == ENOENT) {
 			return TYPE_NOT_FOUND;
 		} else if (errno == EACCES) {
@@ -173,22 +145,21 @@ FileType AMethods::getFileType(const std::string& path)
 			return TYPE_OTHER;
 		}
 	}
-	// Analyse du type
+		// Analyse du type
 	if (S_ISDIR(file_info.st_mode))
 	{
-		// Vérification supplémentaire: peut-on l'ouvrir?
 		DIR* dir = opendir(path.c_str());
 		if (dir) {
 			closedir(dir);
 			return TYPE_DIRECTORY;
 		} else {
-			return TYPE_NO_PERMISSION;  // Existe mais inaccessible
+			return TYPE_NO_PERMISSION;  
 		}
 	}
 	else if (S_ISREG(file_info.st_mode))
 		return TYPE_REGULAR_FILE;
 	else {
-		return TYPE_OTHER;              // Lien symbolique, socket, etc.
+		return TYPE_OTHER;
 	}
 }
 
@@ -211,7 +182,7 @@ bool AMethods::checkIfCgi(std::string filepath)
 	std::string extension = filepath.substr(lastDot);
 	std::cout << "Extension found: " << extension << std::endl;
 
-	// Convertir en minuscules pour comparaison
+	// Convert to lowercase for comparison
 	for (size_t i = 0; i < extension.length(); i++)
 		extension[i] = tolower(extension[i]);
 
@@ -220,7 +191,7 @@ bool AMethods::checkIfCgi(std::string filepath)
 		if (extension == cgiExt[i])
 		{
             std::cout << "Extension matches CGI: " << extension << std::endl;
-            // Vérifier que le fichier existe
+            // Check if the file exists
             struct stat file_stat;
             if (stat(filepath.c_str(), &file_stat) == 0) {
                 std::cout << "File exists and is regular" << std::endl;

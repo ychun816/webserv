@@ -12,52 +12,25 @@ Delete::~Delete() {}
 void Delete::execute(Request& request, Response& response, Server& server)
 {
     (void)server;
-    std::string absPath = request.getAbspath();    //./www/simplesite/upload/_testPost.txt
-    std::string uri = request.getUri();            // e.g., /upload/test.txt
+    std::string absPath = request.getAbspath();    
+    std::string uri = request.getUri();            
     std::string fileName = uri.substr(uri.find_last_of("/") + 1);
 
     if (getFileType(absPath) != TYPE_REGULAR_FILE) 
     {
-        if (!request.getHavePriority())
-        {
-            std::cout << "Path not safe: " << absPath << std::endl;
-            if (!request.errorPageExist(403)) {
-                response.setStatus(403);
-                request.buildErrorPageHtml(403, response);
-            } else {
-                request.openErrorPage(403, response);
-            }
-        }
-        else
-        {
-            std::cout << " I dont have priority, so I will not handle this error" << std::endl;
-        }
+        std::cout << "Path not safe: " << absPath << std::endl;
+        response.setStatus(403);
         return;
     }
 
     if (std::remove(absPath.c_str()) != 0) 
     {
-        if (!request.getHavePriority())
-        {
-            std::cout << "Failed to delete file: " << absPath << std::endl;
-            if (!request.errorPageExist(500)) {
-                response.setStatus(500);
-                request.buildErrorPageHtml(500, response);
-            } else {
-                request.openErrorPage(500, response);
-            }
-        }
-        else
-        {
-            std::cout << " I dont have priority, so I will not handle this error" << std::endl;
-        }
+        std::cout << "Failed to delete file: " << absPath << std::endl;
+        response.setStatus(500);
         return;
 
     } 
-    response.setStatus(200);
-    response.setBody("Success: File deleted.");
-    request.fillResponse(response, 200, "<html><body><h1>Success: File deleted.</h1></body></html>");
-    
+    response.setStatus(200);    
 }
 
 

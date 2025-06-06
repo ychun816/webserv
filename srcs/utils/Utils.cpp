@@ -107,24 +107,28 @@ size_t hexToSizeT(const std::string& hexStr) {
     return result;
 }
 
-void debugString(Response &response)
+void debugString(int code)
 {
-    // Choisir la couleur selon le code de réponse
-    int code = response.getStatus();
+    time_t now = time(0);
+    struct tm *timeinfo = localtime(&now);
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+    std::string dateTime = buffer;
+
     std::cout << "Code de réponse : " << code << std::endl;
     std::string color;
     if (code >= 200 && code < 300)
-        color = "\033[1;32m"; // Vert pour succès
+        color = "\033[1;32m"; 
     else if (code >= 300 && code < 400)
-        color = "\033[1;36m"; // Cyan pour redirection
+        color = "\033[1;36m"; 
     else if (code >= 400 && code < 500)
-        color = "\033[1;33m"; // Jaune pour erreur client
+        color = "\033[1;33m"; 
     else if (code >= 500)
-        color = "\033[1;31m"; // Rouge pour erreur serveur
+        color = "\033[1;31m"; 
     else
-        color = "\033[0m";    // Couleur par défaut
+        color = "\033[0m";    
 
-    std::cout << color << "[Response] Code: " << code << " - " << response.getStatusMessage(code) << "\033[0m" << std::endl;
+    std::cout << color << "[" << dateTime << "] [Response] Code: " << code << "\033[0m" << std::endl;
 }
 
 void signalHandler(int signum) {

@@ -19,6 +19,8 @@
 #include "Request.hpp"
 #define PORT 8080
 #define MAX_EVENTS 1000
+#define DEFAULT_TIMEOUT 60 // Timeout par défaut en secondes
+#define DEFAULT_KEEP_ALIVE_TIMEOUT 5 // Timeout keep-alive par défaut en secondes
 
 
 class Server
@@ -66,6 +68,9 @@ class Server
 				const std::pair<size_t, std::string>& getReturn() const { return _return; }
 				const std::string& getServerName() const { return _serverName; }
 				int getEpollFd() const { return _epoll_fd; }
+				int getTimeout() const { return _timeout; }
+				int getKeepAliveTimeout() const { return _keepAliveTimeout; }
+
 				// Setters
 				void setConfigFile(const std::string& configFile) { _configFile = configFile; }
 				void setConnexions(const std::deque<int>& connexions) { _connexions = connexions; }
@@ -85,6 +90,9 @@ class Server
 				void setServerName(const std::string& serverName) { _serverName = serverName; }
 				void executeMethods(Request& request, Response& response);
 				Location* getCurrentLocation(const std::string& path);
+				void setTimeout(int timeout) { _timeout = timeout; }
+				void setKeepAliveTimeout(int timeout) { _keepAliveTimeout = timeout; }
+				void checkTimeouts();
 
 		private:
 				int                                     _epoll_fd;
@@ -93,7 +101,7 @@ class Server
 				int                                     _socketFd;
 				int                                     _port;
 				std::string                             _host;
-				std::string                             _serverName; //added to exec methods
+				std::string                             _serverName; 
 				std::string                             _root;
 				std::string                             _index;
 				std::string                             _autoIndex;
@@ -106,7 +114,10 @@ class Server
 				std::map<size_t, std::string>           _errorPages;
 				std::list<Location>                     _locations;
 				std::pair<size_t, std::string>          _return;
-
+				int                                     _timeout;           
+				int                                     _keepAliveTimeout;  
+				std::map<int, time_t>                   _connectionTimes;   
+				std::string                             _httpVersion;
 				class configError : public std::exception
 				{
 						public:
@@ -127,7 +138,6 @@ inline std::ostream& operator<<(std::ostream& os, const Server& server)
 		os << "  Host: " << server.getHost() << std::endl;
 		os << "  Root: " << server.getRoot() << std::endl;
 		os << "  Index: " << server.getIndex() << std::endl;
-		// os << "  Error Page: " << server.getErrorPages() << std::endl;
 		os << "  CGI: " << server.getCgi() << std::endl;
 		os << "  Upload: " << server.getUpload() << std::endl;
 		os << "  Client Max Body Size: " << server.getClientMaxBodySize() << std::endl;

@@ -31,7 +31,6 @@ void Response::setStatus(int code)
 {
     _statusCode = code;
 
-    // Mettre à jour le message de statut en fonction du code
     switch (code) {
         case 200: _statusMessage = "OK"; break;
         case 201: _statusMessage = "Created"; break;
@@ -66,6 +65,9 @@ std::string Response::getStatusMessage(size_t code) const{
         case 413: return "Payload Too Large";
         case 500: return "Internal Server Error";
         case 501: return "Not Implemented";
+        case 502: return "Bad Gateway";
+        case 503: return "Service Unavailable";
+
         case 505: return "HTTP Version Not Supported";
         default: return "Unknown Status";
     }

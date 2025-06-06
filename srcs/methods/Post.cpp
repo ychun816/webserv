@@ -51,26 +51,14 @@ void Post::execute(Request& request, Response& response, Server& server)
         uploadPath = request.getAbspath();
         if (uploadPath.empty()) 
         {
-            if (!request.errorPageExist(400)) 
-            {
-                response.setStatus(400);
-                request.buildErrorPageHtml(response.getStatus(), response);
-            } 
-            else 
-                request.openErrorPage(400, response);
+            response.setStatus(400);
             return;
         }
 
         filename = request.getFilename();
         if (filename.empty()) 
         {
-            if (!request.errorPageExist(400)) 
-            {
-                response.setStatus(400);
-                request.buildErrorPageHtml(response.getStatus(), response);
-            } 
-            else 
-                request.openErrorPage(400, response);
+            response.setStatus(400);
             return;
         }
         
@@ -85,12 +73,7 @@ void Post::execute(Request& request, Response& response, Server& server)
         std::ofstream output(savePath.c_str());
 
         if (!output.is_open()) {
-            if (!request.errorPageExist(500)) {
-                response.setStatus(500);
-                request.buildErrorPageHtml(response.getStatus(), response);
-            } else {
-                request.openErrorPage(500, response);
-            }
+            response.setStatus(500);
             return;
         }
         output << body;
@@ -104,12 +87,7 @@ void Post::execute(Request& request, Response& response, Server& server)
     {
         // Safely handle any exceptions that might occur
         std::cerr << "Exception in POST handler: " << e.what() << std::endl;
-        if (!request.errorPageExist(500)) {
-            response.setStatus(500);
-            request.buildErrorPageHtml(response.getStatus(), response);
-        } else {
-            request.openErrorPage(500, response);
-        }
+        response.setStatus(500);
     }
 }
 

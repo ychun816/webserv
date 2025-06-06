@@ -10,7 +10,7 @@ class Server;
 class Request
 {
 private:
-	Server& _server;//Server* _server;
+	Server& _server;
 	Response _response;
 	std::string _request;
 	std::string _method;
@@ -27,7 +27,8 @@ private:
 	bool _isRedirection;
 	bool _havePriority;
 	std::string _originalRoot;
-	// std::string _response;
+	size_t _errorCode;
+
 	
 public:
 	Request(std::string request, Server& server);
@@ -77,4 +78,5 @@ public:
 	bool errorPageExist(size_t code);
 	void buildErrorPageHtml(size_t code, Response& response);
 	void openErrorPage(size_t code, Response& response);
+	void errorHandler(Response& response);
 };

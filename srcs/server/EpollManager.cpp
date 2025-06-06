@@ -6,28 +6,22 @@
 #include <iostream>
 #include <sstream>
 
-// Initialisation de la variable statique
 EpollManager* EpollManager::_instance = NULL;
 
-// Constructeur
-EpollManager::EpollManager() : _epoll_fd(-1) {
+EpollManager::EpollManager() : _epoll_fd(-1), _timeout(15) {
 	initialize();
 }
 
-// Destructeur
 EpollManager::~EpollManager() {
 	if (_epoll_fd >= 0) {
 		close(_epoll_fd);
 	}
 }
 
-// Constructeur de copie (privé, non implémenté)
 EpollManager::EpollManager(const EpollManager&) {}
 
-// Opérateur d'affectation (privé, non implémenté)
 EpollManager& EpollManager::operator=(const EpollManager&) { return *this; }
 
-// Méthode statique pour récupérer l'instance unique
 EpollManager* EpollManager::getInstance() {
 	if (_instance == NULL) {
 		_instance = new EpollManager();
@@ -35,10 +29,9 @@ EpollManager* EpollManager::getInstance() {
 	return _instance;
 }
 
-// Initialisation d'epoll
 bool EpollManager::initialize() {
 	if (_epoll_fd >= 0) {
-		return true;  // Déjà initialisé
+		return true;
 	}
 
 	_epoll_fd = epoll_create(1);
@@ -49,7 +42,6 @@ bool EpollManager::initialize() {
 	return true;
 }
 
-// Ajouter un socket serveur à epoll
 bool EpollManager::addServerSocket(int socket_fd, int server_index) {
 	struct epoll_event event;
 	event.events = EPOLLIN;
@@ -64,7 +56,6 @@ bool EpollManager::addServerSocket(int socket_fd, int server_index) {
 	return true;
 }
 
-// Ajouter un socket client à epoll
 bool EpollManager::addClientSocket(int client_fd, int server_index) {
 	struct epoll_event event;
 	event.events = EPOLLIN;
@@ -75,29 +66,29 @@ bool EpollManager::addClientSocket(int client_fd, int server_index) {
 		return false;
 	}
 
-	// Association cruciale entre le client et son serveur
 	_client_to_server_index[client_fd] = server_index;
+	_connection_times[client_fd] = time(NULL);
 	return true;
 }
 
-// Supprimer un socket d'epoll
 bool EpollManager::removeSocket(int fd) {
 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-	_client_to_server_index.erase(fd);  // Supprimer l'association
+	_client_to_server_index.erase(fd);
 	return true;
 }
 
-// Processus principal de traitement des événements
 void EpollManager::processEvents(std::vector<Server>& servers) {
 	struct epoll_event events[MAX_EVENTS_EPOLL];
-
-	// Add a map to store incomplete requests
 	std::map<int, std::string> incomplete_requests;
 	std::map<int, size_t> expected_sizes;
 
 	while (true) {
-		int event_count = epoll_wait(_epoll_fd, events, MAX_EVENTS_EPOLL, -1);
+		int event_count = epoll_wait(_epoll_fd, events, MAX_EVENTS_EPOLL, 1000);
+		
+		checkTimeouts(servers);
+		
 		if (event_count == -1) {
+			if (errno == EINTR) continue;
 			std::cerr << "Erreur epoll_wait" << std::endl;
 			continue;
 		}
@@ -107,7 +98,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 			bool is_server_socket = false;
 			int server_index = -1;
 
-			// Vérifier si c'est un socket serveur
 			for (size_t j = 0; j < servers.size(); j++) {
 				if (current_fd == servers[j].getSocketFd()) {
 					is_server_socket = true;
@@ -117,8 +107,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 			}
 
 			if (is_server_socket) {
-				
-				// Nouvelle connexion - accepter et associer au bon serveur
 				struct sockaddr_in client_addr;
 				socklen_t client_addrlen = sizeof(client_addr);
 				int client_fd = accept(current_fd, (struct sockaddr*)&client_addr, &client_addrlen);
@@ -131,28 +119,23 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 				std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
 						  << " (fd:" << client_fd << ")" << std::endl;
 
-				// Ajouter le client au serveur et à epoll
 				servers[server_index].addConnexion(client_fd);
 				addClientSocket(client_fd, server_index);
 			}
 			else {
-				// Connexion client existante - utiliser la map pour trouver le bon serveur
 				std::map<int, int>::iterator it = _client_to_server_index.find(current_fd);
 				if (it != _client_to_server_index.end()) {
 					int server_index = it->second;
 
-					// In your event processing loop where you read from sockets
-					char buffer[8192]; // Decent buffer size
+					char buffer[8192];
 					int bytes_read = read(current_fd, buffer, sizeof(buffer));
 
 					if (bytes_read <= 0) {
-						// Client disconnected
 						std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
 						close(current_fd);
 						removeSocket(current_fd);
 						servers[server_index].removeConnexion(current_fd);
 
-						// Clean up any incomplete requests
 						if (incomplete_requests.find(current_fd) != incomplete_requests.end()) {
 							incomplete_requests.erase(current_fd);
 							expected_sizes.erase(current_fd);
@@ -160,7 +143,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 						continue;
 					}
 
-					// Add the new data to any existing incomplete request
 					if (incomplete_requests.find(current_fd) == incomplete_requests.end()) {
 						incomplete_requests[current_fd] = std::string(buffer, bytes_read);
 					} else {
@@ -169,13 +151,11 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 
 					std::string& current_request = incomplete_requests[current_fd];
 
-					// On first read, try to determine Content-Length to know when request is complete
 					if (expected_sizes.find(current_fd) == expected_sizes.end()) {
-						// New request - look for Content-Length header
 						size_t header_pos = current_request.find("Content-Length: ");
 
 						if (header_pos != std::string::npos) {
-							size_t value_start = header_pos + 16; // Length of "Content-Length: "
+							size_t value_start = header_pos + 16;
 							size_t value_end = current_request.find("\r\n", value_start);
 
 							if (value_end != std::string::npos) {
@@ -184,109 +164,106 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 									std::istringstream iss(length_str);
 									size_t content_length = 0;
 									iss >> content_length;
-									
-									// std::string config_size = servers[server_index].getClientMaxBodySize();
-									// if (!config_size.empty()) {
-									// 	size_t max_size = convertSizeToBytes(config_size);
-									// 	if (!max_size) {
-									// 		max_size = 1024 * 1024; // 1MB
-									// 	}
-									// 	if (content_length > max_size) {
-									// 		// Content-Length exceeds server limit
-									// 		std::cerr << "Content-Length exceeds server limit" << std::endl;
-									// 		std::cout << "Content-Length: " << content_length << std::endl;
-									// 		std::cout << "Max Size: " << max_size << std::endl;
-									// 		std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
-									// 									  "Content-Type: text/html\r\n"
-									// 									  "Content-Length: 67\r\n\r\n"
-									// 									  "<html><body><h1>Error: File too large.</h1></body></html>";
-									// 		std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-									// 		std::cout << error_response << std::endl;
-									// 		// Send error response
-									// 		send(current_fd, error_response.c_str(), error_response.size(), 0);
-									// 		incomplete_requests.erase(current_fd);
-									// 		expected_sizes.erase(current_fd);
-									// 		;
-									// 	}
-									// }
 
-									// Find where headers end and body begins
+									if (content_length > MAX_REQUEST_SIZE) {
+										std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
+																			  "Content-Type: text/html\r\n"
+																			  "Content-Length: 67\r\n\r\n"
+																			  "<html><body><h1>Error: File too large.</h1></body></html>";
+										std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
+										std::cout << error_response << std::endl;
+										debugString(413);
+										send(current_fd, error_response.c_str(), error_response.size(), 0);
+										incomplete_requests.erase(current_fd);
+										expected_sizes.erase(current_fd);
+										continue;
+									}
+
 									size_t body_start = current_request.find("\r\n\r\n");
 									if (body_start != std::string::npos) {
-										body_start += 4; // Skip over the \r\n\r\n
-
-										// Total expected size is headers + body
+										body_start += 4;
 										size_t expected_total = body_start + content_length;
 										expected_sizes[current_fd] = expected_total;
 									}
 								} catch(...) {
-									// If we can't parse the Content-Length, assume it's complete
 									expected_sizes[current_fd] = current_request.length();
 								}
 							}
 						} else {
-							// No Content-Length found, assume it's complete
 							expected_sizes[current_fd] = current_request.length();
 						}
 					}
 
-					// Check if we've received the complete request
 					if (current_request.length() >= expected_sizes[current_fd]) {
-						// We have a complete request
 						std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
 
-						// Create a request object
 						Request req(current_request, servers[server_index]);
-
 						if (req.isBodySizeValid()) {
-							// Process request and send response
 							req.handleResponse();
-							//DEBUG ////////////////////////////////////
-							// std::cout << "=========SEND RESPONSE EPOLL==========" << std::endl;
-							// std::cout << req.getResponse() << std::endl;
-							//////////////////////////////////////////
 
 							send(current_fd, req.getResponse().c_str(), req.getResponse().size(), 0);
 
 							if (req.getHeader("Connection") != "keep-alive") {
-								// Close connection if not keep-alive
 								close(current_fd);
 								removeSocket(current_fd);
 								servers[server_index].removeConnexion(current_fd);
 								std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
-								// std::string response = req.getResponse();
-								// std::cout << "\033[1;32m[Response] Code: " <<  << " - " << _statusMessage << "\033[0m" << std::endl; //DEBUG//
 							}
 							else {
 								// Keep the connection open for further requests
 								std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
 							}
 						} else {
-							// Send 413 Request Entity Too Large
 							std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
 														  "Content-Type: text/html\r\n"
 														  "Content-Length: 67\r\n\r\n"
 														  "<html><body><h1>Error: File too large.</h1></body></html>";
-							//DEBUG ////////////////////////////////////
-							// std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-							// std::cout << error_response << std::endl;
-							//////////////////////////////////////////
-							// Send error response
+							std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
+							std::cout << error_response << std::endl;
 							send(current_fd, error_response.c_str(), error_response.size(), 0);
 						}
 
-						// Clean up after processing
 						incomplete_requests.erase(current_fd);
 						expected_sizes.erase(current_fd);
 					}
-					// If we haven't received the full request yet, we'll wait for more data
 				}
 			}
 		}
 	}
 }
 
-// Accesseur pour le descripteur epoll
+void EpollManager::checkTimeouts(std::vector<Server>& servers) {
+	time_t current_time = time(NULL);
+	
+	std::vector<std::pair<int, int> > to_check;
+	for (std::map<int, int>::const_iterator it = _client_to_server_index.begin(); 
+		 it != _client_to_server_index.end(); ++it) {
+		to_check.push_back(*it);
+	}
+	
+	for (std::vector<std::pair<int, int> >::const_iterator it = to_check.begin(); 
+		 it != to_check.end(); ++it) {
+		int fd = it->first;
+		int server_index = it->second;
+		
+		if (_connection_times.find(fd) == _connection_times.end()) {
+			continue;
+		}
+		
+		time_t connection_time = _connection_times[fd];
+		time_t elapsed_time = current_time - connection_time;
+		
+		if (elapsed_time > _timeout) {
+			std::cout << "\033[31mConnection " << fd << " timed out after " << elapsed_time << " seconds\033[0m" << std::endl;
+			close(fd);
+			removeSocket(fd);
+			servers[server_index].removeConnexion(fd);
+			_connection_times.erase(fd);
+			_client_to_server_index.erase(fd);
+		}
+	}
+}
+
 int EpollManager::getEpollFd() const {
 	return _epoll_fd;
 }
