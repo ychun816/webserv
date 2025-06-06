@@ -9,7 +9,7 @@ server {
     error_page 405 /errors/405.html;
 
     location / {
-        methods GET POST;
+        methods GET POST DELETE;
         index index.html ;
         error_page 405 /errors/405.html;
 
@@ -18,9 +18,9 @@ server {
     }
 
     location /upload {
-        methods GET POST;
+        methods GET POST ;
         index upload.html;
-        upload_path /upload;
+        upload_path /user_upload;
         client_max_body_size 10M;
 
     }

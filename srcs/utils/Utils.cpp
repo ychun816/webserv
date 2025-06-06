@@ -13,7 +13,7 @@ std::string readChunkedData(int client_fd) {
     size_t totalBytesRead = 0;
     int chunk_count = 0;
 
-    std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl;
+    std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl; //DEBUG
     std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
 
     while ((bytes_read = read(client_fd, buffer, BUFFER_SIZE)) > 0) {
@@ -32,7 +32,7 @@ std::string readChunkedData(int client_fd) {
         }
     }
 
-    std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl;
+    std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl; //DEBUG
     std::cout << "Client " << client_fd
               << " | Chunks: " << chunk_count
               << " | Taille totale: " << totalBytesRead

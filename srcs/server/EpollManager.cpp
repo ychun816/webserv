@@ -232,7 +232,6 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 							queueResponse(current_fd, error_response);
 							_connections_to_close.insert(current_fd);
 						}
-
 						incomplete_requests.erase(current_fd);
 						expected_sizes.erase(current_fd);
 					}

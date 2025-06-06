@@ -61,7 +61,7 @@ void    Server::createSocket() {
 		if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 				std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
 
-	// Allows multiple processes to bind to the same port
+		// Allows multiple processes to bind to the same port
 		if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) < 0)
 				std::cerr << "setsockopt(SO_REUSEPORT) failed" << std::endl;
 

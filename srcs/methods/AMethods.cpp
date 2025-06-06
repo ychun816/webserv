@@ -133,7 +133,7 @@ FileType AMethods::getFileType(const std::string& path)
 {
 	struct stat file_info;
 
-		// Vérification de l'existence et récupération des infos
+	// Vérification de l'existence et récupération des infos
 	if (checkIfCgi(path))
 		return TYPE_REGULAR_FILE;
 	if (stat(path.c_str(), &file_info) != 0) {
@@ -165,8 +165,8 @@ FileType AMethods::getFileType(const std::string& path)
 
 bool AMethods::checkIfCgi(std::string filepath)
 {
-    std::cout << "=== DEBUG checkIfCgi ===" << std::endl;
-    std::cout << "Checking filepath: " << filepath << std::endl;
+    // std::cout << "=== DEBUG checkIfCgi ===" << std::endl;
+    // std::cout << "Checking filepath: " << filepath << std::endl;
 	std::vector<std::string> cgiExt;
 	cgiExt.push_back(".php");
 	cgiExt.push_back(".py");
@@ -191,6 +191,7 @@ bool AMethods::checkIfCgi(std::string filepath)
 		if (extension == cgiExt[i])
 		{
             std::cout << "Extension matches CGI: " << extension << std::endl;
+			
             // Check if the file exists
             struct stat file_stat;
             if (stat(filepath.c_str(), &file_stat) == 0) {

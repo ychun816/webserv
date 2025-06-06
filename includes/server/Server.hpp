@@ -26,10 +26,9 @@
 class Server
 {
 		public:
-				// Constructors
+				// Constructor & Destructor
 				Server();
 				Server(const Server& other);
-				// Destructor
 				~Server();
 
 				// Operators
