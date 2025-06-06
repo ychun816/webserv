@@ -35,6 +35,7 @@ Request::Request(std::string request, Server& server) :
 	parseQuery();
 	_currentLocation = _server.getCurrentLocation(_path);
 	if (_currentLocation) {
+        std::cout << "👻 Current location found: " << _currentLocation->getPath() << std::endl;
         if (_currentLocation->getMethods().empty()) {
             std::cout << "Aucune méthode autorisée pour cette location, utilisation des méthodes par défaut." << std::endl;
             std::list<std::string> allowMethodsList = _server.getAllowMethods();
