@@ -70,7 +70,6 @@ Request::~Request()
 void Request::handleResponse()
 {
     Response response(*this);
-    // std::cout << "👻 handleResponse starting" << std::endl;
     if (_request.empty() || _method.empty() || _httpVersion.empty()) {
         response.setStatus(400);
         _errorCode = 400;
@@ -94,12 +93,16 @@ void Request::handleResponse()
     if (hostHeader.empty()) {
         hostHeader = "127.0.0.1";
     }
-    if (!_server.isServerNameMatch(hostHeader)) {
-        Config* config = Config::getInstance();
-        if (config) {
-            Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
-            if (appropriateServer) {
-                _server = *appropriateServer;
+
+    Config* config = Config::getInstance();
+    if (config) {
+        Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
+        if (appropriateServer) {
+            _server = *appropriateServer;
+        } else {
+            Server* defaultServer = config->findServerByHost("", _server.getPort());
+            if (defaultServer) {
+                _server = *defaultServer;
             } else {
                 response.setStatus(400);
                 _errorCode = 400;
@@ -117,14 +120,12 @@ void Request::handleResponse()
     }
 
     if (!isMethodAllowed()) {
-        // std::cout << "👻 Method not allowedsdsdsds" << std::endl;
         response.setStatus(405);
         _errorCode = 405;
         errorHandler(response);
         return;
     }
 
-    Config* config = Config::getInstance();
     if (config) {
         Server* appropriateServer = config->findServerByLocation(_path, _server.getPort());
         if (appropriateServer)
@@ -135,10 +136,7 @@ void Request::handleResponse()
     if (response.getStatus() >= 400) {
         _errorCode = response.getStatus();
     }
-    // std::cout << "👻 response.getStatus(): " << response.getStatus() << std::endl;
-    // std::cout << "👻 _errorCode: " << _errorCode << std::endl;
     if (_errorCode != 0) {
-        // std::cout << "👻 _errorCode: " << _errorCode << std::endl;
         errorHandler(response);
         return;
     }

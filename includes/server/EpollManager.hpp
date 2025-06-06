@@ -3,9 +3,7 @@
 
 #include <map>
 #include <vector>
-#include <set>
 #include <sys/epoll.h>
-#include <string>
 
 #define MAX_EVENTS_EPOLL 64
 
@@ -22,9 +20,6 @@ private:
     
     std::map<int, time_t> _connection_times;
     int _timeout;  
-    
-    std::map<int, std::string> _pending_responses;  // Buffer pour les réponses en attente
-    std::set<int> _connections_to_close;           // Connexions à fermer après envoi
     
     EpollManager();
     
@@ -51,9 +46,6 @@ public:
     
     void checkTimeouts(std::vector<Server>& servers);
     void setTimeout(int timeout) { _timeout = timeout; }
-    
-    void queueResponse(int fd, const std::string& response);
-    bool trySendResponse(int fd);
 };
 
 #endif

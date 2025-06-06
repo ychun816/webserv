@@ -1,7 +1,7 @@
 server {
     listen 8080;
     server_name localhost;
-    host 127.0.0.1;`
+    host 127.0.0.1;
     root /www/simplesite;
     client_max_body_size 10M;
     error_page 500 /errors/500.html;
@@ -38,22 +38,38 @@ server {
 
 server {
     listen 8080;
-    server_name example.com;
+    server_name getlucky;
+    host 127.0.0.1;
     root /www/simplesite;
+    client_max_body_size 10M;
+    error_page 500 /errors/500.html;
 
-    location /upload {
-        methods GET POST ;
-        index upload.html;
-        upload_path /user_upload;
+    error_page 405 /errors/405.html;
+
+    location / {
+        methods GET POST DELETE;
+        index index.html ;
+        error_page 405 /errors/405.html;
+
         client_max_body_size 10M;
 
     }
 
-    location /hello {
+    location /cgi-bin {
+        methods GET POST;
+        cgi_ext .php .py;
+        root ./;
+        autoindex on;
+    }
+
+    location /redirection {
+        return 301 https://dpm.lol/CRYSTALSITH-CRYST;
+    }
+
+    location /errors {
         methods GET;
-        index index.html;
-        autoindex off;
-        return 301 http://localhost:8080;
+        client_max_body_size 10M;
+        autoindex on;
     }
 }
 

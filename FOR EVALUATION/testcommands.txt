@@ -9,3 +9,5 @@ connetion basique : nc localhost 8080 (3 terminals pour tester)
 connetion avec timeout : nc -i 5 localhost 8080 (5 secondes de timeout)
 
 curl -X POST -d "username=test&password=123" http://localhost:8080/cgi-bin/post.py
+
+https://nginx.org/en/docs/http/server_names.html

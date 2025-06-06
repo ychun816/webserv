@@ -417,11 +417,11 @@ bool Config::validateServerConfig(const Server& newServer) const
             {
                 for (std::list<Location>::const_iterator existingLoc = existingLocations.begin(); existingLoc != existingLocations.end(); ++existingLoc)
                 {
-                    if (newLoc->getPath() == existingLoc->getPath())
-                    {
-                        std::cerr << "Error: Duplicate location path '" << newLoc->getPath() << "' found on port " << newServer.getPort() << std::endl;
-                        return (false);
-                    }
+                    // if (newLoc->getPath() == existingLoc->getPath())
+                    // {
+                    //     std::cerr << "Error: Duplicate location path '" << newLoc->getPath() << "' found on port " << newServer.getPort() << std::endl;
+                    //     return (false);
+                    // }
                 }
             }
         }
@@ -451,25 +451,26 @@ Server* Config::findServerByLocation(const std::string& path, int port)
     return NULL;
 }
 
-Server* Config::findServerByHost(const std::string& host, int port) 
-{
-    std::string hostName = host;
-    size_t colonPos = hostName.find(':');
-    if (colonPos != std::string::npos) {
-        hostName = hostName.substr(0, colonPos);
-    }
-
-    for (size_t i = 0; i < _servers.size(); i++) {
-        if (_servers[i].getPort() == port && _servers[i].isServerNameMatch(hostName)) {
-            return &_servers[i];
+Server* Config::findServerByHost(const std::string& host, int port) {
+    Server* defaultServer = NULL;
+    
+    for (std::vector<Server>::iterator it = _servers.begin(); it != _servers.end(); ++it) {
+        // Vérifie d'abord si le port correspond
+        if (it->getPort() == port) {
+            // Si c'est le premier serveur trouvé pour ce port, on le garde comme serveur par défaut
+            if (!defaultServer) {
+                defaultServer = &(*it);
+            }
+            
+            // Vérifie si le server_name correspond
+            if (it->getServerName() == host) {
+                return &(*it);
+            }
         }
     }
-    for (size_t i = 0; i < _servers.size(); i++) {
-        if (_servers[i].getPort() == port && _servers[i].getServerName() == hostName) {
-            return &_servers[i];
-        }
-    }
-    return NULL;
+    
+    // Si aucun serveur ne correspond exactement, retourne le serveur par défaut
+    return defaultServer;
 }
 
 void Config::stopServers()

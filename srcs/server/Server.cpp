@@ -98,7 +98,6 @@ void    Server::configSocket() {
 		// SOMAXCONN is the maximum value recommended by the system (usually 128)
 		if (listen(this->_socketFd, SOMAXCONN) < 0)
 				throw Server::configError("Failed to listen on the socket");
-
 }
 
 void    Server::runServer() {
