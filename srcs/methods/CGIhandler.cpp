@@ -24,13 +24,13 @@ CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _
 		_postData = "";
 	}
 	setupEnvironment();
-	std::cout <<  "===== ENV VARS =====" << std::endl;
-	std::vector<std::string>::iterator it = _envVars.begin();
-	for (; it != _envVars.end(); it++)
-	{
-		std::cout << *it << std::endl;
-	}
-	std::cout <<  "===== ENV VARS END =====" << std::endl;
+	// std::cout <<  "===== ENV VARS =====" << std::endl;
+	// std::vector<std::string>::iterator it = _envVars.begin();
+	// for (; it != _envVars.end(); it++)
+	// {
+	// 	std::cout << *it << std::endl;
+	// }
+	// std::cout <<  "===== ENV VARS END =====" << std::endl;
 }
 
 CGIhandler::CGIhandler(const CGIhandler& copy) : _request(new Request(*copy._request)), _server(new Server(*copy._server))
@@ -167,9 +167,12 @@ std::string CGIhandler::execute()
 	// If it's a POST request, write the data into the input pipe
 	std::cout << "_request->getMethod() == " << _request->getMethod() << std::endl;
 	if (_request->getMethod() == "POST" && !_postData.empty())
+	{
 		write(inputPipe[1], _postData.c_str(), _postData.length());
+		sleep(1);
+	}
 	close(inputPipe[1]);
-
+	sleep(1);
 	// Read the output of the CGI script
 	char buffer[4096];
 	ssize_t bytesRead;

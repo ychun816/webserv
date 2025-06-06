@@ -8,15 +8,7 @@ server {
 
     error_page 405 /errors/405.html;
 
-    location / {exist: 405
-printing error pages
-Error page: 500 : /errors/500.html
-Error page exist: /errors/500.html
-Error page exist: 500
-Code de réponse : 404
-[2025-06-06 17:34:35] [Response] Code: 404
-Connection kept alive for client (fd:7)
-Client déconnec
+    location / {
         methods GET POST;
         index index.html ;
         error_page 405 /errors/405.html;
@@ -26,7 +18,7 @@ Client déconnec
     }
 
     location /upload {
-        methods GET ;
+        methods GET POST;
         index upload.html;
         upload_path /upload;
         client_max_body_size 10M;
