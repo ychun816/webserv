@@ -234,11 +234,12 @@ void Request::buildErrorPageHtml(size_t code, Response& response)
 void Request::parseRequest()
 {
     std::stringstream ss(_request);
+    std::cout << "👻 _request: " << _request << std::endl;
     std::string line;
-
     // Parse la première ligne
     if (std::getline(ss, line) && !line.empty()) {
         parseRequestLine(line);
+        
     }
 
     // Parse les en-têtes
