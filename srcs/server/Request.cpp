@@ -85,6 +85,7 @@ void Request::handleResponse()
     }
     else if (!isMethodAllowed()) {
         response.setStatus(405);
+        std::cout << "boooooooooo" << std::endl;
         _errorCode = 405;
         errorHandler(response);
         return;
@@ -162,7 +163,8 @@ void Request::errorHandler(Response& response)
 
 void Request::openErrorPage(size_t code, Response& response)
 {
-    response.setStatus(code);
+    response.setStatus(code);  // Définir le code d'erreur
+    debugString(response.getStatus());
     std::cout << "🔴 Ouverture de la page d'erreur pour le code: " << code << std::endl;
 
     std::map<std::string, std::string> headers = this->getHeaders();
@@ -171,8 +173,9 @@ void Request::openErrorPage(size_t code, Response& response)
 
     // 1. Chercher d'abord dans la location
     if (loc && !loc->getErrorPage().empty()) {
-        std::map<size_t, std::string>::const_iterator it = loc->getErrorPage().find(code);
-        if (it != loc->getErrorPage().end() && !it->second.empty()) {
+        const std::map<size_t, std::string>& errorPage = loc->getErrorPage(); // Store reference to the map
+        std::map<size_t, std::string>::const_iterator it = errorPage.find(code);
+        if (it != errorPage.end() && !it->second.empty()) {
             errorPagePath = it->second;
         }
     }
@@ -205,6 +208,7 @@ void Request::openErrorPage(size_t code, Response& response)
                 _server = *appropriateServer;
         }
         _server.executeMethods(*this, response);
+        response.setStatus(code);
         std::cout << "🟢 Page d'erreur ouverte pour le code: " << code << std::endl;
         _response = response;
     } else {
@@ -215,7 +219,6 @@ void Request::openErrorPage(size_t code, Response& response)
 void Request::buildErrorPageHtml(size_t code, Response& response)
 {
     response.setStatus(code);
-    std::cout << "🔴 Construction de la page d'erreur pour le code: " << code << std::endl;
 
     std::ostringstream oss;
     oss << code;
@@ -227,7 +230,7 @@ void Request::buildErrorPageHtml(size_t code, Response& response)
     headers["Content-Type"] = "text/html";
     response.setHeaders(headers);
     response.setResponse(response.formatResponse());
-    std::cout << "🟢 Page d'erreur construite pour le code: " << code << std::endl;
+    debugString(response.getStatus());
     _response = response;
 }
 
@@ -437,7 +440,7 @@ void Request::fillResponse(Response& response, int statusCode, const std::string
     response.setHeaders(this->getHeaders());
     response.setHttpVersion(this->getHttpVersion());
     response.setStatusMessage(response.getStatusMessage(statusCode));
-    std::cout << "🟢 Code de statut défini: " << statusCode << " - " << response.getStatusMessage(statusCode) << std::endl;
+    // debugString(response.getStatus());
     _response = response;
 }
 
