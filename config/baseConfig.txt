@@ -28,6 +28,12 @@ server {
         return 301 https://dpm.lol/CRYSTALSITH-CRYST;
     }
 
+    location /errors {
+        methods GET;
+        client_max_body_size 10M;
+        autoindex on;
+    }
+
 }
 
 server {

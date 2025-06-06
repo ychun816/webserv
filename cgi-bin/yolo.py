@@ -34,6 +34,26 @@ print("""
       color: #ffcdd8;
       text-shadow: 0 0 10px #ff8696;
     }
+
+    .button {
+      margin-top: 1.5rem;
+      background-color: #ff8696;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #ff4d6d;
+    }
+
+
   </style>
 </head>
 <body>

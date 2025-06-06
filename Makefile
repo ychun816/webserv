@@ -190,9 +190,14 @@ ORANGE_BBG = \033[1;48;5;214m
 # **************************************************************************** #
 
 define print_flag
-	@echo "$(PSTL_ORGB).☆.｡.:*・°･.｡*･.｡* .☆.｡.:*.☆.｡.:*・°･.｡*･.｡*.☆.｡.:*.☆.｡.:*.☆.｡.:*.｡.:*$(COLOR_RESET)"
+	@echo ""
+	@echo "$(GREENB)     𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖˖𓂃.☘︎ ݁˖˖𓂃.☘︎݁˖˖𓂃.☘︎𓂃.☘︎𓂃.☘︎$(COLOR_RESET)"
 	@echo "$(BABEBLUEB)"
 	@cat getlucky_banner.txt
 	@echo "$(COLOR_RESET)"
-	@echo "$(PSTL_ORGB).☆.｡.:*・°･.｡*･.｡* .☆.｡.:*.☆.｡.:*・°･.｡*･.｡*.☆.｡.:*.☆.｡.:*.☆.｡.:*.｡.:*$(COLOR_RESET)"
+	@echo "$(GREENB)     𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖.𖥔 ݁ ˖𓂃.☘︎ ݁˖˖𓂃.☘︎ ݁˖˖𓂃.☘︎݁˖˖𓂃.☘︎𓂃.☘︎𓂃.☘︎$(COLOR_RESET)"
 endef
+
+# @echo "$(PURPLEB)"
+# @cat getlucky_banner2.txt
+# @echo "$(COLOR_RESET)"
