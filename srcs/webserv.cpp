@@ -2,7 +2,8 @@
 #include "../includes/server/Server.hpp"
 #include "../includes/parsing/Config.hpp"
 #include "../includes/utils/Utils.hpp"
-// modifier list locqtions
+// error codes : 504  / 501
+
 int main(int argc, char const *argv[])
 {
 	(void)argv;

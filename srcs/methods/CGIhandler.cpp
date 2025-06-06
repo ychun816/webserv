@@ -17,7 +17,12 @@ CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _
 	std::cout <<  "_scriptPath === " << _scriptPath << std::endl;
 	_interpreter = findInterpreter();
 	std::cout <<  "_interpreter === " << _interpreter << std::endl;
-	_postData = "";
+	if (request->getMethod() == "POST") {
+		_postData = request->getBody();  // ← Get the actual POST data
+		std::cout << "POST data populated: " << _postData << std::endl;  // Debug
+	} else {
+		_postData = "";
+	}
 	setupEnvironment();
 	std::cout <<  "===== ENV VARS =====" << std::endl;
 	std::vector<std::string>::iterator it = _envVars.begin();
@@ -117,10 +122,10 @@ std::string CGIhandler::findInterpreter()
 
 std::string CGIhandler::execute()
 {
-	if (access(_interpreter.c_str(), X_OK) != 0) {
-		std::cerr << "Interpreter not found or not executable: " << _interpreter << std::endl;
-		return "Content-Type: text/html\r\n\r\n<h1>500 Internal Server Error</h1><p>CGI interpreter not found</p>";
-	}
+	// if (access(_interpreter.c_str(), X_OK) != 0) {
+	// 	std::cerr << "Interpreter not found or not executable: " << _interpreter << std::endl;
+	// 	return "Content-Type: text/html\r\n\r\n<h1>500 Internal Server Error</h1><p>CGI interpreter not found</p>";
+	// }
 
 	int inputPipe[2];
 	int outputPipe[2];
@@ -160,6 +165,7 @@ std::string CGIhandler::execute()
 	close(outputPipe[1]);
 
 	// If it's a POST request, write the data into the input pipe
+	std::cout << "_request->getMethod() == " << _request->getMethod() << std::endl;
 	if (_request->getMethod() == "POST" && !_postData.empty())
 		write(inputPipe[1], _postData.c_str(), _postData.length());
 	close(inputPipe[1]);
@@ -168,11 +174,22 @@ std::string CGIhandler::execute()
 	char buffer[4096];
 	ssize_t bytesRead;
 	std::string output;
+	int readCount = 0;
+
+	std::cout << "Starting to read CGI output..." << std::endl;
+
 	while ((bytesRead = read(outputPipe[0], buffer, sizeof(buffer) - 1)) > 0)
 	{
+		readCount++;
 		buffer[bytesRead] = '\0';
 		output += buffer;
+		std::cout << "Read iteration " << readCount << ": " << bytesRead << " bytes" << std::endl;
+		std::cout << "Buffer content: [" << buffer << "]" << std::endl;
 	}
+
+	std::cout << "Finished reading. Total length: " << output.length() << std::endl;
+	std::cout << "Final output: [" << output << "]" << std::endl;
+
 	close(outputPipe[0]);
 
 	// Wait for the CGI process to finish
