@@ -47,6 +47,7 @@ class Server
 				bool    errorPageExist(size_t code);
 				bool	isServerNameMatch(const std::string& host) const;
 				void    removeAllConnexions();
+				
 
 				// Getters
 				const std::string& getConfigFile() const { return _configFile; }

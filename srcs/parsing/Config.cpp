@@ -5,6 +5,7 @@
 #include <sys/select.h> // For select
 #include <sys/epoll.h>  // For epoll
 #include "../../includes/server/EpollManager.hpp"
+#include <arpa/inet.h>  // For inet_pton
 
 // Initialisation de l'instance statique
 Config* Config::_instance = 0;
@@ -196,14 +197,23 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
-        server.setHost(value);
+        // Validation du nom de serveur
+        if (value.empty() || value.find_first_of(" \t") != std::string::npos) {
+            throw ConfigException("Invalid server_name format");
+        }
+        server.setServerName(value);
     }
     else if (directive == "host")
     {
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
-        server.setServerName(value);
+        // Validation de l'adresse IP
+        struct in_addr addr;
+        if (inet_pton(AF_INET, value.c_str(), &addr) != 1) {
+            throw ConfigException("Invalid IP address format in host directive");
+        }
+        server.setHost(value);
     }
     else if (directive == "methods")
     {

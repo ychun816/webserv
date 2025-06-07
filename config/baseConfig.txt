@@ -37,10 +37,10 @@ server {
 }
 
 server {
-    listen 8080;
+    listen 8081;
     server_name getlucky;
     host 127.0.0.1;
-    root /www/simplesite;
+    root /www/secondsite;
     client_max_body_size 10M;
     error_page 500 /errors/500.html;
 

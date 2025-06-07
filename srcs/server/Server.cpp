@@ -355,9 +355,10 @@ Location* Server::getCurrentLocation(const std::string& path) {
 }
 
 bool Server::isServerNameMatch(const std::string& hostHeader) const {
-    if (_host.empty()) return true;  // Si pas de server_name configuré
+    if (_serverName.empty()) {
+        return true;
+    }
     
-    // Extraire le nom d'hôte sans le port
     std::string host = hostHeader;
     size_t colonPos = host.find(':');
     if (colonPos != std::string::npos) {
@@ -365,14 +366,13 @@ bool Server::isServerNameMatch(const std::string& hostHeader) const {
     }
     
     // Vérification stricte
-    return host == _host;
+    return host == _serverName;
 }
 
 void Server::checkTimeouts()
 {
 	time_t current_time = time(NULL);
 	std::deque<int>::iterator it = _connexions.begin();
-	std::cout << "checkTimeouts" << std::endl;
 	while (it != _connexions.end()) {
 		int fd = *it;
 		time_t connection_time = _connectionTimes[fd];
