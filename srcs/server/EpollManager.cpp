@@ -44,7 +44,7 @@ bool EpollManager::initialize() {
 
 bool EpollManager::addServerSocket(int socket_fd, int server_index) {
 	struct epoll_event event;
-	event.events = EPOLLIN;
+	event.events = EPOLLIN | EPOLLOUT;
 	event.data.fd = socket_fd;
 
 	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, socket_fd, &event) == -1) {
@@ -58,7 +58,7 @@ bool EpollManager::addServerSocket(int socket_fd, int server_index) {
 
 bool EpollManager::addClientSocket(int client_fd, int server_index) {
 	struct epoll_event event;
-	event.events = EPOLLIN;
+	event.events = EPOLLIN | EPOLLOUT;
 	event.data.fd = client_fd;
 
 	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
@@ -81,6 +81,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 	struct epoll_event events[MAX_EVENTS_EPOLL];
 	std::map<int, std::string> incomplete_requests;
 	std::map<int, size_t> expected_sizes;
+	std::map<int, std::string> pending_responses;
 
 	while (true) {
 		int event_count = epoll_wait(_epoll_fd, events, MAX_EVENTS_EPOLL, 1000);
@@ -88,13 +89,13 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 		checkTimeouts(servers);
 
 		if (event_count == -1) {
-			if (errno == EINTR) continue;
 			std::cerr << "Erreur epoll_wait" << std::endl;
 			continue;
 		}
 
 		for (int i = 0; i < event_count; i++) {
 			int current_fd = events[i].data.fd;
+			uint32_t event_type = events[i].events;
 			bool is_server_socket = false;
 			int server_index = -1;
 
@@ -107,124 +108,138 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 			}
 
 			if (is_server_socket) {
-				struct sockaddr_in client_addr;
-				socklen_t client_addrlen = sizeof(client_addr);
-				int client_fd = accept(current_fd, (struct sockaddr*)&client_addr, &client_addrlen);
+				if (event_type & EPOLLIN) {
+					struct sockaddr_in client_addr;
+					socklen_t client_addrlen = sizeof(client_addr);
+					int client_fd = accept(current_fd, (struct sockaddr*)&client_addr, &client_addrlen);
 
-				if (client_fd < 0) {
-					std::cerr << "Échec accept" << std::endl;
-					continue;
+					if (client_fd < 0) {
+						std::cerr << "Échec accept" << std::endl;
+						continue;
+					}
+
+					std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
+							  << " (fd:" << client_fd << ")" << std::endl;
+
+					servers[server_index].addConnexion(client_fd);
+					addClientSocket(client_fd, server_index);
 				}
-
-				std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
-						  << " (fd:" << client_fd << ")" << std::endl;
-
-				servers[server_index].addConnexion(client_fd);
-				addClientSocket(client_fd, server_index);
-			}
-			else {
+			} else {
 				std::map<int, int>::iterator it = _client_to_server_index.find(current_fd);
 				if (it != _client_to_server_index.end()) {
 					int server_index = it->second;
 
-					char buffer[8192];
-					int bytes_read = read(current_fd, buffer, sizeof(buffer));
+					if (event_type & EPOLLIN) {
+						char buffer[8192];
+						int bytes_read = read(current_fd, buffer, sizeof(buffer));
 
-					if (bytes_read <= 0) {
-						std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
-						close(current_fd);
-						removeSocket(current_fd);
-						servers[server_index].removeConnexion(current_fd);
+						if (bytes_read <= 0) {
+							std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
+							close(current_fd);
+							removeSocket(current_fd);
+							servers[server_index].removeConnexion(current_fd);
 
-						if (incomplete_requests.find(current_fd) != incomplete_requests.end()) {
+							if (incomplete_requests.find(current_fd) != incomplete_requests.end()) {
+								incomplete_requests.erase(current_fd);
+								expected_sizes.erase(current_fd);
+							}
+							if (pending_responses.find(current_fd) != pending_responses.end()) {
+								pending_responses.erase(current_fd);
+							}
+							continue;
+						}
+
+						if (incomplete_requests.find(current_fd) == incomplete_requests.end()) {
+							incomplete_requests[current_fd] = std::string(buffer, bytes_read);
+						} else {
+							incomplete_requests[current_fd].append(buffer, bytes_read);
+						}
+
+						std::string& current_request = incomplete_requests[current_fd];
+
+						if (expected_sizes.find(current_fd) == expected_sizes.end()) {
+							size_t header_pos = current_request.find("Content-Length: ");
+
+							if (header_pos != std::string::npos) {
+								size_t value_start = header_pos + 16;
+								size_t value_end = current_request.find("\r\n", value_start);
+
+								if (value_end != std::string::npos) {
+									std::string length_str = current_request.substr(value_start, value_end - value_start);
+									try {
+										std::istringstream iss(length_str);
+										size_t content_length = 0;
+										iss >> content_length;
+
+										if (content_length > MAX_REQUEST_SIZE) {
+											std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
+																				  "Content-Type: text/html\r\n"
+																				  "Content-Length: 67\r\n\r\n"
+																				  "<html><body><h1>Error: File too large.</h1></body></html>";
+											pending_responses[current_fd] = error_response;
+											incomplete_requests.erase(current_fd);
+											expected_sizes.erase(current_fd);
+											continue;
+										}
+
+										size_t body_start = current_request.find("\r\n\r\n");
+										if (body_start != std::string::npos) {
+											body_start += 4;
+											size_t expected_total = body_start + content_length;
+											expected_sizes[current_fd] = expected_total;
+										}
+									} catch(...) {
+										expected_sizes[current_fd] = current_request.length();
+									}
+								}
+							} else {
+								expected_sizes[current_fd] = current_request.length();
+							}
+						}
+
+						if (current_request.length() >= expected_sizes[current_fd]) {
+							std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
+
+							Request req(current_request, servers[server_index]);
+							if (req.isBodySizeValid()) {
+								req.handleResponse();
+								pending_responses[current_fd] = req.getResponse();
+
+								if (req.getHeader("Connection") != "keep-alive") {
+									close(current_fd);
+									removeSocket(current_fd);
+									servers[server_index].removeConnexion(current_fd);
+									std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
+								}
+								else {
+									std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
+								}
+							} else {
+								std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
+															  "Content-Type: text/html\r\n"
+															  "Content-Length: 67\r\n\r\n"
+															  "<html><body><h1>Error: File too large.</h1></body></html>";
+								pending_responses[current_fd] = error_response;
+							}
+
 							incomplete_requests.erase(current_fd);
 							expected_sizes.erase(current_fd);
 						}
-						continue;
 					}
 
-					if (incomplete_requests.find(current_fd) == incomplete_requests.end()) {
-						incomplete_requests[current_fd] = std::string(buffer, bytes_read);
-					} else {
-						incomplete_requests[current_fd].append(buffer, bytes_read);
-					}
-
-					std::string& current_request = incomplete_requests[current_fd];
-
-					if (expected_sizes.find(current_fd) == expected_sizes.end()) {
-						size_t header_pos = current_request.find("Content-Length: ");
-
-						if (header_pos != std::string::npos) {
-							size_t value_start = header_pos + 16;
-							size_t value_end = current_request.find("\r\n", value_start);
-
-							if (value_end != std::string::npos) {
-								std::string length_str = current_request.substr(value_start, value_end - value_start);
-								try {
-									std::istringstream iss(length_str);
-									size_t content_length = 0;
-									iss >> content_length;
-
-									if (content_length > MAX_REQUEST_SIZE) {
-										std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
-																			  "Content-Type: text/html\r\n"
-																			  "Content-Length: 67\r\n\r\n"
-																			  "<html><body><h1>Error: File too large.</h1></body></html>";
-										std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-										std::cout << error_response << std::endl;
-										debugString(413);
-										send(current_fd, error_response.c_str(), error_response.size(), 0);
-										incomplete_requests.erase(current_fd);
-										expected_sizes.erase(current_fd);
-										continue;
-									}
-
-									size_t body_start = current_request.find("\r\n\r\n");
-									if (body_start != std::string::npos) {
-										body_start += 4;
-										size_t expected_total = body_start + content_length;
-										expected_sizes[current_fd] = expected_total;
-									}
-								} catch(...) {
-									expected_sizes[current_fd] = current_request.length();
+					if (event_type & EPOLLOUT) {
+						if (pending_responses.find(current_fd) != pending_responses.end()) {
+							std::cout << "Sending response to client (fd:" << current_fd << ")" << std::endl;
+							std::string& response = pending_responses[current_fd];
+							int bytes_sent = send(current_fd, response.c_str(), response.size(), 0);
+							std::cout << "Bytes sent: " << bytes_sent << std::endl;
+							if (bytes_sent > 0) {
+								response = response.substr(bytes_sent);
+								if (response.empty()) {
+									pending_responses.erase(current_fd);
 								}
 							}
-						} else {
-							expected_sizes[current_fd] = current_request.length();
 						}
-					}
-
-					if (current_request.length() >= expected_sizes[current_fd]) {
-						std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
-
-						Request req(current_request, servers[server_index]);
-						if (req.isBodySizeValid()) {
-							req.handleResponse();
-
-							send(current_fd, req.getResponse().c_str(), req.getResponse().size(), 0);
-
-							if (req.getHeader("Connection") != "keep-alive") {
-								close(current_fd);
-								removeSocket(current_fd);
-								servers[server_index].removeConnexion(current_fd);
-								std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
-							}
-							else {
-								// Keep the connection open for further requests
-								std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
-							}
-						} else {
-							std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
-														  "Content-Type: text/html\r\n"
-														  "Content-Length: 67\r\n\r\n"
-														  "<html><body><h1>Error: File too large.</h1></body></html>";
-							std::cout << "=========SEND ERROR RESPONSE==========" << std::endl;
-							std::cout << error_response << std::endl;
-							send(current_fd, error_response.c_str(), error_response.size(), 0);
-						}
-
-						incomplete_requests.erase(current_fd);
-						expected_sizes.erase(current_fd);
 					}
 				}
 			}

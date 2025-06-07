@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <sys/epoll.h>
+#include <string>
 
 #define MAX_EVENTS_EPOLL 64
 
@@ -19,7 +20,10 @@ private:
     std::map<int, int> _client_to_server_index;
     
     std::map<int, time_t> _connection_times;
+
     int _timeout;  
+    std::map<int, std::string> _pending_responses;
+
     
     EpollManager();
     

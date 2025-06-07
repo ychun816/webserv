@@ -17,6 +17,13 @@ server {
 
     }
 
+    location /upload {
+        methods GET POST;
+        upload_dir /user_upload;
+        client_max_body_size 10M;
+        autoindex on;
+    }
+
     location /cgi-bin {
         methods GET POST;
         cgi_ext .php .py;
