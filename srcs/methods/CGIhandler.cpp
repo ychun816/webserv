@@ -14,12 +14,12 @@ std::string intToString(int value) {
 CGIhandler::CGIhandler(Request* request, Server* server) : 	_request(request), _server(server)
 {
 	_scriptPath = resolveScriptPath(request->getUri());
-	std::cout <<  "_scriptPath === " << _scriptPath << std::endl;
+	//std::cout <<  "_scriptPath === " << _scriptPath << std::endl;
 	_interpreter = findInterpreter();
-	std::cout <<  "_interpreter === " << _interpreter << std::endl;
+	//std::cout <<  "_interpreter === " << _interpreter << std::endl;
 	if (request->getMethod() == "POST") {
 		_postData = request->getBody();  // ← Get the actual POST data
-		std::cout << "POST data populated: " << _postData << std::endl;  // Debug
+		//std::cout << "POST data populated: " << _postData << std::endl;  // Debug
 	} else {
 		_postData = "";
 	}
@@ -165,7 +165,7 @@ std::string CGIhandler::execute()
 	close(outputPipe[1]);
 
 	// If it's a POST request, write the data into the input pipe
-	std::cout << "_request->getMethod() == " << _request->getMethod() << std::endl;
+	//std::cout << "_request->getMethod() == " << _request->getMethod() << std::endl;
 	if (_request->getMethod() == "POST" && !_postData.empty())
 	{
 		write(inputPipe[1], _postData.c_str(), _postData.length());
@@ -179,19 +179,19 @@ std::string CGIhandler::execute()
 	std::string output;
 	int readCount = 0;
 
-	std::cout << "Starting to read CGI output..." << std::endl;
+	//std::cout << "Starting to read CGI output..." << std::endl;
 
 	while ((bytesRead = read(outputPipe[0], buffer, sizeof(buffer) - 1)) > 0)
 	{
 		readCount++;
 		buffer[bytesRead] = '\0';
 		output += buffer;
-		std::cout << "Read iteration " << readCount << ": " << bytesRead << " bytes" << std::endl;
-		std::cout << "Buffer content: [" << buffer << "]" << std::endl;
+		//std::cout << "Read iteration " << readCount << ": " << bytesRead << " bytes" << std::endl;
+		//std::cout << "Buffer content: [" << buffer << "]" << std::endl;
 	}
 
-	std::cout << "Finished reading. Total length: " << output.length() << std::endl;
-	std::cout << "Final output: [" << output << "]" << std::endl;
+	//std::cout << "Finished reading. Total length: " << output.length() << std::endl;
+	//std::cout << "Final output: [" << output << "]" << std::endl;
 
 	close(outputPipe[0]);
 

@@ -1,9 +1,9 @@
 #include "../../includes/server/Server.hpp"
-#include "../../includes/methods/Get.hpp" // added to execute methods
-#include "../../includes/methods/Post.hpp" // added to execute methods
-#include "../../includes/methods/Delete.hpp" // added to execute methods
+#include "../../includes/methods/Get.hpp" 
+#include "../../includes/methods/Post.hpp" 
+#include "../../includes/methods/Delete.hpp" 
 #include <algorithm> // std::find
-#include <arpa/inet.h>  // Ajout de cet en-tête pour inet_addr
+#include <arpa/inet.h>  // inet_addr
 
 // Constructors
 Server::Server()
@@ -21,6 +21,7 @@ Server::Server()
 	, _timeout(DEFAULT_TIMEOUT)
 	, _keepAliveTimeout(DEFAULT_KEEP_ALIVE_TIMEOUT)
 {
+	// NGINX take all methods by default
 	_allowMethods.push_back("GET");
 	_allowMethods.push_back("POST");
 	_allowMethods.push_back("DELETE");
@@ -89,8 +90,8 @@ void    Server::createSocket() {
 				close(this->_socketFd);
 				throw Server::configError("Bind failed");
 		}
-		else
-				std::cout << "Bind Success" << std::endl;
+		//else
+				//std::cout << "Bind Success" << std::endl;
 }
 
 void    Server::configSocket() {
@@ -227,7 +228,7 @@ void Server::handleNewConnection()
 		return;
 	}
 
-	std::cout << "New client connection accepted: " << client_fd << std::endl;
+	//std::cout << "New client connection accepted: " << client_fd << std::endl;
 	this->_connexions.push_back(client_fd);
 	this->_connectionTimes[client_fd] = time(NULL); // Enregistrer le temps de connexion
 
@@ -301,12 +302,12 @@ void Server::executeMethods(Request& request, Response& response)
 	
 	if (method == "GET")
 	{
-		std::cout << "SEVER-GET" << std::endl;
+		//std::cout << "SEVER-GET" << std::endl;
 		exec = new Get();
 	}
 	else if (method == "POST")
 	{
-		std::cout << "SEVER-POST" << std::endl;
+		//std::cout << "SEVER-POST" << std::endl;
 		exec = new Post();
 	}
 
@@ -314,12 +315,12 @@ void Server::executeMethods(Request& request, Response& response)
 		exec = new Delete();
 	else
 	{
-		response.setStatus(405); //method not allowed
+		response.setStatus(405); 
 	}
 	if (exec)
 	{
 		exec->process(request, response, *this);
-		delete exec; // Free the memory allocated for the method?
+		delete exec; 
 	}
 }
 
@@ -327,9 +328,9 @@ void Server::removeAllConnexions() {
 	for (std::deque<int>::iterator it = _connexions.begin(); it != _connexions.end(); ++it) {
 		if (*it < 0) {
 			std::cerr << "Invalid file descriptor: " << *it << std::endl;
-			continue; // Skip invalid file descriptors
+			continue; 
 		}
-		std::cout << "Closing connection: " << *it << std::endl;
+		// std::cout << "Closing connection: " << *it << std::endl;
 		close(*it);
 	}
 	_connexions.clear();
@@ -342,9 +343,9 @@ Location* Server::getCurrentLocation(const std::string& path) {
 
     for (; it != _locations.end(); ++it) {
         std::string locationPath = it->getPath();
-        // Vérifie si le chemin de la requête commence par le chemin de la location
+        // check if the request path starts with the location path
         if (path.find(locationPath) == 0) {
-            // Garde la location avec le chemin le plus long qui correspond
+            // keep the location with the longest path that matches
             if (locationPath.length() > bestMatchLength) {
                 bestMatch = &(*it);
                 bestMatchLength = locationPath.length();
@@ -365,7 +366,7 @@ bool Server::isServerNameMatch(const std::string& hostHeader) const {
         host = host.substr(0, colonPos);
     }
     
-    // Vérification stricte
+		// strict check
     return host == _serverName;
 }
 

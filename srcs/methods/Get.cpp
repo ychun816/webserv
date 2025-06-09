@@ -110,7 +110,7 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 
 	// Vérifier d'abord si c'est un script CGI
 	if (checkIfCgi(filepath)) {
-		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
+		//std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
 		Request* requestPtr = new Request(request);
 		Server* serverPtr = new Server(server);
 		CGIhandler execCgi(requestPtr, serverPtr);
@@ -121,13 +121,13 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 			// Séparer les headers et le body de la sortie CGI
 			std::string sep = "\r\n\r\n";
 			size_t headerEnd = CGIoutput.find(sep);
-			std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+			//std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
 			if (headerEnd == std::string::npos) {
 				sep = "\n\n";
 				headerEnd = CGIoutput.find(sep);
-				std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+				//std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
 				if (headerEnd != std::string::npos) {
-					std::cout << "Header end position: " << headerEnd << std::endl;
+					//std::cout << "Header end position: " << headerEnd << std::endl;
 				}
 			}
 			if (headerEnd != std::string::npos) {
@@ -183,13 +183,13 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 
 		//delete requestPtr;
 		//delete serverPtr;
-		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
+		//std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
 		return;
 	}
 
 	// Si ce n'est pas un script CGI, traiter comme un fichier statique
 	std::ifstream file(filepath.c_str());
-	std::cout << filepath.c_str() << std::endl;
+	//std::cout << filepath.c_str() << std::endl;
 	if (!file.is_open()) {
 		std::cerr << RED << "Error opening file" << RESET << std::endl;
 		response.setStatus(404);
@@ -226,14 +226,14 @@ void Get::serveFile(Request& request, Response& response, Server& server)
 	std::map<std::string, std::string> headers;
 	headers["Content-Type"] = contentType;
 	response.setHeaders(headers);
-	std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
+	//std::cout << GREEN << "Fin de traitement fichier régulier" << RESET << std::endl;
 }
 
 void Get::serveDirectory(Request& request, Response& response, Server& server)
 {
 	struct stat buffer;
 	std::string indexFile = request.getAbspath();
-	std::cout << "indexFile : " << indexFile << std::endl;
+	//std::cout << "indexFile : " << indexFile << std::endl;
 
 	// Déterminer si l'autoindex est activé
 
@@ -261,7 +261,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		autoindex = loc->getAutoindex();
 	else
 		autoindex = server.getAutoIndex();
-	std::cout << "GET-autoindex : " << autoindex << std::endl;
+	//std::cout << "GET-autoindex : " << autoindex << std::endl;
 
 	// Vérifier si un fichier index.html existe
 	// std::cout << "server : " << server.getHost() << std::endl;
@@ -274,9 +274,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 		finalIndex = loc->getIndex();
 	if (stat((indexFile + "/" + finalIndex).c_str(), &buffer) == 0 && autoindex != "on")
 	{
-		std::cout << GREEN << "Index file found" << RESET << std::endl;
-
-		std::cout << "Final index file: " << finalIndex << std::endl;
+		//std::cout << GREEN << "Index file
 		std::ifstream file((indexFile + "/" + finalIndex).c_str());
 		if (!file.is_open())
 		{
@@ -298,9 +296,9 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	}
 	else if (autoindex == "on" && !request.getIsRedirection())
 	{
-		std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
+		//std::cout << GREEN << "Autoindex is on" << RESET << std::endl;
 		std::string dirPath = request.getAbspath();
-		std::cout << "Directory path: " << dirPath << std::endl;
+		//std::cout << "Directory path: " << dirPath << std::endl;
 		DIR* current = opendir(dirPath.c_str());
 		struct dirent *ent;
 
@@ -347,7 +345,7 @@ void Get::serveDirectory(Request& request, Response& response, Server& server)
 	}
 	else if (autoindex == "off")
 	{
-		std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
+		//std::cout << RED << "Directory listing not allowed" << RESET << std::endl;
 		request.fillResponse(response, 403, "<html><body><h1>403 Forbidden: Directory listing not allowed</h1></body></html>");
 		std::map<std::string, std::string> headers;
 		headers["Content-Type"] = "text/html";

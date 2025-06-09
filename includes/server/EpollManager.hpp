@@ -24,7 +24,8 @@ private:
     int _timeout;  
     std::map<int, std::string> _pending_responses;
 
-    
+    bool _keep_alive;
+
     EpollManager();
     
 

@@ -18,14 +18,14 @@ void Delete::execute(Request& request, Response& response, Server& server)
 
     if (getFileType(absPath) != TYPE_REGULAR_FILE) 
     {
-        std::cout << "Path not safe: " << absPath << std::endl;
+        //std::cout << "Path not safe: " << absPath << std::endl;
         response.setStatus(403);
         return;
     }
 
     if (std::remove(absPath.c_str()) != 0) 
     {
-        std::cout << "Failed to delete file: " << absPath << std::endl;
+        //std::cout << "Failed to delete file: " << absPath << std::endl;
         response.setStatus(500);
         return;
 

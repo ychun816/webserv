@@ -8,7 +8,7 @@
 
 EpollManager* EpollManager::_instance = NULL;
 
-EpollManager::EpollManager() : _epoll_fd(-1), _timeout(15) {
+EpollManager::EpollManager() : _epoll_fd(-1), _timeout(15), _keep_alive(false) {
 	initialize();
 }
 
@@ -20,7 +20,10 @@ EpollManager::~EpollManager() {
 
 EpollManager::EpollManager(const EpollManager&) {}
 
-EpollManager& EpollManager::operator=(const EpollManager&) { return *this; }
+EpollManager& EpollManager::operator=(const EpollManager&) { 
+	
+	return *this; 
+}
 
 EpollManager* EpollManager::getInstance() {
 	if (_instance == NULL) {
@@ -118,8 +121,8 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 						continue;
 					}
 
-					std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
-							  << " (fd:" << client_fd << ")" << std::endl;
+					//std::cout << "Nouvelle connexion acceptée sur serveur " << server_index
+							  //<< " (fd:" << client_fd << ")" << std::endl;
 
 					servers[server_index].addConnexion(client_fd);
 					addClientSocket(client_fd, server_index);
@@ -133,19 +136,19 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 						char buffer[8192];
 						int bytes_read = read(current_fd, buffer, sizeof(buffer));
 
-						if (bytes_read <= 0) {
-							std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
+						if (bytes_read < 0) {
+							// std::cout << "Erreur de lecture (fd:" << current_fd << ")" << std::endl;
 							close(current_fd);
 							removeSocket(current_fd);
 							servers[server_index].removeConnexion(current_fd);
-
-							if (incomplete_requests.find(current_fd) != incomplete_requests.end()) {
-								incomplete_requests.erase(current_fd);
-								expected_sizes.erase(current_fd);
-							}
-							if (pending_responses.find(current_fd) != pending_responses.end()) {
-								pending_responses.erase(current_fd);
-							}
+							continue;
+						} else if (bytes_read == 0 && !_keep_alive) {
+							// std::cout << "Client déconnecté (fd:" << current_fd << ")" << std::endl;
+							close(current_fd);
+							removeSocket(current_fd);
+							servers[server_index].removeConnexion(current_fd);
+							continue;
+						} else if (bytes_read == 0 && _keep_alive) {
 							continue;
 						}
 
@@ -188,7 +191,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 											size_t expected_total = body_start + content_length;
 											expected_sizes[current_fd] = expected_total;
 										}
-									} catch(...) {
+									} catch(const std::exception& e) {
 										expected_sizes[current_fd] = current_request.length();
 									}
 								}
@@ -198,7 +201,7 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 						}
 
 						if (current_request.length() >= expected_sizes[current_fd]) {
-							std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
+							//std::cout << "Traitement requête client sur serveur " << server_index << std::endl;
 
 							Request req(current_request, servers[server_index]);
 							if (req.isBodySizeValid()) {
@@ -209,10 +212,10 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 									close(current_fd);
 									removeSocket(current_fd);
 									servers[server_index].removeConnexion(current_fd);
-									std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
+									//std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
 								}
 								else {
-									std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
+									//std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
 								}
 							} else {
 								std::string error_response = "HTTP/1.1 413 Request Entity Too Large\r\n"
@@ -229,21 +232,39 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 
 					if (event_type & EPOLLOUT) {
 						if (pending_responses.find(current_fd) != pending_responses.end()) {
-							std::cout << "Sending response to client (fd:" << current_fd << ")" << std::endl;
 							std::string& response = pending_responses[current_fd];
 							int bytes_sent = send(current_fd, response.c_str(), response.size(), 0);
-							std::cout << "Bytes sent: " << bytes_sent << std::endl;
+							// std::cout << "Bytes sent: " << bytes_sent << std::endl;
 							if (bytes_sent > 0) {
 								response = response.substr(bytes_sent);
 								if (response.empty()) {
 									pending_responses.erase(current_fd);
+									// if (req.getHeader("Connection") != "keep-alive") {
+									// 	close(current_fd);
+									// 	removeSocket(current_fd);
+									// 	servers[server_index].removeConnexion(current_fd);
+									// }
 								}
+							} else if (bytes_sent < 0) {
+								close(current_fd);
+								removeSocket(current_fd);
+								servers[server_index].removeConnexion(current_fd);
+								pending_responses.erase(current_fd);
 							}
 						}
 					}
 				}
 			}
 		}
+
+		// Nettoyer les ressources avant de quitter
+		for (std::map<int, std::string>::iterator it = pending_responses.begin(); 
+			 it != pending_responses.end(); ++it) {
+			close(it->first);
+			removeSocket(it->first);
+			servers[_client_to_server_index[it->first]].removeConnexion(it->first);
+		}
+		pending_responses.clear();
 	}
 }
 

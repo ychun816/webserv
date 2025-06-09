@@ -190,6 +190,11 @@ void Config::findParameters(std::vector<std::string>::iterator& it, Server& serv
         std::string value;
         iss >> value;
         value = trim(value, " \t;");
+        for (std::vector<Server>::iterator it2 = _servers.begin(); it2 != _servers.end(); ++it2) {
+            if (it2->getPort() == atoi(value.c_str())) {
+                throw ConfigException("Port " + value + " is already in use by another server");
+            }
+        }
         server.setPort(atoi(value.c_str()));
     }
     else if (directive == "server_name")

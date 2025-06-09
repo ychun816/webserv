@@ -465,18 +465,20 @@ bool Request::isBodySizeValid() const {
 }
 
 bool Request::isMethodAllowed() const {
-	if (_currentLocation) {
-		std::vector<std::string> allowedMethods = _currentLocation->getMethods();
-		return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end() ;
-	}
+    if (_currentLocation) {
+        std::vector<std::string> allowedMethods = _currentLocation->getMethods();
+        // Si aucune méthode n'est spécifiée dans la location, utiliser les méthodes par défaut du serveur
+        if (allowedMethods.empty()) {
+            std::list<std::string> serverMethods = _server.getAllowMethods();
+            return std::find(serverMethods.begin(), serverMethods.end(), _method) != serverMethods.end();
+        }
+        return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end();
+    }
     else if (!_server.getAllowMethods().empty()) {
         std::list<std::string> allowedMethods = _server.getAllowMethods();
         return std::find(allowedMethods.begin(), allowedMethods.end(), _method) != allowedMethods.end();
     }
-    else {
-        // std::cout << "👻 No allowed methods defined" << std::endl;
-    }
-	return false;
+    return false;  // Si aucune méthode n'est spécifiée nulle part, toutes les méthodes sont interdites
 }
 
 bool Request::isContentLengthValid() const {

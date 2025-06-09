@@ -50,9 +50,9 @@ class AMethods
 			// std:: cout << "👻 in process BEFORE EVYTHING" << std::endl;
 			if (!checkPath(request, server, response))
 			{
-				std::cout << "uri : " << request.getUri() << std::endl;
-				std::cerr << "Path error" << std::endl;
-				std::cout << "Code d'erreur : " << response.getStatus() << std::endl;
+				//std::cout << "uri : " << request.getUri() << std::endl;
+				//std::cerr << "Path error" << std::endl;
+				//std::cout << "Code d'erreur : " << response.getStatus() << std::endl;
 				return ;
 			}
 			try

@@ -13,18 +13,18 @@ std::string readChunkedData(int client_fd) {
     size_t totalBytesRead = 0;
     int chunk_count = 0;
 
-    std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl; //DEBUG
-    std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
+   // std::cout << "\n=== DEBUT LECTURE CHUNKS ===" << std::endl; //DEBUG
+    //std::cout << "Client " << client_fd << " - Début lecture" << std::endl;
 
     while ((bytes_read = read(client_fd, buffer, BUFFER_SIZE)) > 0) {
         chunk_count++;
         completeData.append(buffer, bytes_read);
         totalBytesRead += bytes_read;
 
-        std::cout << "CHUNK #" << chunk_count
-                  << " | Taille: " << bytes_read
-                  << " bytes | Total: " << totalBytesRead 
-                  << " bytes" << std::endl;
+        //std::cout << "CHUNK #" << chunk_count
+        //          << " | Taille: " << bytes_read
+        //          << " bytes | Total: " << totalBytesRead 
+        //          << " bytes" << std::endl;
 
         if (totalBytesRead > MAX_REQUEST_SIZE) {
             std::cerr << "ERREUR: Requête trop grande: " << totalBytesRead << " bytes" << std::endl;
@@ -32,11 +32,11 @@ std::string readChunkedData(int client_fd) {
         }
     }
 
-    std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl; //DEBUG
-    std::cout << "Client " << client_fd
-              << " | Chunks: " << chunk_count
-              << " | Taille totale: " << totalBytesRead
-              << " bytes\n" << std::endl;
+    //std::cout << "=== FIN LECTURE CHUNKS ===" << std::endl; //DEBUG
+    //std::cout << "Client " << client_fd
+    //          << " | Chunks: " << chunk_count
+    //          << " | Taille totale: " << totalBytesRead
+    //          << " bytes\n" << std::endl;
 
     return completeData;
 }
@@ -133,7 +133,7 @@ void debugString(int code)
 
 void signalHandler(int signum) {
     if (signum == SIGINT || signum == SIGTERM) {
-        std::cout << "\n" << RED << "Signal reçu: " << signum << RESET << std::endl;
+        //std::cout << "\n" << RED << "Signal reçu: " << signum << RESET << std::endl;
         g_signal = signum;
         cleanupResources();
         exit(0);
@@ -159,15 +159,15 @@ void setupSignalHandler() {
 
 void cleanupResources() {
     // Freeing resources, closing sockets
-    std::cout << "Nettoyage des ressources..." << std::endl;
+    //std::cout << "Nettoyage des ressources..." << std::endl;
     Config* config = Config::getInstance();
     EpollManager* epollManager = EpollManager::getInstance();
     if (epollManager) {
-        std::cout << "Fermeture de l'instance EpollManager..." << std::endl;
+        //std::cout << "Fermeture de l'instance EpollManager..." << std::endl;
         delete epollManager;
     }
     if (config) {
-        std::cout << "Arrêt des serveurs..." << std::endl;
+        //std::cout << "Arrêt des serveurs..." << std::endl;
         config->stopServers();
         delete config; 
     }

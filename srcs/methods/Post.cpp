@@ -29,27 +29,27 @@ void Post::execute(Request& request, Response& response, Server& server)
 	std::string filepath = request.getAbspath();
 
 	if (checkIfCgi(filepath)) {
-		std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
+		//std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
 		Request* requestPtr = new Request(request);
 		Server* serverPtr = new Server(server);
 		CGIhandler execCgi(requestPtr, serverPtr);
 
 		try {
 			std::string CGIoutput = execCgi.execute();
-			std::cout << "=== DEBUG CGI PARSING ===" << std::endl;
-			std::cout << "CGI raw output length: " << CGIoutput.length() << std::endl;
-			std::cout << "CGI raw output: [" << CGIoutput << "]" << std::endl;
+			//std::cout << "=== DEBUG CGI PARSING ===" << std::endl;
+			//std::cout << "CGI raw output length: " << CGIoutput.length() << std::endl;
+			//std::cout << "CGI raw output: [" << CGIoutput << "]" << std::endl;
 
 			// Séparer les headers et le body de la sortie CGI
 			std::string sep = "\r\n\r\n";
 			size_t headerEnd = CGIoutput.find(sep);
-			std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+			//std::cout << "Looking for \\r\\n\\r\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
 			if (headerEnd == std::string::npos) {
 				sep = "\n\n";
 				headerEnd = CGIoutput.find(sep);
-				std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
+				//std::cout << "Looking for \\n\\n: " << (headerEnd != std::string::npos ? "FOUND" : "NOT FOUND") << std::endl;
 				if (headerEnd != std::string::npos) {
-					std::cout << "Header end position: " << headerEnd << std::endl;
+					//std::cout << "Header end position: " << headerEnd << std::endl;
 				}
 			}
 			if (headerEnd != std::string::npos) {
@@ -91,11 +91,11 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 				// Afficher TOUS les headers de réponse
 				std::map<std::string, std::string> respHeaders = response.getHeaders();
-				std::cout << "Response headers count: " << respHeaders.size() << std::endl;
+				//std::cout << "Response headers count: " << respHeaders.size() << std::endl;
 				for (std::map<std::string, std::string>::iterator it = respHeaders.begin(); it != respHeaders.end(); ++it) {
-					std::cout << "Response header: " << it->first << " = " << it->second << std::endl;
+					//std::cout << "Response header: " << it->first << " = " << it->second << std::endl;
 				}
-				std::cout << "=== END fillResponse DEBUG ===" << std::endl;
+				//std::cout << "=== END fillResponse DEBUG ===" << std::endl;
 
 			} else {
 				// Pas de headers séparés, essayer de détecter si c'est du HTML pur
@@ -122,7 +122,7 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 		//delete requestPtr;
 		//delete serverPtr;
-		std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
+		//std::cout << GREEN << "Fin Exec CGI" << RESET << std::endl;
 		return;
 	}
     if (!request.isBodySizeValid())

@@ -33,9 +33,9 @@ bool pathExist(Request& request, Server& server)
 {
 	struct stat buffer;
 	std::string root = server.getRoot();
-	std::cout << "ROOT : " << root << std::endl;
+	//std::cout << "ROOT : " << root << std::endl;
 	std::string path = request.getPath();
-	std::cout << "Path : " << path << std::endl;
+	//std::cout << "Path : " << path << std::endl;
 	std::string finalPath;
 	if (root.length() >= 2 && root.substr(0, 2) == "./") {
 		finalPath = root + path;
@@ -43,7 +43,7 @@ bool pathExist(Request& request, Server& server)
 		finalPath = "." + root + path;
 	}
 	request.setAbspath(normalizePath(finalPath));
-	std::cout << "Exist path : " << request.getAbspath() << std::endl;
+	//std::cout << "Exist path : " << request.getAbspath() << std::endl;
 	return (stat(request.getAbspath().c_str(), &buffer) == 0);
 }
 
@@ -109,14 +109,14 @@ bool AMethods::checkPath(Request& request, Server& server, Response& response)
 
 	if (!pathExist(request, server))
 	{
-			std::cout << "Path not found: " << request.getAbspath() << std::endl;
+		//std::cout << "Path not found: " << request.getAbspath() << std::endl;
 		response.setStatus(404);
 
 		return (false);
 	}
 	if (!isPathSafe(request.getAbspath()))
 	{
-		std::cout << "Path not safe: " << request.getAbspath() << std::endl;
+		//std::cout << "Path not safe: " << request.getAbspath() << std::endl;
 		response.setStatus(403);
 		return (false);
 	}
@@ -175,12 +175,12 @@ bool AMethods::checkIfCgi(std::string filepath)
 
 	size_t lastDot = filepath.find_last_of('.');
 	if (lastDot == std::string::npos){
-		std::cout << "No extension found" << std::endl;
+		//std::cout << "No extension found" << std::endl;
 		return (false);
 	}
 
 	std::string extension = filepath.substr(lastDot);
-	std::cout << "Extension found: " << extension << std::endl;
+	//std::cout << "Extension found: " << extension << std::endl;
 
 	// Convert to lowercase for comparison
 	for (size_t i = 0; i < extension.length(); i++)
@@ -190,21 +190,21 @@ bool AMethods::checkIfCgi(std::string filepath)
 	{
 		if (extension == cgiExt[i])
 		{
-            std::cout << "Extension matches CGI: " << extension << std::endl;
+            //std::cout << "Extension matches CGI: " << extension << std::endl;
 			
             // Check if the file exists
             struct stat file_stat;
             if (stat(filepath.c_str(), &file_stat) == 0) {
-                std::cout << "File exists and is regular" << std::endl;
+                //std::cout << "File exists and is regular" << std::endl;
                 if (S_ISREG(file_stat.st_mode)) {
-                    std::cout << "Confirmed as CGI script" << std::endl;
+                    //std::cout << "Confirmed as CGI script" << std::endl;
                     return true;
                 }
             } else {
-                std::cout << "File stat failed: " << strerror(errno) << std::endl;
+                //std::cout << "File stat failed: " << strerror(errno) << std::endl;
             }
         }
     }
-    std::cout << "Not a CGI script" << std::endl;
+    //std::cout << "Not a CGI script" << std::endl;
 	return false;
 }
