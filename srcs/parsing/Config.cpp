@@ -110,7 +110,7 @@ Location Config::parseLocation(const std::string& location, std::vector<std::str
             value = trim(value, " \t;");
             NewLocation.setAutoindex(value);
         }
-        else if (directive == "upload_path")
+        else if (directive == "upload_dir")
         {
             std::string value;
             iss >> value;

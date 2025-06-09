@@ -27,7 +27,6 @@ std::string Post::extractFileContent(std::string& rawBody) const
 void Post::execute(Request& request, Response& response, Server& server)
 {
 	std::string filepath = request.getAbspath();
-
 	if (checkIfCgi(filepath)) {
 		//std::cout << GREEN << "Exec CGI de script" << RESET << std::endl;
 		Request* requestPtr = new Request(request);
@@ -89,7 +88,6 @@ void Post::execute(Request& request, Response& response, Server& server)
 				// std::cout << "Response status: " << response.getStatus() << std::endl;
 				// std::cout << "Response body length: " << response.getBody().length() << std::endl;
 
-				// Afficher TOUS les headers de réponse
 				std::map<std::string, std::string> respHeaders = response.getHeaders();
 				//std::cout << "Response headers count: " << respHeaders.size() << std::endl;
 				for (std::map<std::string, std::string>::iterator it = respHeaders.begin(); it != respHeaders.end(); ++it) {
@@ -98,16 +96,16 @@ void Post::execute(Request& request, Response& response, Server& server)
 				//std::cout << "=== END fillResponse DEBUG ===" << std::endl;
 
 			} else {
-				// Pas de headers séparés, essayer de détecter si c'est du HTML pur
+				// No separate headers, try to detect if it's pure HTML
 				if (CGIoutput.find("<html>") != std::string::npos ||
 					CGIoutput.find("<!DOCTYPE") != std::string::npos) {
-					// C'est du HTML sans headers CGI
+					// CGI output is HTML, so we need to set the content type to text/html
 					std::map<std::string, std::string> headers;
 					headers["Content-Type"] = "text/html";
 					request.fillResponse(response, 200, CGIoutput);
 					response.setHeaders(headers);
 				} else {
-					// Traiter comme sortie brute avec headers par défaut
+					// CGI output is not HTML, so we need to set the content type to text/plain
 					std::map<std::string, std::string> headers;
 					headers["Content-Type"] = "text/plain";
 					response.setHeaders(headers);
@@ -145,6 +143,9 @@ void Post::execute(Request& request, Response& response, Server& server)
 
 	    Location* _currentLocation = server.getCurrentLocation(request.getPath());
         uploadPath = "." + server.getRoot() + _currentLocation->getUploadPath();
+		//std::cout << "uploadPath: " << uploadPath << std::endl;
+		//std::cout << "server.getRoot(): " << server.getRoot() << std::endl;
+		//std::cout << "_currentLocation->getUploadPath(): " << _currentLocation->getUploadPath() << std::endl;
         if (uploadPath.empty())
         {
             response.setStatus(400);
