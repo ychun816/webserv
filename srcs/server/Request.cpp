@@ -98,6 +98,7 @@ void Request::handleResponse()
     Config* config = Config::getInstance();
     if (config) {
         Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
+        
         if (appropriateServer) {
             _server = *appropriateServer;
         } else {

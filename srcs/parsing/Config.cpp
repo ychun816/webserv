@@ -469,22 +469,31 @@ Server* Config::findServerByLocation(const std::string& path, int port)
 Server* Config::findServerByHost(const std::string& host, int port) {
     Server* defaultServer = NULL;
     
+    // First find the default server for this port
     for (std::vector<Server>::iterator it = _servers.begin(); it != _servers.end(); ++it) {
-        // Vérifie d'abord si le port correspond
         if (it->getPort() == port) {
-            // Si c'est le premier serveur trouvé pour ce port, on le garde comme serveur par défaut
             if (!defaultServer) {
                 defaultServer = &(*it);
             }
             
-            // Vérifie si le server_name correspond
-            if (it->getServerName() == host) {
+            if (it->getServerName() != host) {
+                return NULL;
+            }
+
+            std::string hostname = host;
+            size_t colonPos = hostname.find(':');
+            if (colonPos != std::string::npos) {
+                hostname = hostname.substr(0, colonPos);
+            }
+            
+            // Check for exact server_name match
+            if (it->getServerName() == hostname) {
                 return &(*it);
             }
         }
     }
     
-    // Si aucun serveur ne correspond exactement, retourne le serveur par défaut
+    // Return default server for this port if no exact match
     return defaultServer;
 }
 
