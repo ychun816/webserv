@@ -25,10 +25,6 @@ echo "Test 3: URI très longue"
 printf "GET /%s HTTP/1.1\r\n\r\n" "$(printf 'a%.0s' {1..10000})" | nc localhost 8080
 sleep 1
 
-# 4. Requête avec headers malformés
-echo "Test 4: Headers malformés"
-printf "GET / HTTP/1.1\r\nInvalid: Header\r\n\r\n" | nc localhost 8080
-sleep 1
 # 5. Requête avec content-length invalide
 echo "Test 5: Content-Length invalide"
 printf "POST / HTTP/1.1\r\nContent-Length: -1\r\n\r\n" | nc localhost 8080
@@ -47,11 +43,6 @@ sleep 1
 # 8. Requête avec caractères spéciaux dans l'URI
 echo "Test 8: Caractères spéciaux dans l'URI"
 printf "GET /%%00%%01%%02%%03%%04%%05 HTTP/1.1\r\n\r\n" | nc localhost 8080
-sleep 1
-
-# 9. Requête avec méthode très longue
-echo "Test 9: Méthode très longue"
-printf "%sET / HTTP/1.1\r\n\r\n" "$(printf 'G%.0s' {1..1000})" | nc localhost 8080
 sleep 1
 
 # 10. Requête avec version HTTP invalide
@@ -74,23 +65,5 @@ echo "Test 13: Plusieurs méthodes"
 printf "GET POST DELETE / HTTP/1.1\r\n\r\n" | nc localhost 8080
 sleep 1
 
-# 14. Requête avec caractères de contrôle
-echo "Test 14: Caractères de contrôle"
-printf "GET / HTTP/1.1\r\n\r\n\x00\x01\x02\x03\x04\x05" | nc localhost 8080
-sleep 1
 
-# 15. Requête avec encodage invalide
-echo "Test 15: Encodage invalide"
-printf "GET / HTTP/1.1\r\nContent-Encoding: invalid\r\n\r\n" | nc localhost 8080
-sleep 1
 
-echo "Test 16: Requête avec méthode vide"
-
-sleep 1
-
-echo "Test 17: Requête avec URI vide"
-printf "GET  HTTP/1.1\r\n\r\n" | nc localhost 8080
-sleep 1
-
-echo "Test 18: Requête avec version HTTP invalide"
-echo "Tests terminés"

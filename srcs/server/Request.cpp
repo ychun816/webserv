@@ -65,6 +65,7 @@ Request::Request(std::string request, Server& server) :
 Request::~Request()
 {
     _server.setRoot(_originalRoot);
+    // std::cout << "Response:" << _response.getResponse() << std::endl;
 }
 
 void Request::handleResponse()

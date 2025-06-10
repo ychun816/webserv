@@ -209,12 +209,14 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 								pending_responses[current_fd] = req.getResponse();
 
 								if (req.getHeader("Connection") != "keep-alive") {
-									close(current_fd);
-									removeSocket(current_fd);
-									servers[server_index].removeConnexion(current_fd);
+									_keep_alive_connections[current_fd] = false;
+									// close(current_fd);
+									// removeSocket(current_fd);
+									// servers[server_index].removeConnexion(current_fd);
 									//std::cout << "Connection closed for client (fd:" << current_fd << ")" << std::endl;
 								}
 								else {
+									_keep_alive_connections[current_fd] = true;
 									//std::cout << "Connection kept alive for client (fd:" << current_fd << ")" << std::endl;
 								}
 							} else {
@@ -239,11 +241,21 @@ void EpollManager::processEvents(std::vector<Server>& servers) {
 								response = response.substr(bytes_sent);
 								if (response.empty()) {
 									pending_responses.erase(current_fd);
-									// if (req.getHeader("Connection") != "keep-alive") {
-									// 	close(current_fd);
-									// 	removeSocket(current_fd);
-									// 	servers[server_index].removeConnexion(current_fd);
-									// }
+									if (_keep_alive_connections.find(current_fd) != _keep_alive_connections.end() && 
+										!_keep_alive_connections[current_fd]) {
+										close(current_fd);
+										removeSocket(current_fd);
+										servers[server_index].removeConnexion(current_fd);
+										_keep_alive_connections.erase(current_fd);
+									} else {
+										// Reinitialize connection time
+										_connection_times[current_fd] = time(NULL);
+									}
+										// if (req.getHeader("Connection") != "keep-alive") {
+										// 	close(current_fd);
+										// 	removeSocket(current_fd);
+										// 	servers[server_index].removeConnexion(current_fd);
+										// }
 								}
 							} else if (bytes_sent < 0) {
 								close(current_fd);

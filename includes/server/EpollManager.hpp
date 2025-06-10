@@ -25,7 +25,9 @@ private:
     std::map<int, std::string> _pending_responses;
 
     bool _keep_alive;
-
+    
+    std::map<int, bool> _keep_alive_connections;
+    
     EpollManager();
     
 
