@@ -476,14 +476,16 @@ Server* Config::findServerByHost(const std::string& host, int port) {
                 defaultServer = &(*it);
             }
             
-            if (it->getServerName() != host) {
-                return NULL;
-            }
-
+            
+            
             std::string hostname = host;
             size_t colonPos = hostname.find(':');
             if (colonPos != std::string::npos) {
                 hostname = hostname.substr(0, colonPos);
+            }
+            // std::cout << "Checking server: " << it->getServerName() << " for host: " << host << std::endl;
+            if (it->getServerName() != hostname) {
+                return NULL;
             }
             
             // Check for exact server_name match

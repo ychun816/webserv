@@ -97,6 +97,7 @@ void Request::handleResponse()
 
     Config* config = Config::getInstance();
     if (config) {
+        // std::cout << "👻 Host header: " << hostHeader << std::endl;
         Server* appropriateServer = config->findServerByHost(hostHeader, _server.getPort());
         
         if (appropriateServer) {
@@ -143,6 +144,7 @@ void Request::handleResponse()
         return;
     }
     debugString(response.getStatus());
+    // std::cout << " RESPONSE: " << response.getResponse() << std::endl;
     _response = response;
 }
 
