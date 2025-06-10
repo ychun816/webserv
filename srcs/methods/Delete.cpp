@@ -22,7 +22,6 @@ void Delete::execute(Request& request, Response& response, Server& server)
         response.setStatus(403);
         return;
     }
-
     if (std::remove(absPath.c_str()) != 0) 
     {
         //std::cout << "Failed to delete file: " << absPath << std::endl;

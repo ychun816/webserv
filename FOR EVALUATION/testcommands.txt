@@ -13,3 +13,7 @@ curl -X POST -d "username=test&password=123" http://localhost:8080/cgi-bin/post.
 bad http version : curl -v --http1.0 -H "Connection: close" http://localhost:8080/
 
 https://nginx.org/en/docs/http/server_names.html
+
+curl -v -H "Host: getlucky" http://127.0.0.1:8080/
+
+curl -X DELETE http://localhost:8080/chemin/vers/ressource

@@ -16,11 +16,19 @@ server {
         client_max_body_size 10M;
 
     }
+    
+    location /user_upload {
+        methods DELETE GET;
+        client_max_body_size 10M;
+    
+        autoindex on;
+    }
 
     location /upload {
-        methods GET POST;
+        methods GET POST ;
         upload_dir /user_upload;
         client_max_body_size 10M;
+    
         autoindex on;
     }
 
