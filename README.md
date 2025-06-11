@@ -274,13 +274,4 @@ curl http://localhost:8080
 
   Runs a high-concurrency benchmark (255 clients for 1 minute) to assess server performance under load.
 
----
-
-### 📚 Reference
-
-* **Nginx Server Name Configuration**
-
-  * [Nginx Server Names Documentation](https://nginx.org/en/docs/http/server_names.html)
-    Useful for configuring and understanding virtual hosting.
-
 
