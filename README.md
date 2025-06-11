@@ -205,10 +205,6 @@ curl http://localhost:8080
 | Portability            | POSIX standard (widely supported) | POSIX standard (widely supported)      | Linux only                                       |
 
 
----
-
-### 📘 Explanation
-
 * `select()` uses a bitmask to track FDs. You must reinitialize it every loop, and it scales poorly with many connections.
 * `poll()` uses an array of structures, allowing more flexibility, but still rechecks all FDs each time.
 * `epoll()` is designed for high-performance servers. It maintains an internal kernel list of interested FDs and only returns those ready, making it highly scalable.
@@ -235,7 +231,6 @@ curl http://localhost:8080
 
 
 ### Usage in Web Server
-
 - `read()` / `recv()` used to receive HTTP requests from clients  
 - `write()` / `send()` used to send HTTP responses back  
 - Must check return values (`0` = connection closed, `-1` = error) and handle `errno` properly  
