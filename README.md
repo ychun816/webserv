@@ -217,7 +217,6 @@ curl http://localhost:8080
 
 ### 📥 2. Explanation: `read()`, `recv()`, `write()`, `send()`
 
-```
 ## read / recv / write / send
 
 | Function        | Description                                   | Usage Context          | Special Features / Notes                       |
@@ -227,14 +226,13 @@ curl http://localhost:8080
 | `write()`       | Writes raw bytes to a file descriptor          | General (files, sockets, pipes, etc.) | Returns number of bytes written (may be partial) |
 | `send()`        | Writes to a socket, similar to `write()`      | Sockets only          | Supports flags like `MSG_NOSIGNAL`             |
 
-
 | 函式           | 功能說明                                     | 使用場合               | 特殊功能 / 備註                                  |
 |----------------|--------------------------------------------|------------------------|-------------------------------------------------|
 | `read()`       | 從檔案描述符讀取原始位元資料                  | 通用（檔案、socket、管線等） | 簡單，可阻塞或非阻塞 I/O                            |
 | `recv()`       | 從 socket 讀取資料，類似 `read()`             | 只用於 socket           | 支援 `MSG_PEEK`、`MSG_WAITALL` 等旗標                 |
 | `write()`      | 將原始資料寫入檔案描述符                       | 通用（檔案、socket、管線等） | 回傳實際寫入位元數，可能是部分寫入                      |
 | `send()`       | 將資料寫入 socket，類似 `write()`              | 只用於 socket           | 支援 `MSG_NOSIGNAL` 等旗標                             |
-```
+
 
 ### Usage in Web Server
 
