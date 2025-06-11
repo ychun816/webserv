@@ -1,4 +1,5 @@
-# Webserv - Serveur HTTP en C++98
+# Webserv - Serveur HTTP en C++98 ♫⋆｡♪ [![Spotify](https://img.shields.io/badge/Listen_on-Spotify-1DB954?style=for-the-badge&logo=spotify)](https://open.spotify.com/track/69kOkLUCkxIZYexIgSG8rq)
+
 ![Screenshot from 2025-06-11 16-30-04](https://github.com/user-attachments/assets/4839e8e7-7f47-4046-b392-467a044e9a60)
 
 
@@ -67,16 +68,16 @@ server {
 - [x] Gestion des headers
 
 ### 3. Fonctionnalités Core
-- [ ] Gestion des méthodes HTTP (GET, POST, DELETE)
-- [ ] Gestion des fichiers statiques
-- [ ] Configuration dynamique
-- [ ] Pages d'erreur
+- [x] Gestion des méthodes HTTP (GET, POST, DELETE)
+- [x] Gestion des fichiers statiques
+- [x] Configuration dynamique
+- [x] Pages d'erreur
 
 ### 4. Fonctionnalités Avancées
-- [ ] Support CGI
-- [ ] Upload de fichiers
-- [ ] Directory listing
-- [ ] Redirections
+- [x] Support CGI
+- [x] Upload de fichiers
+- [x] Directory listing
+- [x] Redirections
 
 ## 🧪 Tests
 Pour tester le serveur:
@@ -117,3 +118,120 @@ curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt
 
 test sans methode : echo -e " / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080
 stress test siege :  siege -b -c 255 -t1M http://127.0.0.1:8080/
+
+## 🧪 TEST COMMANDS (WITH EXPLAINS)
+
+
+---
+
+### 🌐 Basic HTTP Request Tests
+
+* **Raw HTTP Request via Netcat**
+
+  ```bash
+  echo -e "GET / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080
+  ```
+
+  Sends a minimal HTTP GET request manually to inspect raw response behavior.
+
+* **Basic Netcat Connection**
+
+  ```bash
+  nc localhost 8080
+  ```
+
+  Establishes a plain TCP connection to test server responsiveness.
+
+* **Netcat with Timeout**
+
+  ```bash
+  nc -i 5 localhost 8080
+  ```
+
+  Similar to the above, with a 5-second interval between lines to simulate slow clients.
+
+---
+
+### 🧷 POST and DELETE Method Tests
+
+* **POST Request with Form Data**
+
+  ```bash
+  curl -X POST -d "username=test&password=123" http://localhost:8080/cgi-bin/post.py
+  ```
+
+  Tests server's ability to handle POST requests and form data processing.
+
+* **DELETE Request Simulation**
+
+  ```bash
+  curl -X DELETE http://localhost:8080/chemin/vers/ressource
+  ```
+
+  Verifies support for the DELETE HTTP method, often used in RESTful APIs.
+
+---
+
+### 📁 File Creation & Download
+
+* **Generate a Large Test File**
+
+  ```bash
+  dd if=/dev/zero of=large_file.txt bs=11M count=10
+  ```
+
+  Creates a 110MB dummy file for upload and download testing.
+
+* **Download File Using `curl`**
+
+  ```bash
+  curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt
+  ```
+
+  Verifies file downloading capability from the server.
+
+---
+
+### 🔐 HTTP Protocol Variants & Headers
+
+* **Force HTTP/1.0 with Connection Close**
+
+  ```bash
+  curl -v --http1.0 -H "Connection: close" http://localhost:8080/
+  ```
+
+  Checks server compatibility with legacy HTTP/1.0 and explicit connection closure.
+
+* **Custom Host Header**
+
+  ```bash
+  curl -v -H "Host: getlucky" http://127.0.0.1:8080/
+  ```
+
+  Tests virtual hosting by specifying a non-default Host header.
+
+---
+
+### 🔁 Load & Stress Testing
+
+* **Siege Stress Test**
+
+  ```bash
+  siege -b -c 255 -t1M http://127.0.0.1:8080/
+  ```
+
+  Runs a high-concurrency benchmark (255 clients for 1 minute) to assess server performance under load.
+
+---
+
+### 📚 Reference
+
+* **Nginx Server Name Configuration**
+
+  * [Nginx Server Names Documentation](https://nginx.org/en/docs/http/server_names.html)
+    Useful for configuring and understanding virtual hosting.
+
+
+
+
+
