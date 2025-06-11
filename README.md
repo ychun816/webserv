@@ -123,6 +123,26 @@ curl http://localhost:8080
 ```
 ---
 
+### 🔐 HTTP Protocol Variants & Headers
+
+* **Force HTTP/1.0 with Connection Close**
+
+  ```bash
+  curl -v --http1.0 -H "Connection: close" http://localhost:8080/
+  ```
+
+  Checks server compatibility with legacy HTTP/1.0 and explicit connection closure.
+
+* **Custom Host Header**
+
+  ```bash
+  curl -v -H "Host: getlucky" http://127.0.0.1:8080/
+  ```
+
+  Tests virtual hosting by specifying a non-default Host header.
+
+---
+
 ### 🌐 Basic HTTP Request Tests
 
 * **Raw HTTP Request via Netcat**
@@ -151,27 +171,7 @@ curl http://localhost:8080
 
 ---
 
-### 🧷 POST and DELETE Method Tests
-
-* **POST Request with Form Data**
-
-  ```bash
-  curl -X POST -d "username=test&password=123" http://localhost:8080/cgi-bin/post.py
-  ```
-
-  Tests server's ability to handle POST requests and form data processing.
-
-* **DELETE Request Simulation**
-
-  ```bash
-  curl -X DELETE http://localhost:8080/chemin/vers/ressource
-  ```
-
-  Verifies support for the DELETE HTTP method, often used in RESTful APIs.
-
----
-
-### 📁 File Creation & Download
+### 📁 Create File with assigned size/quantity
 
 * **Generate a Large Test File**
 
@@ -191,23 +191,23 @@ curl http://localhost:8080
 
 ---
 
-### 🔐 HTTP Protocol Variants & Headers
+### 🧷 POST/DELETE Method Tests
 
-* **Force HTTP/1.0 with Connection Close**
-
-  ```bash
-  curl -v --http1.0 -H "Connection: close" http://localhost:8080/
-  ```
-
-  Checks server compatibility with legacy HTTP/1.0 and explicit connection closure.
-
-* **Custom Host Header**
+* **POST Request with Form Data**
 
   ```bash
-  curl -v -H "Host: getlucky" http://127.0.0.1:8080/
+  curl -X POST -d "username=test&password=123" http://localhost:8080/cgi-bin/post.py
   ```
 
-  Tests virtual hosting by specifying a non-default Host header.
+  Tests server's ability to handle POST requests and form data processing.
+
+* **DELETE Request Simulation**
+
+  ```bash
+  curl -X DELETE http://localhost:8080/chemin/vers/ressource
+  ```
+
+  Verifies support for the DELETE HTTP method, often used in RESTful APIs.
 
 ---
 
@@ -229,8 +229,5 @@ curl http://localhost:8080
 
   * [Nginx Server Names Documentation](https://nginx.org/en/docs/http/server_names.html)
     Useful for configuring and understanding virtual hosting.
-
-
-
 
 
