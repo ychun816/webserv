@@ -79,19 +79,6 @@ server {
 - [x] Directory listing
 - [x] Redirections
 
-## 🧪 Tests
-Pour tester le serveur:
-```bash
-# Démarrer le serveur
-./webserv [config_file]
-
-# Test basique avec curl
-curl http://localhost:8080
-
-# Test avec un navigateur
-# Ouvrez http://localhost:8080 dans votre navigateur
-```
-
 ## 📚 Documentation Utile
 - [RFC 2616 (HTTP/1.1)](https://tools.ietf.org/html/rfc2616)
 - [Documentation NGINX](https://nginx.org/en/docs/)
@@ -119,9 +106,21 @@ curl -v -o downloaded_file.txt http://localhost:8080/upload/large_file.txt
 test sans methode : echo -e " / HTTP/1.1\r\nHost: localhost:8080\r\n\r\n" | nc localhost 8080
 stress test siege :  siege -b -c 255 -t1M http://127.0.0.1:8080/
 
+---
+
 ## 🧪 TEST COMMANDS (WITH EXPLAINS)
 
+### Pour tester le serveur (To launch):
+```bash
+# Démarrer le serveur
+./webserv [config_file]
 
+# Test basique avec curl
+curl http://localhost:8080
+
+# Test avec un navigateur
+# Ouvrez http://localhost:8080 dans votre navigateur
+```
 ---
 
 ### 🌐 Basic HTTP Request Tests
