@@ -194,7 +194,7 @@ curl http://localhost:8080
 
 ### 📊 1. Comparison : `select()` vs `poll()` vs `epoll()`
 
-```
+
 | Feature                | `select()`                        | `poll()`                               | `epoll()` (Linux Only)                           |
 | ---------------------- | --------------------------------- | -------------------------------------- | ------------------------------------------------ |
 | Max FD limit           | 1024 (FD\_SETSIZE)                | No hard limit (based on system memory) | No hard limit                                    |
@@ -203,7 +203,7 @@ curl http://localhost:8080
 | Edge/Level Triggered   | Level-triggered only              | Level-triggered only                   | Supports both edge-triggered and level-triggered |
 | Modifying FDs          | Rebuild entire set each time      | Rebuild entire array each time         | Add/remove/mod via `epoll_ctl()`                 |
 | Portability            | POSIX standard (widely supported) | POSIX standard (widely supported)      | Linux only                                       |
-```
+
 
 ---
 
