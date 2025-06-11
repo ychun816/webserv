@@ -1,5 +1,6 @@
 # Webserv - Serveur HTTP en C++98
-![Screenshot from 2025-06-11 16-29-01](https://github.com/user-attachments/assets/02049863-ac51-4032-9e0a-ff29e3d5e71d)
+![Screenshot from 2025-06-11 16-30-04](https://github.com/user-attachments/assets/4839e8e7-7f47-4046-b392-467a044e9a60)
+
 
 ## 📝 Description
 Implémentation d'un serveur HTTP en C++98 capable de gérer des requêtes web de manière non bloquante, similaire à NGINX.
