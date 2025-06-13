@@ -108,7 +108,6 @@ stress test siege :  siege -b -c 255 -t1M http://127.0.0.1:8080/
 
 ---
 
-
 ### Pour tester le serveur (To launch):
 ```bash
 # Démarrer le serveur
@@ -121,6 +120,55 @@ curl http://localhost:8080
 # Ouvrez http://localhost:8080 dans votre navigateur
 ```
 ---
+
+##  📘 SOME IMPORTANT LEARNING POINTS
+
+### 📊 1. Comparison : `select()` vs `poll()` vs `epoll()`
+
+
+| Feature                | `select()`                        | `poll()`                               | `epoll()` (Linux Only)                           |
+| ---------------------- | --------------------------------- | -------------------------------------- | ------------------------------------------------ |
+| Max FD limit           | 1024 (FD\_SETSIZE)                | No hard limit (based on system memory) | No hard limit                                    |
+| FD representation      | Bitmask (`fd_set`)                | Array of `pollfd` structs              | Kernel-managed event list                        |
+| Performance (many FDs) | Poor (linear scan)                | Better than `select()`                 | Excellent (O(1) with `epoll_wait`)               |
+| Edge/Level Triggered   | Level-triggered only              | Level-triggered only                   | Supports both edge-triggered and level-triggered |
+| Modifying FDs          | Rebuild entire set each time      | Rebuild entire array each time         | Add/remove/mod via `epoll_ctl()`                 |
+| Portability            | POSIX standard (widely supported) | POSIX standard (widely supported)      | Linux only                                       |
+
+
+* `select()` uses a bitmask to track FDs. You must reinitialize it every loop, and it scales poorly with many connections.
+* `poll()` uses an array of structures, allowing more flexibility, but still rechecks all FDs each time.
+* `epoll()` is designed for high-performance servers. It maintains an internal kernel list of interested FDs and only returns those ready, making it highly scalable.
+
+---
+
+### 📥 2. Explanation: `read()`, `recv()`, `write()`, `send()`
+
+## read / recv / write / send
+
+| Function        | Description                                   | Usage Context          | Special Features / Notes                       |
+|-----------------|-----------------------------------------------|-----------------------|-----------------------------------------------|
+| `read()`        | Reads raw bytes from a file descriptor        | General (files, sockets, pipes, etc.) | Simple, blocking or non-blocking I/O           |
+| `recv()`        | Reads from a socket, similar to `read()`      | Sockets only          | Supports flags like `MSG_PEEK`, `MSG_WAITALL` |
+| `write()`       | Writes raw bytes to a file descriptor          | General (files, sockets, pipes, etc.) | Returns number of bytes written (may be partial) |
+| `send()`        | Writes to a socket, similar to `write()`      | Sockets only          | Supports flags like `MSG_NOSIGNAL`             |
+
+| 函式           | 功能說明                                     | 使用場合               | 特殊功能 / 備註                                  |
+|----------------|--------------------------------------------|------------------------|-------------------------------------------------|
+| `read()`       | 從檔案描述符讀取原始位元資料                  | 通用（檔案、socket、管線等） | 簡單，可阻塞或非阻塞 I/O                            |
+| `recv()`       | 從 socket 讀取資料，類似 `read()`             | 只用於 socket           | 支援 `MSG_PEEK`、`MSG_WAITALL` 等旗標                 |
+| `write()`      | 將原始資料寫入檔案描述符                       | 通用（檔案、socket、管線等） | 回傳實際寫入位元數，可能是部分寫入                      |
+| `send()`       | 將資料寫入 socket，類似 `write()`              | 只用於 socket           | 支援 `MSG_NOSIGNAL` 等旗標                             |
+
+
+### Usage in Web Server
+- `read()` / `recv()` used to receive HTTP requests from clients  
+- `write()` / `send()` used to send HTTP responses back  
+- Must check return values (`0` = connection closed, `-1` = error) and handle `errno` properly  
+
+---
+
+## 🧪 TEST COMMANDS (WITH EXPLAINS)
 
 ### 🔐 HTTP Protocol Variants & Headers
 
@@ -189,55 +237,6 @@ curl http://localhost:8080
   Verifies file downloading capability from the server.
 
 ---
-
-##  📘 SOME IMPORTANT LEARNING POINTS
-
-### 📊 1. Comparison : `select()` vs `poll()` vs `epoll()`
-
-
-| Feature                | `select()`                        | `poll()`                               | `epoll()` (Linux Only)                           |
-| ---------------------- | --------------------------------- | -------------------------------------- | ------------------------------------------------ |
-| Max FD limit           | 1024 (FD\_SETSIZE)                | No hard limit (based on system memory) | No hard limit                                    |
-| FD representation      | Bitmask (`fd_set`)                | Array of `pollfd` structs              | Kernel-managed event list                        |
-| Performance (many FDs) | Poor (linear scan)                | Better than `select()`                 | Excellent (O(1) with `epoll_wait`)               |
-| Edge/Level Triggered   | Level-triggered only              | Level-triggered only                   | Supports both edge-triggered and level-triggered |
-| Modifying FDs          | Rebuild entire set each time      | Rebuild entire array each time         | Add/remove/mod via `epoll_ctl()`                 |
-| Portability            | POSIX standard (widely supported) | POSIX standard (widely supported)      | Linux only                                       |
-
-
-* `select()` uses a bitmask to track FDs. You must reinitialize it every loop, and it scales poorly with many connections.
-* `poll()` uses an array of structures, allowing more flexibility, but still rechecks all FDs each time.
-* `epoll()` is designed for high-performance servers. It maintains an internal kernel list of interested FDs and only returns those ready, making it highly scalable.
-
----
-
-### 📥 2. Explanation: `read()`, `recv()`, `write()`, `send()`
-
-## read / recv / write / send
-
-| Function        | Description                                   | Usage Context          | Special Features / Notes                       |
-|-----------------|-----------------------------------------------|-----------------------|-----------------------------------------------|
-| `read()`        | Reads raw bytes from a file descriptor        | General (files, sockets, pipes, etc.) | Simple, blocking or non-blocking I/O           |
-| `recv()`        | Reads from a socket, similar to `read()`      | Sockets only          | Supports flags like `MSG_PEEK`, `MSG_WAITALL` |
-| `write()`       | Writes raw bytes to a file descriptor          | General (files, sockets, pipes, etc.) | Returns number of bytes written (may be partial) |
-| `send()`        | Writes to a socket, similar to `write()`      | Sockets only          | Supports flags like `MSG_NOSIGNAL`             |
-
-| 函式           | 功能說明                                     | 使用場合               | 特殊功能 / 備註                                  |
-|----------------|--------------------------------------------|------------------------|-------------------------------------------------|
-| `read()`       | 從檔案描述符讀取原始位元資料                  | 通用（檔案、socket、管線等） | 簡單，可阻塞或非阻塞 I/O                            |
-| `recv()`       | 從 socket 讀取資料，類似 `read()`             | 只用於 socket           | 支援 `MSG_PEEK`、`MSG_WAITALL` 等旗標                 |
-| `write()`      | 將原始資料寫入檔案描述符                       | 通用（檔案、socket、管線等） | 回傳實際寫入位元數，可能是部分寫入                      |
-| `send()`       | 將資料寫入 socket，類似 `write()`              | 只用於 socket           | 支援 `MSG_NOSIGNAL` 等旗標                             |
-
-
-### Usage in Web Server
-- `read()` / `recv()` used to receive HTTP requests from clients  
-- `write()` / `send()` used to send HTTP responses back  
-- Must check return values (`0` = connection closed, `-1` = error) and handle `errno` properly  
-
----
-
-## 🧪 TEST COMMANDS (WITH EXPLAINS)
 
 ### 🧷 POST/DELETE Method Tests
 
