@@ -1,11 +1,13 @@
 # 🌐 Webserv - HTTP Server in C++98  ♫  [![Spotify](https://img.shields.io/badge/Listen_on-Spotify-1DB954?style=for-the-badge&logo=spotify)](https://open.spotify.com/track/69kOkLUCkxIZYexIgSG8rq)
 
 <p align="center">
-  
 - Team: [Get Lucky](https://github.com/CrystxlSith/webserv)
 - Contributors: [CrystxlSith](https://github.com/CrystxlSith) / [Canybardeloton](https://github.com/Canybardeloton) / [ychun816](https://github.com/ychun816)
 - French Original Notes: [CrystxlSith/webserv](https://github.com/CrystxlSith/webserv) 
+</p>
 
+<p align="center">
+  
 ![Screenshot from 2025-06-11 16-30-04](https://github.com/user-attachments/assets/4839e8e7-7f47-4046-b392-467a044e9a60)
 
 </p>
