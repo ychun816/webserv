@@ -33,7 +33,7 @@
   - [High-Level Architecture](#High-Level-Architecture)
   - [Request Processing Flow](#Request-Processing-Flow)
   - [Event Loop Flow - I/O Multiplexing](#Event-Loop-Flow)
-  - [CGI Execution Flow](#CGI Execution Flow)
+  - [CGI Execution Flow](#CGI-Execution-Flow)
 - [Usage](#usage)
 - [Development Phases](#development-phases)
   - [Phase 1: Foundation](#phase-1-foundation)
@@ -389,7 +389,7 @@ CLIENT REQUEST                    WEBSERV PROCESSING
 
 ### Event Loop Flow 
 
-#### I/O Multiplexing
+> I/O Multiplexing
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
