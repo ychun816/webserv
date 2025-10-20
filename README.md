@@ -29,6 +29,11 @@
 - [Installation & Setup](#installation--setup)
 - [Project Structure](#project-structure)
 - [Configuration](#configuration)
+- [Server Architecture & Workflow](#Server-Architecture-&-Workflow)
+  - [High-Level Architecture](#High-Level-Architecture)
+  - [Request Processing Flow](#Request-Processing-Flow)
+  - [Event Loop Flow - I/O Multiplexing](#Event-Loop-Flow)
+  - [CGI Execution Flow](#CGI Execution Flow)
 - [Usage](#usage)
 - [Development Phases](#development-phases)
   - [Phase 1: Foundation](#phase-1-foundation)
@@ -382,7 +387,9 @@ CLIENT REQUEST                    WEBSERV PROCESSING
 
 ---
 
-### Event Loop (I/O Multiplexing) Flow
+### Event Loop Flow 
+
+#### I/O Multiplexing
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
