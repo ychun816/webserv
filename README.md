@@ -892,9 +892,4 @@ Modern HTTP benchmarking tool: 4 threads, 200 connections, 30 seconds duration.
 - [Apache Bench (ab)](https://httpd.apache.org/docs/2.4/programs/ab.html)
 - [wrk - Modern HTTP Benchmarking](https://github.com/wg/wrk)
 
----
-
-<p align="center">
-  <i>Built with ❤️ for 42 School</i>
-</p>
 
